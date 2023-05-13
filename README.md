@@ -1,2 +1,2 @@
 # bkm-api
-Api for manage cash flow
+Api for manage Badan Keswadayaan Masyarakat (BKM) cash flow
