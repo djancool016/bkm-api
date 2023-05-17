@@ -1,0 +1,39 @@
+[
+    {
+        "id": 1,
+        "code": "AP",
+        "description": "angsuran pinjaman"
+    },{
+        "id": 2,
+        "code": "RP",
+        "description": "realisasi pinjaman"
+    },{
+        "id": 3,
+        "code": "BOP",
+        "description": "tabungan/BOP"
+    },{
+        "id": 4,
+        "code": "BP",
+        "description": "bunga pinjaman"
+    },{
+        "id": 5,
+        "code": "PT",
+        "description": "pengeluaran tetap"
+    },{
+        "id": 6,
+        "code": "PS",
+        "description": "pengeluaran sosial"
+    },{
+        "id": 7,
+        "code": "BB",
+        "description": "buku bank"
+    },{
+        "id": 8,
+        "code": "ML",
+        "description": "pemasukan lainnya"
+    },{
+        "id": 9,
+        "code": "KL",
+        "description": "pengeluaran lainnya"
+    }
+]

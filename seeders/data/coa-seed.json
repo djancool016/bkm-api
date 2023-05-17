@@ -1,0 +1,138 @@
+[
+    {
+        "id": 1,
+        "id_register": 1,
+        "id_account": 1,
+        "description": "Ansuran Pokok"
+    },{
+        "id": 2,
+        "id_register": 1,
+        "id_account": 4,
+        "description": "Bunga Pinjaman"
+    },{
+        "id": 3,
+        "id_register": 1,
+        "id_account": 9,
+        "description": "Bunga Bank"
+    },{
+        "id": 4,
+        "id_register": 1,
+        "id_account": 8,
+        "description": "Pemasukan Lain"
+    },{
+        "id": 5,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Insentif Pengrurus dan Pengawas"
+    },{
+        "id": 6,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Honor Sekretaris, UPK dan Kebersihan Kantor"
+    },{
+        "id": 7,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Lembur Petugas Pembukuan UPK"
+    },{
+        "id": 8,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Belanja Kantor"
+    },{
+        "id": 9,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Belanja Rumah Tangga"
+    },{
+        "id": 10,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Biaya Rapat"
+    },{
+        "id": 11,
+        "id_register": 2,
+        "id_account": 3,
+        "description": "BOP KSM"
+    },{
+        "id": 12,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Biaya Administrasi dan Pajak Bank"
+    },{
+        "id": 13,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Biaya Pemeriksaan"
+    },{
+        "id": 14,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Biaya RWT"
+    },{
+        "id": 15,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Cadangan Resiko Kredit"
+    },{
+        "id": 16,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Perawatan Gedung/Kantor"
+    },{
+        "id": 17,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Pemeliharaan Barang Inventaris"
+    },{
+        "id": 18,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Akumulasi Penyusutan"
+    },{
+        "id": 19,
+        "id_register": 2,
+        "id_account": 6,
+        "description": "Dana Sosial"
+    },{
+        "id": 20,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Tunjangan Hari Raya"
+    },{
+        "id": 21,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Pembelian Seragam"
+    },{
+        "id": 22,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Bantuan Kesehatan Tenaga Harian"
+    },{
+        "id": 23,
+        "id_register": 2,
+        "id_account": 5,
+        "description": "Pendampingan Sistem Komputer"
+    },{
+        "id": 24,
+        "id_register": 2,
+        "id_account": 9,
+        "description": "Pengeluaran Lain"
+    },{
+        "id": 25,
+        "id_register": 2,
+        "id_account": 2,
+        "description": "Realisasi Pinjaman"
+    },{
+        "id": 26,
+        "id_register": 3,
+        "id_account": 7,
+        "description": "Setoran Kas ke Bank"
+    },{
+        "id": 27,
+        "id_register": 3,
+        "id_account": 7,
+        "description": "Tarik Tunai Bank ke Kas"
+    }
+]

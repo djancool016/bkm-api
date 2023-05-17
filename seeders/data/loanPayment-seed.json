@@ -1,0 +1,93 @@
+[
+    {
+        "id_loan": 1,
+        "payment_no": 1,
+        "due_date": "2021-02-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 2,
+        "due_date": "2021-03-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 3,
+        "due_date": "2021-04-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 4,
+        "due_date": "2021-05-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 5,
+        "due_date": "2021-06-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 6,
+        "due_date": "2021-07-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 7,
+        "due_date": "2021-08-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 8,
+        "due_date": "2021-09-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 9,
+        "due_date": "2021-10-01",
+        "loan": 2916700,
+        "loan_remaining": 2916700,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    },{
+        "id_loan": 1,
+        "payment_no": 10,
+        "due_date": "2021-11-01",
+        "loan": 2916300,
+        "loan_remaining": 2916300,
+        "interest": 507500,
+        "interest_remaining": 507500,
+        "is_settled": 0
+    }
+]

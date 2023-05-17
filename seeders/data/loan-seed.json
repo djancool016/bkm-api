@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "id_ksm": 1,
+        "total_loan": 35000000,
+        "total_interest": 6090000,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "loan_start": "2021-01-01",
+        "loan_end": "2021-11-01",
+        "is_valid": 0,
+        "is_finish": 0
+    }
+]
