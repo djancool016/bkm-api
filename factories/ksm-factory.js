@@ -17,6 +17,10 @@ class KsmModel extends BaseModel {
         this.query.where = {rw: rw}
         return this.findAll()
     }
+    findLatestOne(){
+        this.query.order = [['created_at','DESC']]
+        return this.findOne()
+    }
 }
 
 class KsmFactory {
@@ -37,7 +41,7 @@ class KsmFactory {
         })
     }
 
-    async read({id, name, rw}){
+    async read({id, name, rw, findLatest = false}){
 
         if(id){
             return await this.model.findByPk(id)
@@ -47,8 +51,11 @@ class KsmFactory {
 
         }else if(rw){
             return await this.model.findByKsmRw(rw)
-        }
-        else {
+
+        }else if(findLatest){
+            return await this.model.findLatestOne()
+
+        }else {
             return await this.model.findAll()
         }
     }

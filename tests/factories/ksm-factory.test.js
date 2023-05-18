@@ -9,8 +9,6 @@ describe('Testing base factory', () => {
         let output = {code: 201, status: true}
 
         test('Create', async() => {
-            // recreate table
-            await model.Ksm.sync({force: true})
 
             let input = await factory.create({id_lkm: 1, name: 'TestKsm', rw: 5})
             expect(input).toEqual(expect.objectContaining(output))
@@ -28,20 +26,21 @@ describe('Testing base factory', () => {
         })
 
         test('Find By PK', async() => {
-
-            let input = await factory.read({id: 1})
+            let {data:{id}} = await factory.read({findLatest: true})
+            let input = await factory.read({id: id})
             expect(input).toEqual(expect.objectContaining(output))
         })
 
         test('Update', async() => {
-
-            let input = await factory.update({id: 1, name: 'TestKsm2', rw: 6})
+            let {data:{id}} = await factory.read({findLatest: true})
+            let input = await factory.update({id: id, name: 'TestKsm2', rw: 6})
             expect(input).toEqual(expect.objectContaining(output))
         })
 
         test('Delete', async() => {
 
-            let input = await factory.delete(1)
+            let {data:{id}} = await factory.read({findLatest: true})
+            let input = await factory.delete(id)
             expect(input).toEqual(expect.objectContaining(output))
         })
     })
