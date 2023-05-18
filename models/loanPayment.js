@@ -23,9 +23,9 @@ module.exports = (sequelize, DataTypes) => {
         id_loan: DataTypes.INTEGER,
         payment_no: DataTypes.INTEGER,
         due_date: DataTypes.DATEONLY,
-        loan: DataTypes.INTEGER,
+        loan_full: DataTypes.INTEGER,
         loan_remaining: DataTypes.INTEGER,
-        interest: DataTypes.INTEGER,
+        interest_full: DataTypes.INTEGER,
         interest_remaining: DataTypes.INTEGER,
         is_settled: DataTypes.BOOLEAN
     }, {

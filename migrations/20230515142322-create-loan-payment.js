@@ -25,7 +25,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATEONLY
             },
-            loan: {
+            loan_full: {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },
@@ -33,7 +33,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },
-            interest: {
+            interest_full: {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },

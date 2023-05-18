@@ -42,7 +42,16 @@ class BaseModel {
         return sequelizeGetRequest(this.model.findOne(query))
     }
     async create(obj){
-        return sequelizePostRequest(this.model.create(obj), "Create Successfull", 201)
+        try {
+            let result = await this.model.create(obj)
+            console.log(result)
+            if(result.id) return new StatusLogger({code: 201, message: "Create Successfull"}).log
+            return new StatusLogger({code: 404}).log
+        } catch (error) {
+            if(error.message.includes('datatype mismatch')) return new StatusLogger({code: 400}).log
+            console.log(error)
+            return new StatusLogger({code: 500}).log
+        }
     }
     async update(obj, id){
         try {
@@ -56,7 +65,15 @@ class BaseModel {
         }
     }
     async delete(id){
-        return sequelizePostRequest(this.model.destroy({where: {id: id}, returning: true}), "Delete Successfull", 200)
+        try {
+            let result = await this.model.destroy({where: {id: id}, returning: true})
+            if(result) return new StatusLogger({code: 200, message: "Delete Successfull"}).log
+            return new StatusLogger({code: 404}).log
+        } catch (error) {
+            if(error.message.includes('datatype mismatch')) return new StatusLogger({code: 400}).log
+            console.log(error)
+            return new StatusLogger({code: 500}).log
+        }
     }
 }
 
