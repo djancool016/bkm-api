@@ -7,7 +7,22 @@ class CoaModel extends BaseModel {
     constructor(){
         super()
         this.model = model.Coa
-        this.query = {}
+        this.query = {
+            attributes: ['id', 'description'],
+            include: [
+                {
+                    model: model.Register,
+                    as: 'register',
+                    attributes: ['id', 'code', 'description']
+                },
+                {
+                    model: model.Account,
+                    as: 'account',
+                    attributes: ['id', 'code', 'counter', 'description']
+                }
+            ]
+        }
+
     }
     findByRegister(id_register){
         this.query.where = {id_register: id_register}

@@ -51,10 +51,11 @@ class AccountFactory{
         }
     }
 
-    async update({id, code, description}){
+    async update({id, code, description, counter}){
         return await this.model.update({
             code: code,
-            description: description
+            description: description,
+            counter: counter
         }, id)
     }
 

@@ -1,5 +1,4 @@
 const {AccountFactory} = require('../../factories/account-factory')
-const model = require('../../models')
 const factory = new AccountFactory()
 
 describe('Testing base factory', () => {
