@@ -1,3 +1,5 @@
+const {DateFormat} = require('./dateFormat')
+
 function titleCase(str) {
     return str.toLowerCase().split(' ').map(function(word) {
         return word.replace(word[0], word[0].toUpperCase());
@@ -13,4 +15,9 @@ function filterKeys(allowed, object){
         }, {})
 }
 
-module.exports = {titleCase, filterKeys}
+function dateToCode(date){
+    let d = new DateFormat(date).toISOString(isTime = false)
+    return d.replace(/-/g, "").slice(2)
+}
+
+module.exports = {titleCase, filterKeys, dateToCode}
