@@ -5,10 +5,10 @@ const obj = JSON.parse(fs.readFileSync('seeders/data/transaction-seed.json', 'ut
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    //await queryInterface.bulkInsert('Transaction', obj, {});
+    await queryInterface.bulkInsert('Transaction', obj, {});
   },
 
   async down (queryInterface, Sequelize) {
-    //await queryInterface.bulkDelete('Transaction', null, {});
+    await queryInterface.bulkDelete('Transaction', null, {});
   }
 };

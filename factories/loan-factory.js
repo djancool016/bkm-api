@@ -32,15 +32,15 @@ class LoanFactory {
         this.ksm = new KsmFactory()
     }
 
-    async create({id_ksm, total_loan, loan_duration, loan_interest, loan_start}){
+    async create({id_ksm, total_loan, loan_duration, loan_interest}){
 
-        if(!id_ksm || !total_loan || !loan_duration || !loan_interest || !loan_start){
+        if(!id_ksm || !total_loan || !loan_duration || !loan_interest){
             return new StatusLogger({code: 400}).log
         }
 
         // validate ksm
-        let{data} = this.ksm.read({id_ksm: id_ksm})
-        if(!data) return new StatusLogger({code: 404, message: "Ksm not found"})
+        let {data} = await this.ksm.read({id_ksm: id_ksm})
+        if(!data) return new StatusLogger({code: 404, message: "Ksm not found"}).log
 
         // build loan object
         let total_interest = calculateInterest(total_loan, loan_interest,loan_duration)
@@ -56,6 +56,7 @@ class LoanFactory {
     }
 
     async read({id, ksm_name, findLatest = false}){
+
         if(id){
             return await this.model.findByPk(id)
         }else if(ksm_name){
@@ -69,10 +70,18 @@ class LoanFactory {
 
     async update({id, id_ksm, total_loan, loan_duration, loan_interest}){
 
-        let validator = loanValidator(this.model, id)
+        // validate loan
+        let validator = await loanValidator(await this.read({id: id}))
         if(validator.status == false) return validator
 
-        let total_interest = calculateInterest(total_loan, loan_interest,loan_duration)
+        let total_interest
+        if(total_loan){
+            loan_duration = loan_duration? loan_duration : validator?.data?.loan_duration
+            loan_interest = loan_interest? loan_interest : validator?.data?.loan_interest
+            if(!loan_duration || !loan_interest) return new StatusLogger({code: 400}).log
+            total_interest = calculateInterest(total_loan, loan_interest, loan_duration)
+        }
+        
         let loan = {
             id_ksm,
             total_loan,
@@ -84,9 +93,10 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
 
-    async validateLoan(id, start_date = new Date()){
+    async loanApproval(id, start_date = new Date()){
 
-        let validator = loanValidator(this.model, id)
+        // validate loan
+        let validator = await loanValidator(await this.read({id: id}), true)
         if(validator.status == false) return validator
 
         let {loan_duration} = validator.data
@@ -102,7 +112,8 @@ class LoanFactory {
     
     async paidOff(id){
 
-        let validator = loanValidator(this.model, id)
+        // validate loan
+        let validator = await loanValidator(await this.read({id: id}), true)
         if(validator.status == false) return validator
 
         let loan = {
@@ -113,7 +124,8 @@ class LoanFactory {
 
     async delete(id){
 
-        let validator = loanValidator(this.model, id)
+        // validate loan
+        let validator = await loanValidator(await this.read({id: id}))
         if(validator.status == false) return validator
 
         return await this.model.delete(id)
@@ -121,29 +133,34 @@ class LoanFactory {
 }
 
 function calculateDuration(loan_start, loan_duration){
-    loan_start = new DateFormat(loan_start).toISOString(false)
     let loan_end = new DateFormat(loan_start)
-    loan_end.addMonths = loan_duration
-    loan_end.toISOString(false)
+    loan_end.addMonths = Number(loan_duration)
+    loan_end = loan_end.toISOString(false)
+
+    loan_start = new DateFormat(loan_start).toISOString(false)
 
     return {loan_start, loan_end}
 }
 
 function calculateInterest(total_loan, loan_interest, loan_duration){
     let monthly_interest = total_loan * loan_interest / 100
-    return monthly_interest * loan_duration
+    // rounded up to 100
+    let rounded_interest = Math.ceil(monthly_interest / 100) * 100
+    return rounded_interest * loan_duration
 }
 
-function loanValidator(model, id){
-    let {data, status} = model.read(id)
+async function loanValidator({data, status}, skipProgression = false){
 
     if(status == false) {
-        return new StatusLogger({code: 404, message: 'Loan not found'})
+        return new StatusLogger({code: 404, message: 'Loan not found'}).log
     }
-    if(data?.is_valid || data?.is_finish) {
-        return new StatusLogger({code: 400, message: 'Loan is in progress or already finish'})
+    if(skipProgression){
+        return new DataLogger({data}).log
     }
-    return new DataLogger({data})
+    if(data?.is_valid || data?.is_finish){
+        return new StatusLogger({code: 400, message: 'Loan is in progress or already finish'}).log
+    }
+    return new DataLogger({data}).log
 }
 
 module.exports = { LoanFactory }

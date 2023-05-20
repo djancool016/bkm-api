@@ -34,11 +34,11 @@ module.exports = {
                 type: Sequelize.DOUBLE
             },
             loan_start: {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.DATE
             },
             loan_end: {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.DATE
             },
             is_valid: {
