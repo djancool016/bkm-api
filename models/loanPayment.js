@@ -32,8 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         modelName: 'LoanPayment',
         underscored: true,
-        freezeTableName: true,
-        paranoid: true
+        freezeTableName: true
     });
     return LoanPayment;
 };

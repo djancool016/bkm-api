@@ -73,6 +73,18 @@ class BaseModel {
             return new StatusLogger({code: 500}).log
         }
     }
+    async bulkDelete(newQuery = {}){
+        try {
+            newQuery.returning = true
+            let result = await this.model.destroy(newQuery)
+            if(result) return new StatusLogger({code: 200, message: "Delete Successfull"}).log
+            return new StatusLogger({code: 404}).log
+        } catch (error) {
+            if(error.message.includes('datatype mismatch')) return new StatusLogger({code: 400}).log
+            console.log(error)
+            return new StatusLogger({code: 500}).log
+        }
+    }
 }
 
 module.exports = { BaseModel }

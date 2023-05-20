@@ -1,70 +1,42 @@
 const {LoanPaymentFactory} = require('../../factories/loanPayment-factory')
+const {LoanFactory} = require('../../factories/loan-factory')
 const factory = new LoanPaymentFactory()
+const loanFactory = new LoanFactory()
 
 describe('Testing LoanPaymentFactory', () => {
-
-    // Input for testing
-    // let {data:{id}} = await factory.read({findLatest: true})
-    let create = 1
-    let update = {}
 
     describe('=> Code 201', () => {
 
         let output = {code: 201, status: true}
 
-        test('Create', async() => {
-            let input = await factory.create(create)
+        test('Bulk Create', async() => {
+            let {data:{is_valid}} = await loanFactory.read({id: 1})
+            if(is_valid == 0) await loanFactory.loanApproval(1)
+
+            let input = await factory.create(1)
             expect(input).toEqual(expect.objectContaining(output))
         })
     })
 
-    // describe('=> Code 200', () => {
+    describe('=> Code 200', () => {
 
-    //     let output = {code: 200, status: true}
+        let output = {code: 200, status: true}
 
-    //     test('Find All', async() => {
-    //         let input = await factory.read({})
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    //     test('Find By PK', async() => {
-    //         let input = await factory.read({id: id})
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    //     test('Update', async() => {
-    //         let input = await factory.update(update)
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    //     test('Delete', async() => {
-    //         let input = await factory.delete(id)
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    // })
-
-    // describe('=> Code 400', () => {
-
-    //     let output = {code: 400, status: false}
-
-    //     test('Create', async() => {
-    //         let input = await factory.create({})
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    // })
-
-    // describe('=> Code 404', () => {
-
-    //     let output = {code: 404, status: false}
-
-    //     test('Find By PK', async() => {
-    //         let input = await factory.read({id: 4321})
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    //     test('Update', async() => {
-    //         let input = await factory.update({id: 4321})
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    //     test('Delete', async() => {
-    //         let input = await factory.delete(4321)
-    //         expect(input).toEqual(expect.objectContaining(output))
-    //     })
-    // })
+        test('Find By Loan ID', async() => {
+            let input = await factory.read({id_loan: 1})
+            expect(input).toEqual(expect.objectContaining(output))
+        })
+        test('Pay Loan', async() => {
+            let input = await factory.update({id_loan: 1, pay_loan: 3000000})
+            expect(input).toEqual(expect.objectContaining(output))
+        })
+        test('Pay Interest', async() => {
+            let input = await factory.update({id_loan: 1, pay_interest: 1000000})
+            expect(input).toEqual(expect.objectContaining(output))
+        })
+        test('Bulk Delete', async() => {
+            let input = await factory.delete(1)
+            expect(input).toEqual(expect.objectContaining(output))
+        })
+    })
 })
