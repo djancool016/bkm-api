@@ -40,6 +40,17 @@ class BaseModel {
             return new StatusLogger({code: 500}).log
         }
     }
+    async bulkCreate(arr){
+        try {
+            let result = await this.model.bulkCreate(arr)
+            if(result) return new StatusLogger({code: 201, message: "Create Successfull"}).log
+            return new StatusLogger({code: 404}).log
+        } catch (error) {
+            if(error.message.includes('datatype mismatch')) return new StatusLogger({code: 400}).log
+            console.log(error)
+            return new StatusLogger({code: 500}).log
+        }
+    }
     async update(obj, id){
         try {
             let result = await this.model.update(obj, {where: {id: id}, returning: true })

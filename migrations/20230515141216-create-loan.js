@@ -35,11 +35,11 @@ module.exports = {
             },
             loan_start: {
                 allowNull: true,
-                type: Sequelize.DATE
+                type: Sequelize.DATEONLY
             },
             loan_end: {
                 allowNull: true,
-                type: Sequelize.DATE
+                type: Sequelize.DATEONLY
             },
             is_valid: {
                 allowNull: false,
