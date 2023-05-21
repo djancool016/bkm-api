@@ -11,12 +11,6 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.belongsTo(models.Ksm, {
-                foreignKey: 'id_ksm',
-                as: 'ksm',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
-            }),
             this.belongsTo(models.Loan, {
                 foreignKey: 'id_loan',
                 as: 'loan',
@@ -32,7 +26,6 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     TransactionLoan.init({
-        id_ksm: DataTypes.INTEGER,
         id_loan: DataTypes.INTEGER,
         id_transaction: DataTypes.INTEGER
     }, {

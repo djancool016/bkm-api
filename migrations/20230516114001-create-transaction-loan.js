@@ -9,14 +9,6 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            id_ksm: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'Ksm',
-                    key: 'id'
-                }
-            },
             id_loan: {
                 allowNull: false,
                 type: Sequelize.INTEGER,
