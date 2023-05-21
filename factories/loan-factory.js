@@ -64,7 +64,7 @@ class LoanFactory {
         }else if(findLatest){
             return await this.model.findLatestOne()
         }else {
-            return await this.model.findAll()
+            return new StatusLogger({code: 404, message:'Loan not found'}).log
         }
     }
 

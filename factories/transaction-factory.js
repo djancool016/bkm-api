@@ -1,5 +1,7 @@
 const {BaseModel} = require('./base-factory')
 const {CoaFactory} = require('./coa-factory')
+const {LoanFactory} = require('./loan-factory')
+const {TransactionLoanFactory} = require('./transactionLoan-factory')
 const {AccountFactory} = require('./account-factory')
 const {StatusLogger, DateFormat} = require('../utils')
 const model = require('../models')
@@ -63,17 +65,20 @@ class TransactionFactory {
     constructor(){
         this.model = new TransactionModel()
         this.coa = new CoaFactory()
+        this.loan = new LoanFactory()
         this.account = new AccountFactory()
+        this.transactionLoan = new TransactionLoanFactory()
     }
 
-    async create({id_coa, total, remark, trans_date}){
+    async create({id_coa, id_loan, total, remark, trans_date}){
 
-        // check not null input
+        // validate not null input
         if(!total || !id_coa) return new StatusLogger({code: 400}).log
 
         // validate coa
-        let{data:{account, description}} = await this.coa.read({id: id_coa})
-        if(!account) return new StatusLogger({code: 404, message:"COA not found"}).log
+        let coa = await this.coa.read({id: id_coa})
+        let {data:{account, description}} = coa
+        if(coa.status == false) return coa
 
         // build transaction object
         trans_date = new DateFormat(trans_date).toISOString(false) || new DateFormat().toISOString(false)
@@ -88,12 +93,43 @@ class TransactionFactory {
             total: total,
             remark: remark || description,
         }
-        let updateCounter = await this.account.update({
-            id: account.id, 
-            counter: counter
-        })
-        if(updateCounter.status) return await this.model.create(transaction)
-        return updateCounter
+
+        // update counter
+        let updateCounter = () => {
+            return this.account.update({id: account.id, counter: counter})
+        }
+
+        switch(id_coa){
+            // case 1 = Loan Payment transaction
+            case 1:
+                return updateCounter()
+                .then(result => {
+                    if(result.status == false) return result
+                    return this.loan.read({id: id_loan})
+                })
+                .then(result => {
+                    if(result.status == false) return result
+                    return this.model.create(transaction)
+                })
+                .then(result => {
+                    if(result.status == false) return result
+                    return this.transactionLoan.create({id_loan, id_transaction: result.data.id})
+                })
+                .catch(error => {
+                    console.log(error)
+                    return new StatusLogger({code: 500, message: 'Failed to save transaction loan'})
+                })
+            default:
+                return updateCounter()
+                .then(result => {
+                    if(result.status == false) return result
+                    return this.model.create(transaction)
+                })
+                .catch(error => {
+                    console.log(error)
+                    return new StatusLogger({code: 500, message: 'Failed to save transaction loan'})
+                })
+        }
     }
 
     async read({id, id_coa, id_account, id_register, trans_code, findLatest = false}){
@@ -111,7 +147,7 @@ class TransactionFactory {
         }else if(findLatest){
             return await this.model.findLatestOne()
         }else {
-            return await this.model.findByLkm(1)
+            return new StatusLogger({code: 404, message: 'Transaction not found'})
         }
     }
 

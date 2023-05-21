@@ -1,5 +1,4 @@
 const {BaseModel} = require('./base-factory')
-const {TransactionFactory} = require('./transaction-factory')
 const {LoanFactory} = require('./loan-factory')
 const {StatusLogger, DateFormat} = require('../utils')
 const model = require('../models')
@@ -44,17 +43,10 @@ class TransactionLoanFactory {
     constructor(){
         this.model = new TransactionLoan()
         this.loan = new LoanFactory()
-        this.transaction = new TransactionFactory()
     }
 
     async create({id_loan, id_transaction}){
         if(!id_loan || !id_transaction) return new StatusLogger({code:400}).log
-
-        let loan = await this.loan.read({id: id_loan})
-        let transaction = await this.transaction.read({id: id_transaction})
-
-        if(loan.status == false) return loan
-        if(transaction.status == false) return transaction
 
         return await this.model.create({
             id_loan,
