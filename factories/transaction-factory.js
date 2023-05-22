@@ -147,7 +147,7 @@ class TransactionFactory {
         }else if(findLatest){
             return await this.model.findLatestOne()
         }else {
-            return new StatusLogger({code: 404, message: 'Transaction not found'})
+            return new StatusLogger({code: 404, message: 'Transaction not found'}).log
         }
     }
 
@@ -171,7 +171,7 @@ class TransactionFactory {
         return await this.model.update(transaction, id)
     }
 
-    async delete(id){
+    async delete({id}){
         return await this.model.delete(id)
     }
 }

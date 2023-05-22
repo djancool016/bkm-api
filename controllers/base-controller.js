@@ -59,6 +59,16 @@ class RequestValidator {
                     }
                 }
             }
+            // boolean validator
+            if (key == 'boolean'){
+                for(let [k, v] of Object.entries(filteredKey)){
+                    if(v == 1 || v == 0) return true
+                    if(typeof(v) != 'boolean'){
+                        this.message = `${v} is not a boolean`
+                        return false
+                    }
+                }
+            }
             // date validator
             else if (key == 'date'){
                 for(let [k, v] of Object.entries(filteredKey)){
@@ -83,9 +93,7 @@ class RequestValidator {
 
     get sendResponse(){
         // if request key and value is valid return nothing, else stop all request then send error response
-        let result = this.validate
-        if(result.status) return
-        return this.res.status(result.status).json(result)
+        return this.validate
     }
 }
 

@@ -1,25 +1,24 @@
 const {BaseController, RequestValidator} = require('./base-controller')
-const {TransactionFactory} = require('../factories/transaction-factory')
-const factory = new TransactionFactory
+const {LkmFactory} = require('../factories/lkm-factory')
+const factory = new LkmFactory
 
-function createTransaction(req, res){
+function createLkm(req, res){
 
     let allowedKey = {
-        integer: ['id_loan', 'id_lkm', 'id_coa', 'total'],
-        string: ['remark'],
-        date: ['trans_date']
+        string: ['id_kelurahan', 'name', 'phone', 'address']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     let controller = new BaseController(req, res, factory.create(req.body))
-    
+
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function readTransaction(req, res){
+
+function readLkm(req, res){
 
     let allowedKey = {
-        integer: ['id', 'id_coa', 'id_account', 'id_register'],
-        string: ['trans_code'],
+        integer: ['id'],
+        string: ['name'],
         boolean: ['findLatest']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
@@ -28,12 +27,12 @@ function readTransaction(req, res){
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function updateTransaction(req, res){
+
+function updateLkm(req, res){
 
     let allowedKey = {
-        integer: ['id', 'id_coa', 'total'],
-        date: ['trans_date'],
-        string: ['remark']
+        integer: ['id'],
+        string: ['id_kelurahan', 'name', 'phone', 'address']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     let controller = new BaseController(req, res, factory.update(req.body))
@@ -41,7 +40,8 @@ function updateTransaction(req, res){
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function deleteTransaction(req, res){
+
+function deleteLkm(req, res){
     let allowedKey = {
         integer: ['id']
     }
@@ -53,8 +53,8 @@ function deleteTransaction(req, res){
 }
 
 module.exports = {
-    create: createTransaction,
-    read: readTransaction,
-    update: updateTransaction,
-    delete: deleteTransaction
+    create: createLkm,
+    read: readLkm,
+    update: updateLkm,
+    delete: deleteLkm
 }

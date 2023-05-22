@@ -1,26 +1,26 @@
 const {BaseController, RequestValidator} = require('./base-controller')
-const {TransactionFactory} = require('../factories/transaction-factory')
-const factory = new TransactionFactory
+const {KsmFactory} = require('../factories/ksm-factory')
+const factory = new KsmFactory
 
-function createTransaction(req, res){
+function createKsm(req, res){
 
     let allowedKey = {
-        integer: ['id_loan', 'id_lkm', 'id_coa', 'total'],
-        string: ['remark'],
-        date: ['trans_date']
+        integer: ['id_lkm', 'rw'],
+        string: ['name']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     let controller = new BaseController(req, res, factory.create(req.body))
-    
+
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function readTransaction(req, res){
+
+function readKsm(req, res){
 
     let allowedKey = {
-        integer: ['id', 'id_coa', 'id_account', 'id_register'],
-        string: ['trans_code'],
-        boolean: ['findLatest']
+        integer: ['id','id_lkm'],
+        boolean: ['findLatest'],
+        string: ['name']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     let controller = new BaseController(req, res, factory.read(req.body))
@@ -28,12 +28,12 @@ function readTransaction(req, res){
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function updateTransaction(req, res){
+
+function updateKsm(req, res){
 
     let allowedKey = {
-        integer: ['id', 'id_coa', 'total'],
-        date: ['trans_date'],
-        string: ['remark']
+        integer: ['id','id_lkm','rw'],
+        string: ['name']
     }
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     let controller = new BaseController(req, res, factory.update(req.body))
@@ -41,7 +41,8 @@ function updateTransaction(req, res){
     if(validator.status) return controller.sendRequest()
     return res.status(validator.code).json(validator)
 }
-function deleteTransaction(req, res){
+
+function deleteKsm(req, res){
     let allowedKey = {
         integer: ['id']
     }
@@ -53,8 +54,10 @@ function deleteTransaction(req, res){
 }
 
 module.exports = {
-    create: createTransaction,
-    read: readTransaction,
-    update: updateTransaction,
-    delete: deleteTransaction
+    create: createKsm,
+    read: readKsm,
+    update: updateKsm,
+    delete: deleteKsm
 }
+
+
