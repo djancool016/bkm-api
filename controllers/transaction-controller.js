@@ -1,4 +1,4 @@
-const {BaseController, RequestValidator} = require('./base-controller')
+const {baseRequest} = require('./base-controller')
 const {TransactionFactory} = require('../factories/transaction-factory')
 const factory = new TransactionFactory
 
@@ -9,11 +9,7 @@ function createTransaction(req, res){
         string: ['remark'],
         date: ['trans_date']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.create(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.create(req.body))
 }
 function readTransaction(req, res){
 
@@ -22,11 +18,7 @@ function readTransaction(req, res){
         string: ['trans_code'],
         boolean: ['findLatest']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.read(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.read(req.body))
 }
 function updateTransaction(req, res){
 
@@ -35,21 +27,13 @@ function updateTransaction(req, res){
         date: ['trans_date'],
         string: ['remark']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.update(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.update(req.body))
 }
 function deleteTransaction(req, res){
     let allowedKey = {
         integer: ['id']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.delete(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.delete(req.body))
 }
 
 module.exports = {

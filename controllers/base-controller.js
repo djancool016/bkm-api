@@ -142,4 +142,13 @@ class BaseController {
     }
 }
 
-module.exports = {BaseController, RequestValidator}
+function baseRequest(req, res, allowedKey, model){
+
+    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
+    let controller = new BaseController(req, res, model)
+    
+    if(validator.status) return controller.sendRequest()
+    return res.status(validator.code).json(validator)
+}
+
+module.exports = {BaseController, RequestValidator, baseRequest}

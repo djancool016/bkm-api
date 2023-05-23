@@ -1,4 +1,4 @@
-const {BaseController, RequestValidator} = require('./base-controller')
+const {baseRequest} = require('./base-controller')
 const {KsmFactory} = require('../factories/ksm-factory')
 const factory = new KsmFactory
 
@@ -8,11 +8,7 @@ function createKsm(req, res){
         integer: ['id_lkm', 'rw'],
         string: ['name']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.create(req.body))
-
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.create(req.body))
 }
 
 function readKsm(req, res){
@@ -22,11 +18,7 @@ function readKsm(req, res){
         boolean: ['findLatest'],
         string: ['name']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.read(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.read(req.body))
 }
 
 function updateKsm(req, res){
@@ -35,22 +27,14 @@ function updateKsm(req, res){
         integer: ['id','id_lkm','rw'],
         string: ['name']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.update(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.update(req.body))
 }
 
 function deleteKsm(req, res){
     let allowedKey = {
         integer: ['id']
     }
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, factory.delete(req.body))
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    return baseRequest(req, res, allowedKey, factory.delete(req.body))
 }
 
 module.exports = {

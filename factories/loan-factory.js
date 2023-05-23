@@ -24,6 +24,10 @@ class LoanModel extends BaseModel {
         this.query.where = {'$ksm.name$': {[Op.like]: `%${ksm_name}%`}}
         return this.findAll()
     }
+    findByKsmId(id_ksm){
+        this.query.where = {id_ksm: id_ksm}
+        return this.findAll()
+    }
 }
 
 class LoanFactory {
@@ -39,8 +43,8 @@ class LoanFactory {
         }
 
         // validate ksm
-        let {data} = await this.ksm.read({id_ksm: id_ksm})
-        if(!data) return new StatusLogger({code: 404, message: "Ksm not found"}).log
+        let {status} = await this.ksm.read({id: id_ksm})
+        if(status == false) return new StatusLogger({code: 404, message: "Ksm not found"}).log
 
         // build loan object
         let total_interest = calculateInterest(total_loan, loan_interest,loan_duration)
@@ -55,12 +59,14 @@ class LoanFactory {
         return await this.model.create(loan)
     }
 
-    async read({id, ksm_name, findLatest = false}){
+    async read({id, id_ksm, ksm_name, findLatest = false}){
 
         if(id){
             return await this.model.findByPk(id)
         }else if(ksm_name){
             return await this.model.findByKsmName(ksm_name)
+        }else if(id_ksm){
+            return await this.model.findByKsmId(id_ksm)
         }else if(findLatest){
             return await this.model.findLatestOne()
         }else {
@@ -93,10 +99,10 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
 
-    async loanApproval(id, start_date = new Date()){
+    async loanApproval({id, start_date = new Date()}){
 
         // validate loan
-        let validator = await loanValidator(await this.read({id: id}), true)
+        let validator = await loanValidator(await this.read({id: id}))
         if(validator.status == false) return validator
 
         let {loan_duration} = validator.data
@@ -110,11 +116,16 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
     
-    async paidOff(id){
+    async paidOff({id}){
 
         // validate loan
         let validator = await loanValidator(await this.read({id: id}), true)
         if(validator.status == false) return validator
+
+        let {is_valid, is_finish} = validator.data
+        if(is_valid || is_finish){
+            return new StatusLogger({code: 400, message: 'Loan is in progress or already finish'}).log
+        }
 
         let loan = {
             is_finish: true
@@ -122,7 +133,7 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
 
-    async delete(id){
+    async delete({id}){
 
         // validate loan
         let validator = await loanValidator(await this.read({id: id}))

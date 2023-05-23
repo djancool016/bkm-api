@@ -2,6 +2,7 @@ const router = require('express').Router()
 const transaction = require('./controllers/transaction-controller')
 const ksm = require('./controllers/ksm-controller')
 const lkm = require('./controllers/lkm-controller')
+const loan = require('./controllers/loan-controller')
 
 // Transaction route
 router.post('/transaction', transaction.create)
@@ -20,5 +21,12 @@ router.post('/lkm', lkm.create)
 router.get('/lkm', lkm.read)
 router.put('/lkm', lkm.update)
 router.delete('/lkm', lkm.delete)
+
+// Loan route
+router.post('/loan', loan.create)
+router.get('/loan', loan.read)
+router.put('/loan', loan.update)
+router.put('/loan/approval', loan.approveLoan)
+router.delete('/loan', loan.delete)
 
 module.exports = router
