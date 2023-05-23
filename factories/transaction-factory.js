@@ -35,7 +35,7 @@ class TransactionModel extends BaseModel {
         }
     }
     findLatestOne(){
-        this.query.order = [['created_at','DESC']]
+        this.query.order = [['updated_at','DESC']]
         return this.findOne()
     }
     findByLkm(id_lkm){

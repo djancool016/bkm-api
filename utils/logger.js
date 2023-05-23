@@ -79,11 +79,11 @@ class StatusLogger extends Logger {
 }
 
 class DataLogger extends StatusLogger {
-    constructor({data, message = ''}){
+    constructor({data, code, message = ''}){
         super(message)
         this.data = data
         if(this.data && Object.keys(this.data).length !== 0){
-            this.code = 200
+            this.code = code || 200
             this.setResponse()
             this.response.data = this.data
         }else{

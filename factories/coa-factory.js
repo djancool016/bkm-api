@@ -1,6 +1,5 @@
 const {BaseModel} = require('./base-factory')
 const model = require('../models')
-const {Op} = require('sequelize')
 const { StatusLogger } = require('../utils')
 
 class CoaModel extends BaseModel {

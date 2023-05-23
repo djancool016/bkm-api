@@ -2,6 +2,7 @@ const router = require('express').Router()
 const transaction = require('./controllers/transaction-controller')
 const ksm = require('./controllers/ksm-controller')
 const lkm = require('./controllers/lkm-controller')
+const coa = require('./controllers/coa-controller')
 const loan = require('./controllers/loan-controller')
 
 // Transaction route
@@ -21,6 +22,12 @@ router.post('/lkm', lkm.create)
 router.get('/lkm', lkm.read)
 router.put('/lkm', lkm.update)
 router.delete('/lkm', lkm.delete)
+
+// COA route
+router.post('/coa', coa.create)
+router.get('/coa', coa.read)
+router.put('/coa', coa.update)
+router.delete('/coa', coa.delete)
 
 // Loan route
 router.post('/loan', loan.create)
