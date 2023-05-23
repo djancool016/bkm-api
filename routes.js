@@ -4,6 +4,7 @@ const ksm = require('./controllers/ksm-controller')
 const lkm = require('./controllers/lkm-controller')
 const coa = require('./controllers/coa-controller')
 const loan = require('./controllers/loan-controller')
+const loanPayment = require('./controllers/loanPayment-controller')
 
 // Transaction route
 router.post('/transaction', transaction.create)
@@ -33,7 +34,10 @@ router.delete('/coa', coa.delete)
 router.post('/loan', loan.create)
 router.get('/loan', loan.read)
 router.put('/loan', loan.update)
-router.put('/loan/approval', loan.approveLoan)
+router.put('/loan/approval', loan.approveLoan, loanPayment.create)
 router.delete('/loan', loan.delete)
+
+// Loan route
+router.get('/loanpayment', loanPayment.read)
 
 module.exports = router

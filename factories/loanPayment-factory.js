@@ -29,9 +29,9 @@ class LoanPaymentModel extends BaseModel {
         return this.findOne()
     }
     findByIdLoan(id_loan, is_settled){
-        let newQuery = {where: {id_loan: id_loan}}
-        if(is_settled != undefined || is_settled != null) newQuery.where.is_settled = is_settled
-        return this.findAll(newQuery)
+        this.query.where = {id_loan}
+        if(is_settled != undefined || is_settled != null) this.query.where.is_settled = is_settled
+        return this.findAll()
     }
     findByKsmId(id_ksm, is_settled){
         this.query.where = {'$loan.ksm.id$': id_ksm}
@@ -48,13 +48,11 @@ class LoanPaymentFactory {
         this.model = new LoanPaymentModel()
         this.loan = new LoanFactory()
     }
-    async create(id_loan){
+    async create({id_loan}){
 
         // Loan Validator
         let loan = await this.loan.read({id: id_loan})
-        let {data:{is_valid, is_finish}} = loan
-        if(is_valid == 0) return new StatusLogger({code: 400, message: 'Loan is not valid'}).log
-        if(is_finish == 1) return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
+        if(loan.data.is_finish == 1) return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
         if(loan.status == false) return loan
 
         // Loan Payment Validator
@@ -101,34 +99,49 @@ class LoanPaymentFactory {
         }else if(id_ksm){
             return await this.model.findByKsmId(id_ksm)
         }else {
-            return new StatusLogger({code: 400}).log
+            return new StatusLogger({code: 404, message:'Loan Payment not found'}).log
         }
     }
-    async update({id_loan, pay_loan, pay_interest}){
-        // validate input
-        if(!id_loan && (!loan_payment || !interest_payment)) return new StatusLogger({code: 400}).log
 
-        if(pay_loan && pay_loan > 0){
-            let loanPayment = await this.payLoan({id_loan, total_payment: pay_loan})
-            if(loanPayment.status == false) return loanPayment
-        }
+    async delete({id_loan}){
 
-        if(pay_interest && pay_interest > 0){
-            let interestPayment = await this.payInterest({id_loan, total_payment: pay_interest})
-            if(interestPayment.status == false) return interestPayment
-        }
+        // validate loan
+        let {status, data} = await this.model.findByIdLoan(id_loan)
+        if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
+        
+        // validate loan progression
+        if(isInProgress(data)) return StatusLogger({code: 400, message: 'Loan Payment is already in progress'})
 
-        return new StatusLogger({code: 200, message:'Loan Payment Update Success'}).log
-    }
-
-    async delete(id_loan){
         return await this.model.deleteByIdLoan(id_loan)
     }
 
-    async payLoan({id_loan, total_payment}){
+    async payment({id_loan, pay_loan, pay_interest}){
 
+        // validate input
+        if(!id_loan && (!loan_payment || !interest_payment)) return new StatusLogger({code: 400}).log
+
+        // validate loan
         let {status, data} = await this.model.findByIdLoan(id_loan, false)
         if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
+        if(data.length == 0) return new StatusLogger({code: 200, message: 'Loan is already finished'}).log
+
+        // pay loan
+        if(pay_loan > 0){
+            let loanPayment = await this.payLoan({data, total_payment: pay_loan})
+            if(loanPayment.status == false) return loanPayment
+        }
+
+        // pay interest
+        if(pay_interest > 0){
+            let interestPayment = await this.payInterest({data, total_payment: pay_interest})
+            if(interestPayment.status == false) return interestPayment
+        }
+
+        // finish the loan if all payments is settled
+        return await this.paidOffLoan({id_loan})
+    }
+
+    async payLoan({data, total_payment}){
         
         for(let i = 0; i < data.length; i++) {
 
@@ -161,10 +174,7 @@ class LoanPaymentFactory {
         }
         return new StatusLogger({code: 200}).log
     }
-    async payInterest({id_loan, total_payment}){
-
-        let {status, data} = await this.model.findByIdLoan(id_loan, false)
-        if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
+    async payInterest({data, total_payment}){
         
         for(let i = 0; i < data.length; i++) {
 
@@ -197,6 +207,41 @@ class LoanPaymentFactory {
         }
         return new StatusLogger({code: 200}).log
     }
+    async paidOffLoan({id_loan}){
+
+        let {status, data} = await this.model.findByIdLoan(id_loan, false)
+        if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
+
+        if(data.length == 0) return await this.loan.paidOff({id_loan})
+        return new StatusLogger({code: 200, message:`There is still ${data.length} payments to go`}).log
+    }
+    async getTotalRemaining({id_loan}){
+
+        let loanPayment = await this.read({id_loan})
+        let {data, status} = loanPayment
+        if(status == false) return loanPayment
+
+        let remainingLoan = data
+            .map(obj => obj['loan_remaining'])
+            .reduce((acc, val) => acc + val, 0)
+
+        let remainingInterests = data
+            .map(obj => obj['interest_remaining'])
+            .reduce((acc, val) => acc + val, 0)
+        
+        return new DataLogger({data: {remainingLoan, remainingInterests}}).log
+    }
+}
+
+function isInProgress(payments){
+    payments.map(obj => {
+        let full = obj["loan_full"] + obj['interest_full']
+        let remaining = obj["loan_remaining"] + obj['interest_remaining']
+        return full == remaining
+    })
+    .filter( obj => obj == false)
+
+    return payments.length != 0
 }
 
 function calculateLoanPayment({total_loan, total_interest, loan_duration}){

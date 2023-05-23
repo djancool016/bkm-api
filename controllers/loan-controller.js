@@ -1,4 +1,4 @@
-const {baseRequest} = require('./base-controller')
+const {baseRequest, middlewareRequest} = require('./base-controller')
 const {LoanFactory} = require('../factories/loan-factory')
 const factory = new LoanFactory
 
@@ -31,13 +31,14 @@ function deleteLoan(req, res){
     }
     return baseRequest(req, res, allowedKey, factory.delete(req.body))
 }
-function approveLoan(req, res){
+function approveLoan(req, res, next){
 
     let allowedKey = {
         integer: ['id'],
         date: ['start_date']
     }
-    return baseRequest(req, res, allowedKey, factory.loanApproval(req.body))
+    req.result = middlewareRequest(req, res, allowedKey, factory.loanApproval(req.body))
+    return next()
 }
 
 module.exports = {

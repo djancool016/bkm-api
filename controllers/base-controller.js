@@ -151,4 +151,13 @@ function baseRequest(req, res, allowedKey, model){
     return res.status(validator.code).json(validator)
 }
 
-module.exports = {BaseController, RequestValidator, baseRequest}
+function middlewareRequest(req, res, allowedKey, model){
+
+    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
+    let controller = new BaseController(req, res, model)
+    
+    if(validator.status) return controller.getResult()
+    return res.status(validator.code).json(validator)
+}
+
+module.exports = {BaseController, RequestValidator, baseRequest, middlewareRequest}
