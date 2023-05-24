@@ -146,10 +146,13 @@ class BaseController {
 }
 
 function authorizeUser(req, allowedRole = []){
+
+    // req.user is first middleware for every route, for user authentication
     let user = req.user
     let {status, data:{id_role}} = user
     if(status == false) return user
 
+    // authorize user based on allowedRole
     let isAuthorize = allowedRole.filter(roleId => {
         return Number(roleId) == Number(id_role)
     }).length
@@ -160,19 +163,26 @@ function authorizeUser(req, allowedRole = []){
 
 async function middlewareRequest(req, res, allowedKey = {}, allowedRole = [], model){
 
+    // Validate request input body
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
     if(validator.status == false) return validator
 
+    // Authorize user based on roles
     let authorize = authorizeUser(req, allowedRole)
     if(authorize.status == false) return authorize
 
+    // Send request using BaseController
     let controller = new BaseController(req, res, model)
-    return await controller.getResult()
+    let result = await controller.getResult()
+    return result
+
 }
 
 async function endRequest(req, res){
+
+    // this is for last middleware, returning http response
     let result = await req.result
-    res.status(result.code).json(result)
+    return res.status(result.code).json(result)
 }
 
 module.exports = {BaseController, RequestValidator, middlewareRequest, endRequest}

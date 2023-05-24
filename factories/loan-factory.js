@@ -99,21 +99,17 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
 
-    async loanApproval({id_loan, start_date = new Date()}){
+    async loanApproval({loan, start_date = new Date()}){
 
-        // validate loan
-        let validator = await loanValidator(await this.read({id: id_loan}))
-        if(validator.status == false) return validator
-
-        let {loan_duration} = validator.data
+        let {id, loan_duration} = loan
         let {loan_start, loan_end} = calculateDuration(start_date, loan_duration)
 
-        let loan = {
+        let approved = {
             loan_start,
             loan_end,
             is_valid: true
         }
-        return await this.model.update(loan, id_loan)
+        return await this.model.update(approved, id)
     }
     
     async paidOff({id}){

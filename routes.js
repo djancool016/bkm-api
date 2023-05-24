@@ -10,7 +10,7 @@ const loanPayment = require('./controllers/loanPayment-controller')
 
 // Transaction route
 router.post('/transaction', user.auth, transaction.create, endRequest)
-router.post('/transaction/loan', user.auth, transaction.isLoan, loan.read, transaction.create, loanPayment.update, endRequest)
+router.post('/transaction/loan', user.auth, loan.read, transaction.createTransactionLoan, loanPayment.update, endRequest)
 router.get('/transaction', user.auth, transaction.read, endRequest)
 router.put('/transaction', user.auth, transaction.update, endRequest)
 router.delete('/transaction', user.auth, transaction.delete, endRequest)
@@ -37,7 +37,7 @@ router.delete('/coa', user.auth, coa.delete, endRequest)
 router.post('/loan', user.auth, loan.create, endRequest)
 router.get('/loan', user.auth, loan.read, endRequest)
 router.put('/loan', user.auth, loan.update, endRequest)
-router.put('/loan/approval', user.auth, loan.approveLoan, loanPayment.create, endRequest)
+router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)
 router.delete('/loan', user.auth, loan.delete, endRequest)
 
 // Loan Payment route

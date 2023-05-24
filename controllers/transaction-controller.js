@@ -1,32 +1,7 @@
-const {middlewareRequest, RequestValidator} = require('./base-controller')
+const {middlewareRequest} = require('./base-controller')
 const {TransactionFactory} = require('../factories/transaction-factory')
 const { StatusLogger } = require('../utils')
 const factory = new TransactionFactory
-
-function isLoan(req, res, next){
-
-    let allowedKey = {
-        integer: ['id_lkm', 'id_coa', 'id_loan', 'total'],
-        string: ['remark'],
-        date: ['trans_date']
-    }
-
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    req.result = validator
-
-    let{id_coa, id_loan} = req.body
-
-    if(!id_loan){
-        req.result = new StatusLogger({code: 400, message:"Empty Loan ID"}).log
-        return res.status(req.result.code).json(req.result)
-    }
-    if(id_coa > 2 ){
-        req.result = new StatusLogger({code: 400, message:"Coa not for a loan transaction"}).log
-        return res.status(req.result.code).json(req.result)
-    }
-
-    return next()
-}
 
 async function createTransaction(req, res, next){
 
@@ -38,15 +13,45 @@ async function createTransaction(req, res, next){
     let allowedRole = [1, 2]
 
     let{id_coa, id_loan} = req.body
+
     if((id_coa == 1 || id_coa == 2) && !id_loan){
         req.result = new StatusLogger({code: 400, message:"Empty Loan ID"}).log
         return res.status(req.result.code).json(req.result)
     }
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function readTransaction(req, res, next){
+async function createTransactionLoan(req, res, next){
+
+    let allowedKey = {
+        integer: ['id_lkm', 'id_coa', 'id_loan', 'total'],
+        string: ['remark'],
+        date: ['trans_date']
+    }
+    let allowedRole = [1, 2]
+    
+    let{id_coa, id_loan} = req.body
+
+    if(!id_loan){
+        req.result = new StatusLogger({code: 400, message:"Empty Loan ID"}).log
+        return res.status(req.result.code).json(req.result)
+    }
+    if(id_coa > 2 ){
+        req.result = new StatusLogger({code: 400, message:"Coa not for a loan transaction"}).log
+        return res.status(req.result.code).json(req.result)
+    }
+
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
+}
+async function readTransaction(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_coa', 'id_account', 'id_register'],
@@ -55,10 +60,14 @@ function readTransaction(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    let{status, code, data} = req.result
+    req.transaction = data
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function updateTransaction(req, res, next){
+async function updateTransaction(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_coa', 'total'],
@@ -67,17 +76,23 @@ function updateTransaction(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function deleteTransaction(req, res, next){
+async function deleteTransaction(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
 module.exports = {
@@ -85,5 +100,5 @@ module.exports = {
     read: readTransaction,
     update: updateTransaction,
     delete: deleteTransaction,
-    isLoan
+    createTransactionLoan
 }

@@ -2,7 +2,7 @@ const {middlewareRequest} = require('./base-controller')
 const {KsmFactory} = require('../factories/ksm-factory')
 const factory = new KsmFactory
 
-function createKsm(req, res, next){
+async function createKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id_lkm', 'rw'],
@@ -10,11 +10,14 @@ function createKsm(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
-function readKsm(req, res, next){
+async function readKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_lkm'],
@@ -23,11 +26,15 @@ function readKsm(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    let{status, code, data} = req.result
+    req.ksm = data
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
-function updateKsm(req, res, next){
+async function updateKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_lkm','rw'],
@@ -35,18 +42,24 @@ function updateKsm(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
-function deleteKsm(req, res, next){
+async function deleteKsm(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
 module.exports = {

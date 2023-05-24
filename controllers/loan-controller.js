@@ -2,57 +2,78 @@ const {middlewareRequest} = require('./base-controller')
 const {LoanFactory} = require('../factories/loan-factory')
 const factory = new LoanFactory
 
-function createLoan(req, res, next){
+async function createLoan(req, res, next){
 
     let allowedKey = {
         integer: ['id_ksm', 'total_loan', 'loan_duration', 'loan_interest']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function readLoan(req, res, next){
+
+async function readLoan(req, res, next){
 
     let allowedKey = {
-        integer: ['id', 'id_ksm'],
+        integer: ['id', 'id_loan', 'id_ksm'],
         string: ['ksm_name'],
         boolean: ['findLatest']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    let{status, code, data} = req.result
+    req.loan = data
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function updateLoan(req, res, next){
+
+async function updateLoan(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_ksm', 'total_loan', 'loan_duration', 'loan_interest']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function deleteLoan(req, res, next){
+
+async function deleteLoan(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
     let allowedRole = [1, 2]
 
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
-function approveLoan(req, res, next){
+
+async function approveLoan(req, res, next){
 
     let allowedKey = {
-        integer: ['id'],
         date: ['start_date']
     }
     let allowedRole = [1, 2]
+
+    req.body.loan = req.loan
     
-    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.loanApproval(req.body))
-    next()
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.loanApproval(req.body))
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
 }
 
 module.exports = {
