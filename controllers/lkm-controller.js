@@ -1,39 +1,51 @@
-const {baseRequest} = require('./base-controller')
+const {middlewareRequest} = require('./base-controller')
 const {LkmFactory} = require('../factories/lkm-factory')
 const factory = new LkmFactory
 
-function createLkm(req, res){
+function createLkm(req, res, next){
 
     let allowedKey = {
         string: ['id_kelurahan', 'name', 'phone', 'address']
     }
-    return baseRequest(req, res, allowedKey, factory.create(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    next()
 }
 
-function readLkm(req, res){
+function readLkm(req, res, next){
 
     let allowedKey = {
         integer: ['id'],
         string: ['name'],
         boolean: ['findLatest']
     }
-    return baseRequest(req, res, allowedKey, factory.read(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    next()
 }
 
-function updateLkm(req, res){
+function updateLkm(req, res, next){
 
     let allowedKey = {
         integer: ['id'],
         string: ['id_kelurahan', 'name', 'phone', 'address']
     }
-    return baseRequest(req, res, allowedKey, factory.update(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole,  factory.update(req.body))
+    next()
 }
 
-function deleteLkm(req, res){
+function deleteLkm(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
-    return baseRequest(req, res, allowedKey, factory.delete(req.body))
+    let allowedRole = [1, 2]
+    
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole,  factory.delete(req.body))
+    next()
 }
 
 module.exports = {

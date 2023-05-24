@@ -1,10 +1,11 @@
 const {DateFormat, StatusLogger, filterKeys} = require('../utils')
 
 class RequestValidator {
-    constructor(req, res, allowedKey) {
+    constructor(req, res, allowedKey, keyValidation = false) {
         this.req = req
         this.res = res
         this.allowedKey = allowedKey
+        this.keyValidation = keyValidation
     }
 
     /**
@@ -33,12 +34,14 @@ class RequestValidator {
         let combinedAllowedKey = Object.values(this.allowedKey).flat(Infinity)
         let keys = Object.keys(this.req)
 
-        // return true if request keys is valid
-        for(let i; i < keys.length; i++){
-            let validKey = combinedAllowedKey.includes(keys[i])
-            if(validKey == false){
-                this.message = `${keys[i]} is invalid key`
-                return false
+        if(this.keyValidation){
+            // return true if request keys is valid
+            for(let i = 0; i < keys.length; i++){
+                let validKey = combinedAllowedKey.includes(keys[i])
+                if(validKey == false){
+                    this.message = `${keys[i]} is invalid key`
+                    return false
+                }
             }
         }
         return true
@@ -142,22 +145,34 @@ class BaseController {
     }
 }
 
-function baseRequest(req, res, allowedKey, model){
+function authorizeUser(req, allowedRole = []){
+    let user = req.user
+    let {status, data:{id_role}} = user
+    if(status == false) return user
 
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
-    let controller = new BaseController(req, res, model)
-    
-    if(validator.status) return controller.sendRequest()
-    return res.status(validator.code).json(validator)
+    let isAuthorize = allowedRole.filter(roleId => {
+        return Number(roleId) == Number(id_role)
+    }).length
+
+    if(isAuthorize > 0) return new StatusLogger({code: 200, message:'User Authorized'}).log
+    return new StatusLogger({code: 403}).log
 }
 
-function middlewareRequest(req, res, allowedKey, model){
+async function middlewareRequest(req, res, allowedKey = {}, allowedRole = [], model){
 
     let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
+    if(validator.status == false) return validator
+
+    let authorize = authorizeUser(req, allowedRole)
+    if(authorize.status == false) return authorize
+
     let controller = new BaseController(req, res, model)
-    
-    if(validator.status) return controller.getResult()
-    return res.status(validator.code).json(validator)
+    return await controller.getResult()
 }
 
-module.exports = {BaseController, RequestValidator, baseRequest, middlewareRequest}
+async function endRequest(req, res){
+    let result = await req.result
+    res.status(result.code).json(result)
+}
+
+module.exports = {BaseController, RequestValidator, middlewareRequest, endRequest}

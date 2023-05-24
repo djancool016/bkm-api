@@ -1,36 +1,67 @@
-const {baseRequest, middlewareRequest} = require('./base-controller')
+const {middlewareRequest} = require('./base-controller')
 const {LoanPaymentFactory} = require('../factories/loanPayment-factory')
 const factory = new LoanPaymentFactory
 
-function createLoanPayment(req, res){
+async function createLoanPayment(req, res, next){
 
     let allowedKey = {
         integer: ['id_loan']
     }
-    let {code, status} = req.result
-    if(status == false) return res.status(code).json(req.result)
+    let allowedRole = [1, 2]
 
-    return baseRequest(req, res, allowedKey, factory.create({id_loan: req.body.id}))
+    let {status} = await req.result
+    if(status){
+        let result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+        req.result = result
+        return next()
+    }
+    return next()
 }
-function readLoanPayment(req, res){
+function readLoanPayment(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_ksm', 'id_loan']
     }
-    return baseRequest(req, res, allowedKey, factory.read(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    next()
 }
-function updateLoanPayment(req, res){
+async function updateLoanPayment(req, res, next){
 
     let allowedKey = {
         integer: ['id_loan','pay_loan','pay_interest']
     }
-    return baseRequest(req, res, allowedKey, factory.update(req.body))
+    let allowedRole = [1, 2]
+
+    let {id_coa} = req.body
+    if (!id_coa) return next()
+    
+    switch(Number(id_coa)){
+        case 1:
+            req.body.pay_loan = req.body.total
+            break
+        case 2:
+            req.body.pay_interest = req.body.total
+            break
+    }
+    
+    let {status} = await req.result
+    if(status){
+        let result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.payment(req.body))
+        req.result = result
+        return next()
+    }
+    return next()
 }
-function deleteLoanPayment(req, res){
+function deleteLoanPayment(req, res, next){
     let allowedKey = {
         integer: ['id_loan']
     }
-    return baseRequest(req, res, allowedKey, factory.delete(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    next()
 }
 
 module.exports = {

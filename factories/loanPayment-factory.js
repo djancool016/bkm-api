@@ -52,8 +52,8 @@ class LoanPaymentFactory {
 
         // Loan Validator
         let loan = await this.loan.read({id: id_loan})
-        if(loan.data.is_finish == 1) return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
         if(loan.status == false) return loan
+        if(loan.data?.is_finish == 1) return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
 
         // Loan Payment Validator
         let {status} = await this.read({id_loan: id_loan})
@@ -120,35 +120,64 @@ class LoanPaymentFactory {
         // validate input
         if(!id_loan && (!loan_payment || !interest_payment)) return new StatusLogger({code: 400}).log
 
-        // validate loan
-        let {status, data} = await this.model.findByIdLoan(id_loan, false)
-        if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
-        if(data.length == 0) return new StatusLogger({code: 200, message: 'Loan is already finished'}).log
+        // validate loan Payment
+        let validateLoanPayment = async () => {
+            let {data: payments, status} = await this.read({id_loan})
+            if(status === false) return new StatusLogger({code: 404, message: 'Loan Payment not found'}).log
+            return payments
+        }
+        let payments = await validateLoanPayment()
+        if(payments.status == false) return payments
+        
+        // check if total loan_remaining > pay_loan
+        let remaining = (str) => {
+            return payments.map(payment => payment[str]).reduce((acc, val) => acc + val, 0)
+        }
+        let loanRemaining = remaining('loan_remaining')
+        let interestRemaining = remaining('interest_remaining')
+
+        if((loanRemaining + interestRemaining) == 0){
+            return new StatusLogger({code: 400, message: 'Loan is already finished'}).log
+        }
+        else if(pay_loan > loanRemaining){
+            return new StatusLogger({
+                code: 400, message: `Total payment (${pay_loan}) more than total remaining loan (${loanRemaining})`
+            }).log
+        }
+        else if(pay_interest > interestRemaining){
+            return new StatusLogger({
+                code: 400, message: `Total payment (${pay_interest}) more than total remaining interests (${interestRemaining})`
+            }).log
+        }
 
         // pay loan
         if(pay_loan > 0){
-            let loanPayment = await this.payLoan({data, total_payment: pay_loan})
+            let loanPayment = await this.payLoan({payments, total_payment: pay_loan})
             if(loanPayment.status == false) return loanPayment
         }
 
         // pay interest
         if(pay_interest > 0){
-            let interestPayment = await this.payInterest({data, total_payment: pay_interest})
+            let interestPayment = await this.payInterest({payments, total_payment: pay_interest})
             if(interestPayment.status == false) return interestPayment
         }
 
-        // finish the loan if all payments is settled
-        return await this.paidOffLoan({id_loan})
+        payments = await validateLoanPayment()
+        loanRemaining = remaining('loan_remaining')
+        interestRemaining = remaining('interest_remaining')
+
+        if((loanRemaining + interestRemaining) == 0) return await this.loan.paidOff({id: id_loan})
+        return new DataLogger({data: {loanRemaining, interestRemaining}}).log
     }
 
-    async payLoan({data, total_payment}){
+    async payLoan({payments, total_payment}){
         
-        for(let i = 0; i < data.length; i++) {
+        for(let i = 0; i < payments.length; i++) {
 
             if(total_payment === 0) break
 
             // get id and lan_remaining for each payment
-            let { id, loan_remaining, interest_remaining } = data[i]
+            let { id, loan_remaining, interest_remaining } = payments[i]
             let installments_remaining = loan_remaining - total_payment
             let payment = {loan_remaining, interest_remaining}
 
@@ -174,14 +203,14 @@ class LoanPaymentFactory {
         }
         return new StatusLogger({code: 200}).log
     }
-    async payInterest({data, total_payment}){
+    async payInterest({payments, total_payment}){
         
-        for(let i = 0; i < data.length; i++) {
+        for(let i = 0; i < payments.length; i++) {
 
             if(total_payment === 0) break
 
             // get id and lan_remaining for each payment
-            let { id, loan_remaining, interest_remaining } = data[i]
+            let { id, loan_remaining, interest_remaining } = payments[i]
             let installments_remaining = interest_remaining - total_payment
             let payment = {loan_remaining, interest_remaining}
 
@@ -207,13 +236,13 @@ class LoanPaymentFactory {
         }
         return new StatusLogger({code: 200}).log
     }
-    async paidOffLoan({id_loan}){
+    async paidOffLoan(loan){
 
-        let {status, data} = await this.model.findByIdLoan(id_loan, false)
-        if(status === false) return new StatusLogger({code: 404, message: 'Loan data not found'}).log
+        let {data} = loan
+        if(data.length == 0) return await this.loan.paidOff({id: id_loan})
 
-        if(data.length == 0) return await this.loan.paidOff({id_loan})
-        return new StatusLogger({code: 200, message:`There is still ${data.length} payments to go`}).log
+        let remaining = await this.getTotalRemaining({id_loan: data.id})
+        return new DataLogger({data: remaining.data, message:`There is still ${data.length} payments to go`}).log
     }
     async getTotalRemaining({id_loan}){
 

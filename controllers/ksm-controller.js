@@ -1,40 +1,52 @@
-const {baseRequest} = require('./base-controller')
+const {middlewareRequest} = require('./base-controller')
 const {KsmFactory} = require('../factories/ksm-factory')
 const factory = new KsmFactory
 
-function createKsm(req, res){
+function createKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id_lkm', 'rw'],
         string: ['name']
     }
-    return baseRequest(req, res, allowedKey, factory.create(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    next()
 }
 
-function readKsm(req, res){
+function readKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_lkm'],
         boolean: ['findLatest'],
         string: ['name']
     }
-    return baseRequest(req, res, allowedKey, factory.read(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    next()
 }
 
-function updateKsm(req, res){
+function updateKsm(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_lkm','rw'],
         string: ['name']
     }
-    return baseRequest(req, res, allowedKey, factory.update(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
+    next()
 }
 
-function deleteKsm(req, res){
+function deleteKsm(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
-    return baseRequest(req, res, allowedKey, factory.delete(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    next()
 }
 
 module.exports = {

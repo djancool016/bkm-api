@@ -1,39 +1,51 @@
-const {baseRequest} = require('./base-controller')
+const {middlewareRequest} = require('./base-controller')
 const {CoaFactory} = require('../factories/coa-factory')
 const factory = new CoaFactory
 
-function createCoa(req, res){
+function createCoa(req, res, next){
 
     let allowedKey = {
         integer: ['id_register', 'id_account'],
         string: ['description']
     }
-    return baseRequest(req, res, allowedKey, factory.create(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    next()
 }
 
-function readCoa(req, res){
+function readCoa(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_register', 'id_account'],
         boolean: ['findLatest']
     }
-    return baseRequest(req, res, allowedKey, factory.read(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    next()
 }
 
-function updateCoa(req, res){
+function updateCoa(req, res, next){
 
     let allowedKey = {
         integer: ['id','id_register', 'id_account'],
         string: ['description']
     }
-    return baseRequest(req, res, allowedKey, factory.update(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
+    next()
 }
 
-function deleteCoa(req, res){
+function deleteCoa(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
-    return baseRequest(req, res, allowedKey, factory.delete(req.body))
+    let allowedRole = [1, 2]
+
+    req.result = middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
+    next()
 }
 
 module.exports = {

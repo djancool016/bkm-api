@@ -1,8 +1,5 @@
 const {BaseModel} = require('./base-factory')
 const {CoaFactory} = require('./coa-factory')
-const {LoanFactory} = require('./loan-factory')
-const {TransactionLoanFactory} = require('./transactionLoan-factory')
-const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {AccountFactory} = require('./account-factory')
 const {StatusLogger, DateFormat} = require('../utils')
 const model = require('../models')
@@ -65,14 +62,11 @@ class TransactionModel extends BaseModel {
 class TransactionFactory {
     constructor(){
         this.model = new TransactionModel()
-        this.coa = new CoaFactory()
-        this.loan = new LoanFactory()
         this.account = new AccountFactory()
-        this.transactionLoan = new TransactionLoanFactory()
-        this.loanPayment = new LoanPaymentFactory()
+        this.coa = new CoaFactory()
     }
 
-    async create({id_coa, id_loan, total, remark, trans_date}){
+    async create({id_coa, total, remark, trans_date}){
 
         // validate not null input
         if(!total || !id_coa) return new StatusLogger({code: 400}).log
@@ -100,71 +94,16 @@ class TransactionFactory {
         let updateCounter = () => {
             return this.account.update({id: account.id, counter: counter})
         }
-        let transactionResult
 
-        switch(id_coa){
-            // case 1 = Loan Payment transaction
-            // case 2 = Loan Interest Payment transaction
-            case 1 || 2:
-                return updateCounter()
-                .then(result => {
-                    // validate loan
-                    if(result.status == false) return result
-                    return this.loan.read({id: id_loan})
-                })
-                .then(result => {
-                    // validate loan remaining
-                    if(result.status == false) return result
-                    if(result.data.is_valid == false) return new StatusLogger({code: 400, message:'Loan is not approved yet'}).log
-                    if(result.data.is_finish) return new StatusLogger({code: 400, message:'Loan is already finish'}).log
-
-                    return this.loanPayment.getTotalRemaining({id_loan})
-                })
-                .then(result => {
-                    // create a transaction
-                    if(result.status == false) return result
-                    let{remainingLoan, remainingInterests} = result.data
-
-                    if(id_coa == 1 && total > remainingLoan) {
-                        return new StatusLogger({code: 400, message:`Loan remaining (${remainingLoan}) less than input (${total})`}).log
-                    }
-                    else if(id_coa == 2 && total > remainingInterests) {
-                        return new StatusLogger({code: 400, message:`Loan remaining (${remainingInterests}) less than input (${total})`}).log
-                    }
-                    return this.model.create(transaction)
-                })
-                .then(result => {
-                    // create a transactionLoan
-                    if(result.status == false) return result
-                    return this.transactionLoan.create({id_loan, id_transaction: result.data.id})
-                })
-                .then(result => {
-                    // update loanPayment
-                    transactionResult = result
-                    if(result.status == false) return result
-                    if(id_coa == 1) return this.loanPayment.payment({id_loan, pay_loan: total})
-                    return this.loanPayment.payment({id_loan, pay_interest: total})
-                }).then(result => {
-                    // update loanPayment
-                    if(result.status == false) return result
-                    return transactionResult
-                })
-                .catch(error => {
-                    console.log(error)
-                    return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
-                })
-
-            default:
-                return updateCounter()
-                .then(result => {
-                    if(result.status == false) return result
-                    return this.model.create(transaction)
-                })
-                .catch(error => {
-                    console.log(error)
-                    return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
-                })
-        }
+        return updateCounter()
+            .then(result => {
+                if(result.status == false) return result
+                return this.model.create(transaction)
+            })
+            .catch(error => {
+                console.log(error)
+                return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
+            })
     }
 
     async read({id, id_coa, id_account, id_register, trans_code, findLatest = false}){

@@ -59,10 +59,10 @@ class LoanFactory {
         return await this.model.create(loan)
     }
 
-    async read({id, id_ksm, ksm_name, findLatest = false}){
+    async read({id, id_loan, id_ksm, ksm_name, findLatest = false}){
 
-        if(id){
-            return await this.model.findByPk(id)
+        if(id || id_loan){
+            return await this.model.findByPk(id = id || id_loan)
         }else if(ksm_name){
             return await this.model.findByKsmName(ksm_name)
         }else if(id_ksm){
@@ -99,10 +99,10 @@ class LoanFactory {
         return await this.model.update(loan, id)
     }
 
-    async loanApproval({id, start_date = new Date()}){
+    async loanApproval({id_loan, start_date = new Date()}){
 
         // validate loan
-        let validator = await loanValidator(await this.read({id: id}))
+        let validator = await loanValidator(await this.read({id: id_loan}))
         if(validator.status == false) return validator
 
         let {loan_duration} = validator.data
@@ -113,7 +113,7 @@ class LoanFactory {
             loan_end,
             is_valid: true
         }
-        return await this.model.update(loan, id)
+        return await this.model.update(loan, id_loan)
     }
     
     async paidOff({id}){
@@ -122,15 +122,21 @@ class LoanFactory {
         let validator = await loanValidator(await this.read({id: id}), true)
         if(validator.status == false) return validator
 
-        let {is_valid, is_finish} = validator.data
-        if(is_valid || is_finish){
-            return new StatusLogger({code: 400, message: 'Loan is in progress or already finish'}).log
+        let {ksm:{name},is_valid, is_finish} = validator.data
+        
+        if(is_valid == false){
+            return new StatusLogger({code: 400, message: 'Loan is in approval proccess'}).log
+        }
+        else if(is_finish){
+            return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
         }
 
         let loan = {
             is_finish: true
         }
-        return await this.model.update(loan, id)
+        let payoff = await this.model.update(loan, id)
+        if(payoff.status) return new StatusLogger({code: 200, message:`${name} loans is finished`})
+        return payoff
     }
 
     async delete({id}){
