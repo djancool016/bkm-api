@@ -49,6 +49,7 @@ async function updateCoa(req, res, next){
 }
 
 async function deleteCoa(req, res, next){
+    
     let allowedKey = {
         integer: ['id']
     }

@@ -53,6 +53,7 @@ class LkmFactory {
         }, id)
     }
     async delete({id}){
+        
         return await this.model.delete(id)
     }
 }

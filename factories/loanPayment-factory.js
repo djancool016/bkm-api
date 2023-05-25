@@ -1,7 +1,6 @@
 const {BaseModel} = require('./base-factory')
 const {LoanFactory} = require('./loan-factory')
 const {StatusLogger, DateFormat, DataLogger} = require('../utils')
-const {Op} = require('sequelize')
 const model = require('../models')
 
 class LoanPaymentModel extends BaseModel {
@@ -89,20 +88,21 @@ class LoanPaymentFactory {
         
         return await this.model.bulkCreate(payments)
     }
-
     async read({id, id_loan, id_ksm}){
 
         if(id){
             return await this.model.findByPk(id)
-        }else if(id_loan){
+        }
+        else if(id_loan){
             return await this.model.findByIdLoan(id_loan)
-        }else if(id_ksm){
+        }
+        else if(id_ksm){
             return await this.model.findByKsmId(id_ksm)
-        }else {
+        }
+        else {
             return new StatusLogger({code: 404, message:'Loan Payment not found'}).log
         }
     }
-
     async delete({id_loan}){
 
         // validate loan
@@ -114,7 +114,6 @@ class LoanPaymentFactory {
 
         return await this.model.deleteByIdLoan(id_loan)
     }
-
     async payment({id_loan, pay_loan, pay_interest}){
 
         // validate input
@@ -169,7 +168,6 @@ class LoanPaymentFactory {
         if((loanRemaining + interestRemaining) == 0) return await this.loan.paidOff({id: id_loan})
         return new DataLogger({data: {loanRemaining, interestRemaining}}).log
     }
-
     async payLoan({payments, total_payment}){
         
         for(let i = 0; i < payments.length; i++) {
@@ -236,30 +234,6 @@ class LoanPaymentFactory {
         }
         return new StatusLogger({code: 200}).log
     }
-    async paidOffLoan(loan){
-
-        let {data} = loan
-        if(data.length == 0) return await this.loan.paidOff({id: id_loan})
-
-        let remaining = await this.getTotalRemaining({id_loan: data.id})
-        return new DataLogger({data: remaining.data, message:`There is still ${data.length} payments to go`}).log
-    }
-    async getTotalRemaining({id_loan}){
-
-        let loanPayment = await this.read({id_loan})
-        let {data, status} = loanPayment
-        if(status == false) return loanPayment
-
-        let remainingLoan = data
-            .map(obj => obj['loan_remaining'])
-            .reduce((acc, val) => acc + val, 0)
-
-        let remainingInterests = data
-            .map(obj => obj['interest_remaining'])
-            .reduce((acc, val) => acc + val, 0)
-        
-        return new DataLogger({data: {remainingLoan, remainingInterests}}).log
-    }
 }
 
 function isInProgress(payments){
@@ -272,7 +246,6 @@ function isInProgress(payments){
 
     return payments.length != 0
 }
-
 function calculateLoanPayment({total_loan, total_interest, loan_duration}){
 
     let loan_remaining = Math.ceil(total_loan/loan_duration/100)*100

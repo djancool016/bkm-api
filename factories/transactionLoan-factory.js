@@ -1,6 +1,6 @@
 const {BaseModel} = require('./base-factory')
 const {LoanFactory} = require('./loan-factory')
-const {StatusLogger, DateFormat} = require('../utils')
+const {StatusLogger} = require('../utils')
 const model = require('../models')
 
 class TransactionLoan extends BaseModel {
@@ -44,7 +44,6 @@ class TransactionLoanFactory {
         this.model = new TransactionLoan()
         this.loan = new LoanFactory()
     }
-
     async create({id_loan, id_transaction}){
         if(!id_loan || !id_transaction) return new StatusLogger({code:400}).log
 
@@ -56,14 +55,18 @@ class TransactionLoanFactory {
     async read({id, id_transaction, id_loan, id_ksm}){
         if(id){
             return await this.model.findByPk(id)
-        }else if(id_transaction){
+        }
+        else if(id_transaction){
             return await this.model.findByIdTransaction(id_transaction)
-        }else if(id_loan){
+        }
+        else if(id_loan){
             return await this.model.findByIdLoan(id_loan)
-        }else if(id_ksm){
+        }
+        else if(id_ksm){
             return await this.model.findByIdKsm(id_ksm)
-        }else {
-            return new StatusLogger({code: 400})
+        }
+        else {
+            return new StatusLogger({code: 400, message:"Transaction Loan not found"})
         }
     }
     async delete(id){

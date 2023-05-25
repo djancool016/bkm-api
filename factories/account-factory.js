@@ -23,7 +23,6 @@ class AccountFactory{
     constructor(){
         this.model = new AccountModel()
     }
-
     async create({code, description}){
         if(!code || !description){
             return new StatusLogger({code: 400}).log
@@ -34,7 +33,6 @@ class AccountFactory{
             description: description
         })
     }
-
     async read({id, code, findLatest = false}){
         if(id){
             return await this.model.findByPk(id)
@@ -50,7 +48,6 @@ class AccountFactory{
 
         }
     }
-
     async update({id, code, description, counter}){
         return await this.model.update({
             code: code,
@@ -58,11 +55,10 @@ class AccountFactory{
             counter: counter
         }, id)
     }
-
     async delete(id){
+        
         return await this.model.delete(id)
     }
-
 }
 
 module.exports = { AccountFactory }

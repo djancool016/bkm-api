@@ -56,7 +56,6 @@ class TransactionModel extends BaseModel {
         this.query.where = {'$coa.account.id$': id_account}
         return this.findAll()
     }
-
 }
 
 class TransactionFactory {
@@ -65,7 +64,6 @@ class TransactionFactory {
         this.account = new AccountFactory()
         this.coa = new CoaFactory()
     }
-
     async create({id_coa, total, remark, trans_date}){
 
         // validate not null input
@@ -105,26 +103,30 @@ class TransactionFactory {
                 return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
             })
     }
-
     async read({id, id_coa, id_account, id_register, trans_code, findLatest = false}){
 
         if(id){
             return await this.model.findByPk(id)
-        }else if(id_coa) {
+        }
+        else if(id_coa) {
             return await this.model.findByCoa(id_coa)
-        }else if(id_account){
+        }
+        else if(id_account){
             return await this.model.findByAccount(id_account)
-        }else if(id_register){
+        }
+        else if(id_register){
             return await this.model.findByRegister(id_register)
-        }else if(trans_code){
+        }
+        else if(trans_code){
             return await this.model.findByTransCode(trans_code)
-        }else if(findLatest){
+        }
+        else if(findLatest){
             return await this.model.findLatestOne()
-        }else {
+        }
+        else {
             return new StatusLogger({code: 404, message: 'Transaction not found'}).log
         }
     }
-
     async update({id, id_coa, total, trans_date, remark}){
 
         // validate coa
@@ -144,8 +146,8 @@ class TransactionFactory {
 
         return await this.model.update(transaction, id)
     }
-
     async delete({id}){
+
         return await this.model.delete(id)
     }
 }

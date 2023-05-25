@@ -1,6 +1,6 @@
 const {BaseModel} = require('./base-factory')
+const {StatusLogger} = require('../utils')
 const model = require('../models')
-const { StatusLogger } = require('../utils')
 
 class CoaModel extends BaseModel {
     constructor(){
@@ -41,8 +41,8 @@ class CoaFactory {
     constructor(){
         this.model = new CoaModel()
     }
-
     async create({id_register, id_account, description}){
+
         if(!id_register || !id_account || !description){
             return new StatusLogger({code: 400}).log
         }
@@ -53,36 +53,34 @@ class CoaFactory {
             description: description
         })
     }
-
     async read({id, id_register, id_account, findLatest = false}){
 
         if(id){
             return await this.model.findByPk(id)
-
-        } else if (id_register) {
+        } 
+        else if (id_register) {
             return await this.model.findByRegister(id_register)
-
-        } else if (id_account) {
+        } 
+        else if (id_account) {
             return await this.model.findByAccount(id_account)
-
-        } else if (findLatest) {
+        } 
+        else if (findLatest) {
             return await this.model.findLatestOne()
-
-        } else {
+        }
+        else {
             return await this.model.findAll()
-
         }
     }
-
     async update({id, id_register, id_account, description}){
+
         return await this.model.update({
             id_register: id_register,
             id_account: id_account,
             description: description
         }, id)
     }
-
     async delete(id){
+
         return await this.model.delete(id)
 
     }

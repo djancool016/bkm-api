@@ -27,13 +27,11 @@ class KsmFactory {
     constructor(){
         this.model = new KsmModel()
     }
-
     async create({id_lkm, name, rw}){
 
         if(!id_lkm || !name || !rw){
             return new StatusLogger({code: 400}).log
         }
-
         return await this.model.create({
             id_lkm: id_lkm,
             name: name,
@@ -45,17 +43,20 @@ class KsmFactory {
 
         if(id){
             return await this.model.findByPk(id)
-        }else if(name){
+        }
+        else if(name){
             return await this.model.findByKsmName(name)
-        }else if(id_lkm){
+        }
+        else if(id_lkm){
             return await this.model.findByLkm(id_lkm)
-        }else if(findLatest){
+        }
+        else if(findLatest){
             return await this.model.findLatestOne()
-        }else {
+        }
+        else {
             return new StatusLogger({code: 404, message:'KSM not found'}).log
         }
     }
-
     async update({id, name, rw, id_lkm}){
 
         return await this.model.update({
@@ -64,8 +65,8 @@ class KsmFactory {
             rw:rw
         }, id)
     }
-
     async delete({id}){
+
         return await this.model.delete(id)
     }
 }
