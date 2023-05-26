@@ -37,6 +37,10 @@ class TransactionLoan extends BaseModel {
         this.query.where = {'$loan.ksm.id$': id_ksm}
         return this.findOne()
     }
+    findByIds(ids){
+        this.query.where = {id: ids}
+        return this.findAll()
+    }
 }
 
 class TransactionLoanFactory {
@@ -52,7 +56,7 @@ class TransactionLoanFactory {
             id_transaction
         })
     }
-    async read({id, id_transaction, id_loan, id_ksm}){
+    async read({id, id_transaction, id_loan, id_ksm, ids = []}){
         if(id){
             return await this.model.findByPk(id)
         }
@@ -64,6 +68,9 @@ class TransactionLoanFactory {
         }
         else if(id_ksm){
             return await this.model.findByIdKsm(id_ksm)
+        }
+        else if(ids.length > 0){
+            return await this.model.findByIds(ids)
         }
         else {
             return new StatusLogger({code: 400, message:"Transaction Loan not found"})

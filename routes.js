@@ -7,6 +7,7 @@ const lkm = require('./controllers/lkm-controller')
 const coa = require('./controllers/coa-controller')
 const loan = require('./controllers/loan-controller')
 const loanPayment = require('./controllers/loanPayment-controller')
+const report = require('./controllers/report-controller')
 
 // Transaction route
 router.post('/transaction', user.auth, transaction.create, endRequest)
@@ -42,5 +43,8 @@ router.delete('/loan', user.auth, loan.delete, endRequest)
 
 // Loan Payment route
 router.get('/loanpayment', user.auth, loanPayment.read, endRequest)
+
+// Report route
+router.get('/report/collectibility/download', report.collectibilityReport)
 
 module.exports = router

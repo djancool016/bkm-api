@@ -35,6 +35,10 @@ class CoaModel extends BaseModel {
         this.query.order = [['created_at','DESC']]
         return this.findOne()
     }
+    findByIds(ids){
+        this.query.where = {id: ids}
+        return this.findAll()
+    }
 }
 
 class CoaFactory {
@@ -44,7 +48,7 @@ class CoaFactory {
     async create({id_register, id_account, description}){
 
         if(!id_register || !id_account || !description){
-            return new StatusLogger({code: 400}).log
+            return new StatusLogger({code: 400, message:'coa have invalid input'}).log
         }
         
         return await this.model.create({
@@ -53,7 +57,7 @@ class CoaFactory {
             description: description
         })
     }
-    async read({id, id_register, id_account, findLatest = false}){
+    async read({id, id_register, id_account, findLatest = false, ids = []}){
 
         if(id){
             return await this.model.findByPk(id)
@@ -67,6 +71,9 @@ class CoaFactory {
         else if (findLatest) {
             return await this.model.findLatestOne()
         }
+        else if (ids.length > 0){
+            return await this.model.findByIds(ids)
+        }
         else {
             return await this.model.findAll()
         }
@@ -74,9 +81,9 @@ class CoaFactory {
     async update({id, id_register, id_account, description}){
 
         return await this.model.update({
-            id_register: id_register,
-            id_account: id_account,
-            description: description
+            id_register,
+            id_account,
+            description
         }, id)
     }
     async delete(id){

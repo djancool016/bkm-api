@@ -16,6 +16,10 @@ class LkmModel extends BaseModel {
         this.query.where = {name: {[Op.like]: `%${name}%`}}
         return this.findAll()
     }
+    findByIds(ids){
+        this.query.where = {id: ids}
+        return this.findAll()
+    }
 }
 
 class LkmFactory {
@@ -23,7 +27,10 @@ class LkmFactory {
         this.model = new LkmModel()
     }
     async create({id_kelurahan, name, phone, address}){
-        if(!id_kelurahan || !name || !phone || !address) return new StatusLogger({code: 400})
+
+        if(!id_kelurahan || !name || !phone || !address) {
+            return new StatusLogger({code: 400, message:'LKM have invalid input'}).log
+        }
 
         return await this.model.create({
             id_kelurahan,
@@ -32,15 +39,21 @@ class LkmFactory {
             address
         })
     }
-    async read({id, name, findLatest = false}){
+    async read({id, name, findLatest = false, ids = []}){
 
         if(id){
             return await this.model.findByPk(id)
-        }else if(name){
+        }
+        else if(name){
             return await this.model.findByName(name)
-        }else if(findLatest){
+        }
+        else if(findLatest){
             return await this.model.findLatestOne()
-        }else {
+        }
+        else if(ids.length > 0){
+            return await this.model.findByIds(ids)
+        }
+        else {
             return new StatusLogger({code: 404, message: "LKM not found"}).log
         }
     }

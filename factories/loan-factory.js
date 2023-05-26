@@ -38,7 +38,7 @@ class LoanFactory {
     async create({id_ksm, total_loan, loan_duration, loan_interest}){
 
         if(!id_ksm || !total_loan || !loan_duration || !loan_interest){
-            return new StatusLogger({code: 400}).log
+            return new StatusLogger({code: 400, message:'loan have invalid input'}).log
         }
 
         // validate ksm
@@ -54,8 +54,28 @@ class LoanFactory {
             loan_duration,
             loan_interest,
         }
-
         return await this.model.create(loan)
+    }
+    async bulkCreate({loans}){
+
+        // array validator
+        if(Array.isArray(loans) == false) return new StatusLogger({code: 400, message:'input is not an array'}).log
+        let ksmIds = []
+
+        // data requirement validator
+        for(let i = 0; i > ksms.length; i++){
+            if(!loans[i].id_ksm || !loans[i].total_loan || !loans[i].loan_duration || !loans[i].loan_interest){
+                return new StatusLogger({code: 400, message:'loans have invalid input'}).log
+            }
+            ksmIds.push(loans[i].id_ksm)
+        }
+
+        // ksmIds validator
+        let uniqueIds = [...new Set(ksmIds)]
+        let {status} = await this.ksm.read({ids: uniqueIds})
+        if(status == false) return new StatusLogger({code: 400, message:'loans have invalid ksm id'}).log
+
+        return await this.model.bulkCreate(loans)
     }
     async read({id, id_loan, id_ksm, ksm_name, findLatest = false}){
 

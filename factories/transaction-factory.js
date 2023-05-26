@@ -56,6 +56,10 @@ class TransactionModel extends BaseModel {
         this.query.where = {'$coa.account.id$': id_account}
         return this.findAll()
     }
+    findByIds(ids){
+        this.query.where = {id: ids}
+        return this.findAll()
+    }
 }
 
 class TransactionFactory {
@@ -103,7 +107,28 @@ class TransactionFactory {
                 return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
             })
     }
-    async read({id, id_coa, id_account, id_register, trans_code, findLatest = false}){
+    async bulkCreate({transactions}){
+
+        // array validator
+        if(Array.isArray(transactions) == false) return new StatusLogger({code: 400, message:'input is not an array'}).log
+        let coaIds = []
+
+        // data requirement validator
+        for(let i = 0; i > transactions.length; i++){
+            if(!transactions[i].total || !transactions[i].id_coa){
+                return new StatusLogger({code: 400, message:'transactions have invalid input'}).log
+            }
+            coaIds.push(transactions[i].id_coa)
+        }
+
+        // ksmIds validator
+        let uniqueIds = [...new Set(coaIds)]
+        let {status} = await this.coa.read({ids: uniqueIds})
+        if(status == false) return new StatusLogger({code: 400, message:'transactions have invalid coa id'}).log
+
+        return await this.model.bulkCreate(loans)
+    }
+    async read({id, id_coa, id_account, id_register, trans_code, findLatest = false, ids = []}){
 
         if(id){
             return await this.model.findByPk(id)
@@ -122,6 +147,9 @@ class TransactionFactory {
         }
         else if(findLatest){
             return await this.model.findLatestOne()
+        }
+        else if(ids.length > 0){
+            return await this.model.findByIds(ids)
         }
         else {
             return new StatusLogger({code: 404, message: 'Transaction not found'}).log
