@@ -7,9 +7,5 @@
         "id": 2,
         "code": "CUK",
         "description": "catatan uang keluar (kredit)"
-    },{
-        "id": 3,
-        "code": "PB",
-        "description": "pindah buku"
     }
 ]

@@ -2,13 +2,176 @@
     {
         "id": 1,
         "id_ksm": 1,
-        "total_loan": 35000000,
-        "total_interest": 6090000,
         "loan_duration": 12,
         "loan_interest": 1.45,
-        "loan_start": "2021-01-01",
-        "loan_end": "2021-11-01",
-        "is_valid": 0,
-        "is_finish": 0
+        "total_loan": 38000000
+    },
+    {
+        "id": 2,
+        "id_ksm": 2,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 54700000
+    },
+    {
+        "id": 3,
+        "id_ksm": 3,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 35000000
+    },
+    {
+        "id": 4,
+        "id_ksm": 4,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 23000000
+    },
+    {
+        "id": 5,
+        "id_ksm": 5,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 30000000
+    },
+    {
+        "id": 6,
+        "id_ksm": 6,
+        "loan_duration": 10,
+        "loan_interest": 1.45,
+        "total_loan": 100000000
+    },
+    {
+        "id": 7,
+        "id_ksm": 7,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 36000000
+    },
+    {
+        "id": 8,
+        "id_ksm": 8,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 170000000
+    },
+    {
+        "id": 9,
+        "id_ksm": 9,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 72000000
+    },
+    {
+        "id": 10,
+        "id_ksm": 10,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 98000000
+    },
+    {
+        "id": 11,
+        "id_ksm": 11,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 14000000
+    },
+    {
+        "id": 12,
+        "id_ksm": 12,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 120000000
+    },
+    {
+        "id": 13,
+        "id_ksm": 13,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 40000000
+    },
+    {
+        "id": 14,
+        "id_ksm": 14,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 120000000
+    },
+    {
+        "id": 15,
+        "id_ksm": 15,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 35000000
+    },
+    {
+        "id": 16,
+        "id_ksm": 16,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 19000000
+    },
+    {
+        "id": 17,
+        "id_ksm": 17,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 48000000
+    },
+    {
+        "id": 18,
+        "id_ksm": 18,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 118000000
+    },
+    {
+        "id": 19,
+        "id_ksm": 19,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 50000000
+    },
+    {
+        "id": 20,
+        "id_ksm": 20,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 99000000
+    },
+    {
+        "id": 21,
+        "id_ksm": 21,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 36000000
+    },
+    {
+        "id": 22,
+        "id_ksm": 22,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 36000000
+    },
+    {
+        "id": 23,
+        "id_ksm": 23,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 22000000
+    },
+    {
+        "id": 24,
+        "id_ksm": 24,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 37000000
+    },
+    {
+        "id": 25,
+        "id_ksm": 14,
+        "loan_duration": 12,
+        "loan_interest": 1.45,
+        "total_loan": 120000000
     }
 ]

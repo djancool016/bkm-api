@@ -1,0 +1,98 @@
+[
+    {
+        "id_loan": 1,
+        "start_date": "2022-04-20"
+    },
+    {
+        "id_loan": 2,
+        "start_date": "2022-03-31"
+    },
+    {
+        "id_loan": 3,
+        "start_date": "2022-03-22"
+    },
+    {
+        "id_loan": 4,
+        "start_date": "2022-07-07"
+    },
+    {
+        "id_loan": 5,
+        "start_date": "2022-05-27"
+    },
+    {
+        "id_loan": 6,
+        "start_date": "2022-09-16"
+    },
+    {
+        "id_loan": 7,
+        "start_date": "2022-04-01"
+    },
+    {
+        "id_loan": 8,
+        "start_date": "2022-04-06"
+    },
+    {
+        "id_loan": 9,
+        "start_date": "2022-09-01"
+    },
+    {
+        "id_loan": 10,
+        "start_date": "2022-02-17"
+    },
+    {
+        "id_loan": 11,
+        "start_date": "2022-09-07"
+    },
+    {
+        "id_loan": 12,
+        "start_date": "2022-12-29"
+    },
+    {
+        "id_loan": 13,
+        "start_date": "2022-11-09"
+    },
+    {
+        "id_loan": 14,
+        "start_date": "2022-10-24"
+    },
+    {
+        "id_loan": 15,
+        "start_date": "2022-09-09"
+    },
+    {
+        "id_loan": 16,
+        "start_date": "2022-11-09"
+    },
+    {
+        "id_loan": 17,
+        "start_date": "2022-05-13"
+    },
+    {
+        "id_loan": 18,
+        "start_date": "2022-10-24"
+    },
+    {
+        "id_loan": 19,
+        "start_date": "2022-06-27"
+    },
+    {
+        "id_loan": 20,
+        "start_date": "2022-11-24"
+    },
+    {
+        "id_loan": 21,
+        "start_date": "2022-06-06"
+    },
+    {
+        "id_loan": 22,
+        "start_date": "2022-08-10"
+    },
+    {
+        "id_loan": 23,
+        "start_date": "2022-09-28"
+    },
+    {
+        "id_loan": 24,
+        "start_date": "2022-11-09"
+    }
+]

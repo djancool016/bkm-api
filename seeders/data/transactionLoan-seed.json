@@ -1,6 +1,170 @@
 [
     {
         "id_loan": 1,
-        "id_transaction": 1
+        "trans_date": "2023-01-31",
+        "pay_loan": 3166700,
+        "pay_interest": 551000,
+        "pay_bop": 19000
+    },
+    {
+        "id_loan": 2,
+        "trans_date": "2023-01-25",
+        "pay_loan": 500000,
+        "pay_interest": 0,
+        "pay_bop": 0
+    },
+    {
+        "id_loan": 3,
+        "trans_date": "2023-01-25",
+        "pay_loan": 2916700,
+        "pay_interest": 507500,
+        "pay_bop": 17500
+    },
+    {
+        "id_loan": 4,
+        "trans_date": "2023-01-20",
+        "pay_loan": 1916700,
+        "pay_interest": 333500,
+        "pay_bop": 11500
+    },
+    {
+        "id_loan": 5,
+        "trans_date": "2023-01-25",
+        "pay_loan": 2500000,
+        "pay_interest": 435000,
+        "pay_bop": 15000
+    },
+    {
+        "id_loan": 6,
+        "trans_date": "2023-01-31",
+        "pay_loan": 10000000,
+        "pay_interest": 1450000,
+        "pay_bop": 50000
+    },
+    {
+        "id_loan": 7,
+        "trans_date": "2023-01-27",
+        "pay_loan": 2010000,
+        "pay_interest": 522000,
+        "pay_bop": 18000
+    },
+    {
+        "id_loan": 8,
+        "trans_date": "2023-01-12",
+        "pay_loan": 14166700,
+        "pay_interest": 2465000,
+        "pay_bop": 85000
+    },
+    {
+        "id_loan": 9,
+        "trans_date": "2023-01-31",
+        "pay_loan": 2920000,
+        "pay_interest": 1044000,
+        "pay_bop": 36000
+    },
+    {
+        "id_loan": 10,
+        "trans_date": "2023-01-27",
+        "pay_loan": 8166700,
+        "pay_interest": 1421000,
+        "pay_bop": 49000
+    },
+    {
+        "id_loan": 11,
+        "trans_date": "2023-01-12",
+        "pay_loan": 1166700,
+        "pay_interest": 203000,
+        "pay_bop": 7000
+    },
+    {
+        "id_loan": 12,
+        "trans_date": "2023-01-31",
+        "pay_loan": 10000000,
+        "pay_interest": 1740000,
+        "pay_bop": 60000
+    },
+    {
+        "id_loan": 13,
+        "trans_date": "2023-01-20",
+        "pay_loan": 3333400,
+        "pay_interest": 580000,
+        "pay_bop": 20000
+    },
+    {
+        "id_loan": 14,
+        "trans_date": "2023-01-31",
+        "pay_loan": 7400000,
+        "pay_interest": 1740000,
+        "pay_bop": 60000
+    },
+    {
+        "id_loan": 15,
+        "trans_date": "2023-01-31",
+        "pay_loan": 2916700,
+        "pay_interest": 507500,
+        "pay_bop": 17500
+    },
+    {
+        "id_loan": 16,
+        "trans_date": "2023-01-12",
+        "pay_loan": 1583400,
+        "pay_interest": 275500,
+        "pay_bop": 9500
+    },
+    {
+        "id_loan": 17,
+        "trans_date": "2023-01-25",
+        "pay_loan": 4000000,
+        "pay_interest": 696000,
+        "pay_bop": 24000
+    },
+    {
+        "id_loan": 18,
+        "trans_date": "2023-01-25",
+        "pay_loan": 9833400,
+        "pay_interest": 1711000,
+        "pay_bop": 59000
+    },
+    {
+        "id_loan": 19,
+        "trans_date": "2023-01-27",
+        "pay_loan": 4166700,
+        "pay_interest": 725000,
+        "pay_bop": 25000
+    },
+    {
+        "id_loan": 20,
+        "trans_date": "2023-01-27",
+        "pay_loan": 8250000,
+        "pay_interest": 1435500,
+        "pay_bop": 49500
+    },
+    {
+        "id_loan": 21,
+        "trans_date": "2023-01-12",
+        "pay_loan": 3000000,
+        "pay_interest": 522000,
+        "pay_bop": 18000
+    },
+    {
+        "id_loan": 22,
+        "trans_date": "2023-01-31",
+        "pay_loan": 3000000,
+        "pay_interest": 522000,
+        "pay_bop": 18000
+    },
+    {
+        "id_loan": 23,
+        "trans_date": "2023-01-25",
+        "pay_loan": 1833400,
+        "pay_interest": 319000,
+        "pay_bop": 11000
+    },
+    {
+        "id_loan": 24,
+        "trans_date": "2023-01-12",
+        "pay_loan": 3083400,
+        "pay_interest": 536500,
+        "pay_bop": 18500
     }
 ]

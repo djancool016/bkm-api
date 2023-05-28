@@ -1,0 +1,72 @@
+[
+    {
+        "id_lkm": 1,
+        "id_coa": 1,
+        "total": 291350,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Kas Awal"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 2,
+        "total": 167031129,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Saldo Awal"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 20,
+        "total": 8324934,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Resiko Kredit"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 7,
+        "total": 40434600,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Inventaris Awal"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 9,
+        "total": 27905183,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Pemeliharaan Inventaris"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 23,
+        "total": 2309156,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Dana Lingkungan Tahunan"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 25,
+        "total": 11611470,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Dana Sosial Tahunan"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 27,
+        "total": 859548616,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Hibah P2KP, PNPM dan P.DAPM"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 14,
+        "total": 153091272,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Dana Pengembangan Modal Tahunan"
+    },
+    {
+        "id_lkm": 1,
+        "id_coa": 13,
+        "total": 94021848,
+        "trans_date": "2023-01-01",
+        "remark": "Pembukuan 2022 - Laba Rugi Awal"
+    }
+]

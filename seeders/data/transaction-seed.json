@@ -1,11 +1,74 @@
 [
     {
-        "id": 1,
-        "id_lkm": 1,
-        "id_coa": 1,
-        "trans_code": "AP/010122/0001",
-        "total": 1000000,
-        "trans_date": "2022-01-01",
-        "remark": "Angsuran Pokok KSM KUTILANG I"
+        "id_coa": 5,
+        "total": 9000000,
+        "trans_date": "2023-02-01",
+        "remark": "Penarikan Bank UPE"
+    },
+    {
+        "id_coa": 21,
+        "total": 3850000,
+        "trans_date": "2023-02-01",
+        "remark": "Honor Sekretaris, UPK dan Kebersihan Kantor"
+    },
+    {
+        "id_coa": 22,
+        "total": 300000,
+        "trans_date": "2023-02-01",
+        "remark": "Lembur Petugas Pembukuan UPK"
+    },
+    {
+        "id_coa": 29,
+        "total": 1450000,
+        "trans_date": "2023-02-01",
+        "remark": "Insentif Pengurus dan Pengawas"
+    },
+    {
+        "id_coa": 33,
+        "total": 300000,
+        "trans_date": "2023-02-01",
+        "remark": "Perjalanan Dinas - Ke Bank"
+    },
+    {
+        "id_coa": 33,
+        "total": 150000,
+        "trans_date": "2023-02-01",
+        "remark": "Perjalanan Dinas - Verifikasi dan Pencarian KSM"
+    },
+    {
+        "id_coa": 30,
+        "total": 100000,
+        "trans_date": "2023-02-01",
+        "remark": "Belanja Kantor - Rek Listrik"
+    },
+    {
+        "id_coa": 38,
+        "total": 225000,
+        "trans_date": "2023-02-01",
+        "remark": "Bantuan Kesehatan Tenaga Harian"
+    },
+    {
+        "id_coa": 30,
+        "total": 15000,
+        "trans_date": "2023-02-01",
+        "remark": "Belanja Kantor - ATK"
+    },
+    {
+        "id_coa": 30,
+        "total": 550000,
+        "trans_date": "2023-10-01",
+        "remark": "Belanja Kantor - Alat Detektor Uang"
+    },
+    {
+        "id_coa": 30,
+        "total": 24000,
+        "trans_date": "2023-10-01",
+        "remark": "Belanja Kantor - ATK"
+    },
+    {
+        "id_coa": 32,
+        "total": 539500,
+        "trans_date": "2023-10-01",
+        "remark": "Biaya Rapat Pengurus"
     }
 ]

@@ -122,7 +122,7 @@ class LoanPaymentFactory {
     async payment({id_loan, pay_loan, pay_interest}){
 
         // validate input
-        if(!id_loan && (!loan_payment || !interest_payment)) return new StatusLogger({code: 400, message:'Loan Payment have invalid input'}).log
+        if(!id_loan && (!pay_loan || !pay_interest)) return new StatusLogger({code: 400, message:'Loan Payment have invalid input'}).log
 
         // validate loan Payment
         let validateLoanPayment = async () => {

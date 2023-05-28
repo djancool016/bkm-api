@@ -1,39 +1,37 @@
 [
     {
         "id": 1,
-        "code": "AP",
-        "description": "angsuran pinjaman"
-    },{
+        "code": "BK",
+        "description": "Kas"
+    },
+    {
         "id": 2,
-        "code": "RP",
-        "description": "realisasi pinjaman"
-    },{
+        "code": "BI",
+        "description": "Bank"
+    },
+    {
         "id": 3,
-        "code": "BOP",
-        "description": "tabungan/BOP"
-    },{
+        "code": "BI",
+        "description": "Inventaris"
+    },
+    {
         "id": 4,
-        "code": "BP",
-        "description": "bunga pinjaman"
-    },{
+        "code": "UPE",
+        "description": "Unit Pengelola Ekonomi"
+    },
+    {
         "id": 5,
-        "code": "PT",
-        "description": "pengeluaran tetap"
-    },{
+        "code": "UPL",
+        "description": "Unit Pengelola Lingkungan"
+    },
+    {
         "id": 6,
-        "code": "PS",
-        "description": "pengeluaran sosial"
-    },{
+        "code": "UPS",
+        "description": "Unit Pengelola Sosial"
+    },
+    {
         "id": 7,
-        "code": "BB",
-        "description": "buku bank"
-    },{
-        "id": 8,
-        "code": "ML",
-        "description": "pemasukan lainnya"
-    },{
-        "id": 9,
-        "code": "KL",
-        "description": "pengeluaran lainnya"
+        "code": "BKM",
+        "description": "Sekretariat BKM"
     }
 ]
