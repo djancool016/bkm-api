@@ -39,9 +39,8 @@ class KsmFactory {
         return await this.model.create({id_lkm, name, rw})
     }
     async bulkCreate({ksms}){
-
         // input validator
-        if(Array.isArray(ksms) == false) return new StatusLogger({code:400, message:'input is not an array'})
+        if(Array.isArray(ksms) == false) return new StatusLogger({code:400, message:'input is not an array'}).log
 
         // data requirement validator
         for(let i = 0; i > ksms.length; i++){

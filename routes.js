@@ -18,6 +18,7 @@ router.delete('/transaction', user.auth, transaction.delete, endRequest)
 
 // KSM route
 router.post('/ksm', user.auth, ksm.create, endRequest)
+router.post('/ksms', user.auth, ksm.creates, endRequest)
 router.get('/ksm', user.auth, ksm.read, endRequest)
 router.put('/ksm', user.auth, ksm.update, endRequest)
 router.delete('/ksm', user.auth, ksm.delete, endRequest)
@@ -35,7 +36,8 @@ router.put('/coa', user.auth, coa.update, endRequest)
 router.delete('/coa', user.auth, coa.delete, endRequest)
 
 // Loan route
-router.post('/loan', user.auth, loan.create, endRequest)
+router.post('/loan', user.auth, loan.read, loan.create, endRequest)
+router.post('/loans', user.auth, loan.read, loan.creates, loan.bulkApproveLoans, endRequest)
 router.get('/loan', user.auth, loan.read, endRequest)
 router.put('/loan', user.auth, loan.update, endRequest)
 router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)

@@ -63,7 +63,7 @@ class RequestValidator {
                 }
             }
             // boolean validator
-            if (key == 'boolean'){
+            else if (key == 'boolean'){
                 for(let [k, v] of Object.entries(filteredKey)){
                     if(v == 1 || v == 0) return true
                     if(typeof(v) != 'boolean'){
@@ -78,6 +78,15 @@ class RequestValidator {
                     let date = new DateFormat(v).toISOString()
                     if(date === 'Invalid date'){
                         this.message = `${v} is invalid date`
+                        return false
+                    }
+                }
+            }
+            // array validator
+            else if (key == 'array'){
+                for(let [k, v] of Object.entries(filteredKey)){
+                    if(Array.isArray(v) == false){
+                        this.message = `${v} is not an array`
                         return false
                     }
                 }

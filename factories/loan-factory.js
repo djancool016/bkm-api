@@ -12,7 +12,7 @@ class LoanModel extends BaseModel {
             {
                 model: model.Ksm,
                 as: 'ksm',
-                attributes: ['id', 'name']
+                attributes: ['id', 'id_lkm', 'name'],
             }
         ]
     }
@@ -26,6 +26,14 @@ class LoanModel extends BaseModel {
     }
     findByKsmId(id_ksm){
         this.query.where = {id_ksm: id_ksm}
+        return this.findAll()
+    }
+    findByLkmId(id_lkm){
+        this.query.where = {'$ksm.id_lkm$': id_lkm}
+        return this.findAll()
+    }
+    findByIds(loanIds){
+        this.query.where = {id: loanIds}
         return this.findAll()
     }
 }
@@ -63,10 +71,12 @@ class LoanFactory {
         let ksmIds = []
 
         // data requirement validator
-        for(let i = 0; i > ksms.length; i++){
-            if(!loans[i].id_ksm || !loans[i].total_loan || !loans[i].loan_duration || !loans[i].loan_interest){
+        for(let i = 0; i < loans.length; i++){
+            if(!loans[i].id_ksm || !loans[i].total_loan || !loans[i].loan_duration || !loans[i].loan_interest){   
                 return new StatusLogger({code: 400, message:'loans have invalid input'}).log
             }
+            let total_interest = calculateInterest(loans[i].total_loan, loans[i].loan_interest, loans[i].loan_duration)
+            loans[i].total_interest = total_interest
             ksmIds.push(loans[i].id_ksm)
         }
 
@@ -77,7 +87,7 @@ class LoanFactory {
 
         return await this.model.bulkCreate(loans)
     }
-    async read({id, id_loan, id_ksm, ksm_name, findLatest = false}){
+    async read({id, id_loan, id_ksm, ksm_name, findLatest = false, id_lkm, loanIds = []}){
 
         if(id || id_loan){
             return await this.model.findByPk(id = id || id_loan)
@@ -88,8 +98,14 @@ class LoanFactory {
         else if(id_ksm){
             return await this.model.findByKsmId(id_ksm)
         }
+        else if(id_lkm){
+            return await this.model.findByLkmId(id_lkm)
+        }
         else if(findLatest){
             return await this.model.findLatestOne()
+        }
+        else if(loanIds.length > 0){
+            return await this.model.findByIds(loanIds)
         }
         else {
             return new StatusLogger({code: 404, message:'Loan not found'}).log

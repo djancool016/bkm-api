@@ -43,7 +43,7 @@ class BaseModel {
     async bulkCreate(arr){
         try {
             let result = await this.model.bulkCreate(arr)
-            if(result) return new StatusLogger({code: 201, message: "Create Successfull"}).log
+            if(result) return new DataLogger({data: result, code: 201, message: "Create Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
             if(error.message.includes('datatype mismatch')) return new StatusLogger({code: 400}).log

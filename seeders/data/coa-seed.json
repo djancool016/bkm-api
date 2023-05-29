@@ -2,37 +2,37 @@
         "id": 1,
         "id_register": 1,
         "id_account": 1,
-        "description": "Kas Awal"
+        "description": "Kas Awal UPE"
     },
     {
         "id": 2,
         "id_register": 1,
         "id_account": 2,
-        "description": "Saldo Awal"
+        "description": "Saldo Awal UPE"
     },
     {
         "id": 3,
         "id_register": 1,
         "id_account": 2,
-        "description": "Setoran Bank"
+        "description": "Setoran Bank UPE"
     },
     {
         "id": 4,
         "id_register": 1,
         "id_account": 2,
-        "description": "Bunga Bank"
+        "description": "Bunga Bank UPE"
     },
     {
         "id": 5,
         "id_register": 2,
         "id_account": 2,
-        "description": "Penarikan Bank"
+        "description": "Penarikan Bank UPE"
     },
     {
         "id": 6,
         "id_register": 2,
         "id_account": 2,
-        "description": "Biaya Administrasi dan Pajak Bank"
+        "description": "Biaya Administrasi dan Pajak Bank UPE"
     },
     {
         "id": 7,
