@@ -2,6 +2,7 @@ const router = require('express').Router()
 const {endRequest} = require('./controllers/base-controller')
 const user = require('./controllers/user-controller')
 const transaction = require('./controllers/transaction-controller')
+const transactionLoan = require('./controllers/transactionLoan-controller')
 const ksm = require('./controllers/ksm-controller')
 const lkm = require('./controllers/lkm-controller')
 const coa = require('./controllers/coa-controller')
@@ -37,13 +38,14 @@ router.get('/ksm', user.auth, ksm.read, endRequest)
 
 // // Loan route
 // router.post('/loan', user.auth, ksm.read, loan.read, loan.create, endRequest)
-router.post('/loans', user.auth, ksm.read, loan.read, loan.creates, loan.bulkApproveLoans, loanPayment.creates, endRequest)
+router.post('/loans', user.auth, ksm.read, loan.read, loan.creates, loan.approves, loanPayment.creates, endRequest)
 router.get('/loan', user.auth, loan.read, endRequest)
 // router.put('/loan', user.auth, loan.update, endRequest)
 // router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)
 // router.delete('/loan', user.auth, loan.delete, endRequest)
 
 // Loan Payment route
+router.post('/loanPayment', user.auth, loan.read, loanPayment.read, transactionLoan.read, transactionLoan.check, transaction.create, transactionLoan.create, loanPayment.update, endRequest)
 router.get('/loanpayment', user.auth, loanPayment.read, endRequest)
 
 // // Report route

@@ -2,7 +2,7 @@ const {middlewareRequest} = require('./base-controller')
 const {LoanPaymentFactory} = require('../factories/loanPayment-factory')
 const factory = new LoanPaymentFactory
 
-async function createLoanPayment(req, res, next){
+async function create(req, res, next){
 
     let allowedKey = {
         integer: ['id_loan']
@@ -16,7 +16,7 @@ async function createLoanPayment(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function bulkCreateLoanPayments(req, res, next){
+async function creates(req, res, next){
 
     let allowedKey = {}
     let allowedRole = [1, 2]
@@ -29,7 +29,7 @@ async function bulkCreateLoanPayments(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function readLoanPayment(req, res, next){
+async function read(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_ksm', 'id_loan']
@@ -38,40 +38,34 @@ async function readLoanPayment(req, res, next){
     let model = factory.read(req.body)
 
     req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
-    let{status, code, data} = req.result
+    let{code, data} = req.result
+    if(code == 404) req.result.message = 'LoanPayment not found'
     req.loanPayment = data
     
-    if(status) return next()
-    res.status(code).json(req.result)
+    return next()
 }
 
-async function updateLoanPayment(req, res, next){
+async function update(req, res, next){
 
     let allowedKey = {
         integer: ['id_loan','pay_loan','pay_interest']
     }
     let allowedRole = [1, 2]
     
-    // id_coa is from previous middleware
-    if(!req.body?.id_coa) res.status(400).json(req.result)
-
-    switch(req.body?.id_coa){
-        case 1:
-            req.body.pay_loan = req.body.total
-            break
-        case 2:
-            req.body.pay_interest = req.body.total
-            break
-    }
+    let model = factory.updatePayment({
+        payments: req.loanPayment,
+        loan: req.loan,
+        transaction: req.transaction
+    })
     
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.payment(req.body))
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
     let{status, code} = req.result
     
     if(status) return next()
     res.status(code).json(req.result)
 }
 
-async function deleteLoanPayment(req, res, next){
+async function destroy(req, res, next){
 
     let allowedKey = {
         integer: ['id_loan']
@@ -85,10 +79,4 @@ async function deleteLoanPayment(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {
-    create: createLoanPayment,
-    creates: bulkCreateLoanPayments,
-    read: readLoanPayment,
-    update: updateLoanPayment,
-    delete: deleteLoanPayment
-}
+module.exports = {create, creates, read, update, destroy}

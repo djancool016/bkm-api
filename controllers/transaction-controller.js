@@ -3,7 +3,7 @@ const {TransactionFactory} = require('../factories/transaction-factory')
 const { StatusLogger } = require('../utils')
 const factory = new TransactionFactory
 
-async function createTransaction(req, res, next){
+async function create(req, res, next){
 
     let allowedKey = {
         integer: ['id_lkm', 'id_coa', 'total'],
@@ -12,46 +12,14 @@ async function createTransaction(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    let{id_coa, id_loan} = req.body
-
-    if((id_coa == 1 || id_coa == 2) && !id_loan){
-        req.result = new StatusLogger({code: 400, message:"Empty Loan ID"}).log
-        return res.status(req.result.code).json(req.result)
-    }
-
     req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    let{status, code} = req.result
+    let{status, code, data} = req.result
+    req.transaction = data
     
     if(status) return next()
     res.status(code).json(req.result)
 }
-async function createTransactionLoan(req, res, next){
-
-    let allowedKey = {
-        integer: ['id_lkm', 'id_coa', 'id_loan', 'total'],
-        string: ['remark'],
-        date: ['trans_date']
-    }
-    let allowedRole = [1, 2]
-    
-    let{id_coa, id_loan} = req.body
-
-    if(!id_loan){
-        req.result = new StatusLogger({code: 400, message:"Empty Loan ID"}).log
-        return res.status(req.result.code).json(req.result)
-    }
-    if(id_coa > 2 ){
-        req.result = new StatusLogger({code: 400, message:"Coa not for a loan transaction"}).log
-        return res.status(req.result.code).json(req.result)
-    }
-
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
-}
-async function readTransaction(req, res, next){
+async function read(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_coa', 'id_account', 'id_register'],
@@ -67,7 +35,7 @@ async function readTransaction(req, res, next){
     if(status) return next()
     res.status(code).json(req.result)
 }
-async function updateTransaction(req, res, next){
+async function update(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_coa', 'total'],
@@ -82,7 +50,7 @@ async function updateTransaction(req, res, next){
     if(status) return next()
     res.status(code).json(req.result)
 }
-async function deleteTransaction(req, res, next){
+async function destroy(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
@@ -95,10 +63,4 @@ async function deleteTransaction(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {
-    create: createTransaction,
-    read: readTransaction,
-    update: updateTransaction,
-    delete: deleteTransaction,
-    createTransactionLoan
-}
+module.exports = {create, read, update, destroy}

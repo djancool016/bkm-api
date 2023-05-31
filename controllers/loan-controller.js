@@ -5,7 +5,7 @@ const { StatusLogger, DataLogger } = require('../utils')
 const factory = new LoanFactory
 const loanPayment = new LoanPaymentFactory()
 
-async function createLoan(req, res, next, allowedKey = {}, keyValidation = false){
+async function create(req, res, next, allowedKey = {}, keyValidation = false){
 
     let allowedRole = [1, 2]
 
@@ -23,7 +23,7 @@ async function createLoan(req, res, next, allowedKey = {}, keyValidation = false
     res.status(code).json(req.result)
 }
 
-async function bulkCreateLoans(req, res, next){
+async function creates(req, res, next){
 
     let allowedKey = {}
     let allowedRole = [1, 2]
@@ -44,7 +44,7 @@ async function bulkCreateLoans(req, res, next){
 }
 
 
-async function readLoan(req, res, next){
+async function read(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_loan', 'id_ksm'],
@@ -67,7 +67,7 @@ async function readLoan(req, res, next){
     return next()
 }
 
-async function updateLoan(req, res, next){
+async function update(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_ksm', 'total_loan', 'loan_duration', 'loan_interest']
@@ -81,7 +81,7 @@ async function updateLoan(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function deleteLoan(req, res, next){
+async function destroy(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
@@ -94,7 +94,7 @@ async function deleteLoan(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function approveLoan(req, res, next){
+async function approve(req, res, next){
 
     let allowedKey = {
         date: ['start_date']
@@ -110,7 +110,7 @@ async function approveLoan(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function bulkApproveLoans(req, res, next){
+async function approves(req, res, next){
 
     let allowedKey = {}
     let allowedRole = [1, 2]
@@ -129,12 +129,4 @@ async function bulkApproveLoans(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {
-    create: createLoan,
-    creates: bulkCreateLoans,
-    read: readLoan,
-    update: updateLoan,
-    delete: deleteLoan,
-    approveLoan,
-    bulkApproveLoans
-}
+module.exports = {create, creates, read, update, destroy, approve, approves}

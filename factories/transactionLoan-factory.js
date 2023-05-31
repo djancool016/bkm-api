@@ -1,6 +1,7 @@
 const {BaseModel} = require('./base-factory')
-const {LoanFactory} = require('./loan-factory')
-const {StatusLogger} = require('../utils')
+const {LoanPaymentFactory} = require('./loanPayment-factory')
+const {TransactionFactory} = require('./transaction-factory')
+const {StatusLogger, DataLogger} = require('../utils')
 const model = require('../models')
 
 class TransactionLoan extends BaseModel {
@@ -18,6 +19,10 @@ class TransactionLoan extends BaseModel {
                         attributes: ['id','name']
                     }
                 ]
+            },
+            {
+                model: model.Transaction,
+                as: 'transaction'
             }
         ]
     }
@@ -46,16 +51,84 @@ class TransactionLoan extends BaseModel {
 class TransactionLoanFactory {
     constructor(){
         this.model = new TransactionLoan()
-        this.loan = new LoanFactory()
+        this.transaction = new TransactionFactory()
+        this.loanPayment = new LoanPaymentFactory()
     }
-    async create({id_loan, id_transaction}){
-        if(!id_loan || !id_transaction) return new StatusLogger({code:400}).log
+    async create({loan, transaction}){
+        if(!loan || !transaction) return new StatusLogger({code:400}).log
 
-        return await this.model.create({
-            id_loan,
-            id_transaction
+        // start transactionLoan query
+        let create = await this.model.create({
+            id_loan: loan.id,
+            id_transaction: transaction.id
         })
+        return create
     }
+    async checkPayments({loan, loanPayment, transaction, transactionLoan}){
+
+        let {id_coa, total} = transaction
+        let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan
+        let remaining = {loan:0, interest:0}
+        let full = {loan:0, interest:0}
+        let paid = {loan:0, interest:0}
+        let pay = {loan:0, interest:0}
+
+        if(is_finish){
+            return new StatusLogger({code: 400, message:`Loan KSM ${name} is already finish`}).log
+        }
+        if(is_valid == false){
+            return new StatusLogger({code: 400, message:`Loan KSM ${name} is not approved`}).log
+        }
+
+        switch(id_coa){
+            case 16:
+                pay.loan = total
+                break
+            case 17:
+                pay.interest = total
+                break
+            default:
+                return new StatusLogger({code: 400, message:'Invalid Transaction Coa'}).log
+        }
+
+        for(let i = 0; i < loanPayment.length; i++){
+            
+            let {loan_full, loan_remaining, interest_full, interest_remaining} = loanPayment[i]
+
+            remaining.loan += loan_remaining
+            remaining.interest += interest_remaining
+
+            full.loan += loan_full,
+            full.interest += interest_full
+        }
+        
+        if(transactionLoan){
+            for(let i = 0; i < transactionLoan.length; i++){
+
+                let {transaction} = transactionLoan[i]
+    
+                switch(transaction.id_coa){
+                    case 16:
+                        paid.loan = transaction.total
+                        break
+                    case 17:
+                        paid.interest = transaction.total
+                        break
+                    default:
+                        return new StatusLogger({code: 400, message:'Invalid Transaction Coa'}).log
+                }
+            }  
+        }
+    
+        if((full.loan > total_loan) || (pay.loan > remaining.loan || (paid.loan + pay.loan > total_loan))){
+            return new StatusLogger({code: 400, message:`Loan KSM ${name} is exceeding loan payment`}).log
+        }
+        if((full.interest > total_interest || (pay.interest > remaining.interest) || (paid.interest + pay.interest > total_interest))){
+            return new StatusLogger({code: 400, message:`Interest KSM ${name} is exceeding interest payment`}).log
+        }
+        return new DataLogger({data: {loan, full, paid, pay}, message:'Loan Payment ready to proccess'}).log
+    }
+
     async read({id, id_transaction, id_loan, id_ksm, ids = []}){
         if(id){
             return await this.model.findByPk(id)
