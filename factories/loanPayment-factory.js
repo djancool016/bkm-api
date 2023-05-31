@@ -90,6 +90,22 @@ class LoanPaymentFactory {
         }
         return await this.model.bulkCreate(payments)
     }
+
+    async bulkCreate({approvedIds, loans}){
+
+        let approved = []
+
+        for(let i = 0; i < approvedIds.length; i++){
+            let loanPayment = await this.create({id_loan: approvedIds[i]})
+            if(loanPayment.status) approved.push(loans.find(loan => loan.id == approvedIds[i]))
+        }
+
+        if(approved.length > 0) {
+            return new DataLogger({data: approved, message:`Successfully approve ${approved.length} loans`}).log 
+        }
+        return new StatusLogger({code: 400, message:'Loans approval failed'}).log
+    }
+
     async read({id, id_loan, id_ksm, ids = []}){
 
         if(id){
@@ -108,6 +124,7 @@ class LoanPaymentFactory {
             return new StatusLogger({code: 404, message:'Loan Payment not found'}).log
         }
     }
+
     async delete({id_loan}){
 
         // validate loan
@@ -119,6 +136,7 @@ class LoanPaymentFactory {
 
         return await this.model.deleteByIdLoan(id_loan)
     }
+
     async payment({id_loan, pay_loan, pay_interest}){
 
         // validate input
@@ -173,6 +191,7 @@ class LoanPaymentFactory {
         // if loan not finish returning remaining payments
         return new DataLogger({data: {loanRemaining, interestRemaining}}).log
     }
+    
     async pay({payments, total_payment, type}){
         
         for(let i = 0; i < payments.length; i++) {

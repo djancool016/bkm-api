@@ -16,14 +16,28 @@ async function createLoanPayment(req, res, next){
     res.status(code).json(req.result)
 }
 
+async function bulkCreateLoanPayments(req, res, next){
+
+    let allowedKey = {}
+    let allowedRole = [1, 2]
+    let model = factory.bulkCreate({approvedIds: req.approvedIds, loans: req.loans})
+
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
+    let{status, code} = req.result
+    
+    if(status) return next()
+    res.status(code).json(req.result)
+}
+
 async function readLoanPayment(req, res, next){
 
     let allowedKey = {
         integer: ['id', 'id_ksm', 'id_loan']
     }
     let allowedRole = [1, 2]
+    let model = factory.read(req.body)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
     let{status, code, data} = req.result
     req.loanPayment = data
     
@@ -73,6 +87,7 @@ async function deleteLoanPayment(req, res, next){
 
 module.exports = {
     create: createLoanPayment,
+    creates: bulkCreateLoanPayments,
     read: readLoanPayment,
     update: updateLoanPayment,
     delete: deleteLoanPayment

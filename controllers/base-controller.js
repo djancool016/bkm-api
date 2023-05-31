@@ -170,10 +170,10 @@ function authorizeUser(req, allowedRole = []){
     return new StatusLogger({code: 403}).log
 }
 
-async function middlewareRequest(req, res, allowedKey = {}, allowedRole = [], model){
+async function middlewareRequest(req, res, allowedKey = {}, allowedRole = [], model, keyValidation = false){
 
     // Validate request input body
-    let validator = new RequestValidator(req.body, res, allowedKey).sendResponse
+    let validator = new RequestValidator(req.body, res, allowedKey, keyValidation).sendResponse
     if(validator.status == false) return validator
 
     // Authorize user based on roles

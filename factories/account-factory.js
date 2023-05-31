@@ -36,9 +36,9 @@ class AccountFactory{
             description: description
         })
     }
-    async read({id, code, findLatest = false, ids = []}){
-        if(id){
-            return await this.model.findByPk(id)
+    async read({id, id_account, code, findLatest = false, ids = []}){
+        if(id || id_account){
+            return await this.model.findByPk(id = id || id_account)
         }
         else if(code){
             return await this.model.findByCode(code)

@@ -45,15 +45,15 @@ class KsmFactory {
         // data requirement validator
         for(let i = 0; i > ksms.length; i++){
             if(!ksms[i].id_lkm || !ksms[i].name || !ksms[i].rw){
-                return new StatusLogger({code: 400, message:'One of KSM have invalid input'}).log
+                return new StatusLogger({code: 400, message:'KSM have invalid input'}).log
             }
         }
         return await this.model.bulkCreate(ksms)
     }
-    async read({id, id_lkm, name, findLatest = false, ids = []}){
+    async read({id, id_ksm, id_lkm, name, findLatest = false, ksmIds = []}){
 
-        if(id){
-            return await this.model.findByPk(id)
+        if(id || id_ksm){
+            return await this.model.findByPk(id = id || id_ksm)
         }
         else if(name){
             return await this.model.findByKsmName(name)
@@ -64,16 +64,16 @@ class KsmFactory {
         else if(findLatest){
             return await this.model.findLatestOne()
         }
-        else if(ids.length > 0){
-            return await this.model.findByIds(ids)
+        else if(ksmIds.length > 0){
+            return await this.model.findByIds(ksmIds)
         }
         else {
             return new StatusLogger({code: 404, message:'KSM not found'}).log
         }
     }
-    async update({id, name, rw, id_lkm}){
+    async update({id, name, rw}){
 
-        return await this.model.update({id_lkm, name, rw}, id)
+        return await this.model.update({name, rw}, id)
     }
     async delete({id}){
 

@@ -9,7 +9,7 @@ async function createKsm(req, res, next){
         string: ['name']
     }
     let allowedRole = [1, 2]
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body), true)
     let{status, code} = req.result
     
     if(status) return next()
@@ -22,7 +22,7 @@ async function bulkCreateKsm(req, res, next){
         array: ['ksms']
     }
     let allowedRole = [1, 2]
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.bulkCreate(req.body))
+    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.bulkCreate(req.body), true)
     let{status, code} = req.result
     
     if(status) return next()
@@ -34,13 +34,19 @@ async function readKsm(req, res, next){
     let allowedKey = {
         integer: ['id','id_lkm'],
         boolean: ['findLatest'],
-        string: ['name']
+        string: ['name'],
+        array: ['loans']
     }
     let allowedRole = [1, 2]
 
+    if(req.body.loans) req.body.ksmIds = req.body.loans.map(loan => loan.id_ksm)
+
     req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
     let{status, code, data} = req.result
-    req.ksm = data
+    if(code == 404) req.result.message = "Ksm not found"
+    
+    if(Array.isArray(data)) req.ksms = data
+    else req.ksm = data
     
     if(status) return next()
     res.status(code).json(req.result)

@@ -43,20 +43,36 @@ class LoanFactory {
         this.model = new LoanModel()
         this.ksm = new KsmFactory()
     }
-    async create({id_ksm, total_loan, loan_duration, loan_interest}){
 
-        if(!id_ksm || !total_loan || !loan_duration || !loan_interest){
+    async create({loans = [], ksm, total_loan, loan_duration, loan_interest}){
+
+        if(!ksm?.id || !total_loan || !loan_duration || !loan_interest){
             return new StatusLogger({code: 400, message:'loan have invalid input'}).log
         }
+        if(loans.length > 0){
 
-        // validate ksm
-        let {status} = await this.ksm.read({id: id_ksm})
-        if(status == false) return new StatusLogger({code: 404, message: "Ksm not found"}).log
+            for(let i = 0 ; i < loans.length; i++){
+
+                let{is_valid, is_finish} = loans[i]
+
+                if(is_valid == false) return new DataLogger({
+                    data: loans[i], 
+                    code: 400, 
+                    message:`KSM ${ksm.name} have unapproved loan, please delete it before creating a new one`
+                }).log
+
+                if(is_finish) return new DataLogger({
+                    data: loans[i], 
+                    code: 400, 
+                    message:`KSM ${ksm.name} have unfinished loan, please finish it before creating a new one`
+                }).log
+            }
+        }
 
         // build loan object
         let total_interest = calculateInterest(total_loan, loan_interest,loan_duration)
         let loan = {
-            id_ksm,
+            id: ksm.id,
             total_loan,
             total_interest,
             loan_duration,
@@ -64,30 +80,53 @@ class LoanFactory {
         }
         return await this.model.create(loan)
     }
-    async bulkCreate({loans}){
+
+    async bulkCreate({ksmLoans=[], loans=[]}){
 
         // array validator
         if(Array.isArray(loans) == false) return new StatusLogger({code: 400, message:'input is not an array'}).log
-        let ksmIds = []
 
-        // data requirement validator
-        for(let i = 0; i < loans.length; i++){
-            if(!loans[i].id_ksm || !loans[i].total_loan || !loans[i].loan_duration || !loans[i].loan_interest){   
-                return new StatusLogger({code: 400, message:'loans have invalid input'}).log
-            }
-            let total_interest = calculateInterest(loans[i].total_loan, loans[i].loan_interest, loans[i].loan_duration)
-            loans[i].total_interest = total_interest
-            ksmIds.push(loans[i].id_ksm)
+        let uniqueKsmId = new Set()
+
+        // validate each of ksms loans
+        for(let i = 0; i < ksmLoans.length; i++){
+
+            let{ksm, is_valid, is_finish} = ksmLoans[i]
+
+            if(is_valid == false) return new StatusLogger({
+                code: 400, 
+                message:`KSM ${ksm.name} have unapproved loan`
+            }).log
+
+            if(is_finish == false) return new StatusLogger({
+                code: 400, 
+                message:`KSM ${ksm.name} have unfinished loan`
+            }).log
+            
+            if(uniqueKsmId.has(ksm.id)) return new StatusLogger({
+                code: 400, 
+                message:`KSM ${ksm.name} have multiple loan`
+            }).log
+
+            uniqueKsmId.add(ksm.id) 
         }
 
-        // ksmIds validator
-        let uniqueIds = [...new Set(ksmIds)]
-        let {status} = await this.ksm.read({ids: uniqueIds})
-        if(status == false) return new StatusLogger({code: 400, message:'loans have invalid ksm id'}).log
+        // start create new loans
+        for(let i = 0; i < loans.length; i++){
+
+            let{id_ksm, total_loan, loan_duration, loan_interest} = loans[i]
+
+            if(!id_ksm || !total_loan || !loan_duration || !loan_interest){   
+                return new StatusLogger({code: 400, message:'Loans have invalid input'}).log
+            }
+            let total_interest = calculateInterest(total_loan, loan_interest, loan_duration)
+            loans[i].total_interest = total_interest
+        }
 
         return await this.model.bulkCreate(loans)
     }
-    async read({id, id_loan, id_ksm, ksm_name, findLatest = false, id_lkm, loanIds = []}){
+
+    async read({id, id_loan, id_ksm, ksmIds, ksm_name, findLatest = false, id_lkm, loanIds = []}){
 
         if(id || id_loan){
             return await this.model.findByPk(id = id || id_loan)
@@ -95,8 +134,8 @@ class LoanFactory {
         else if(ksm_name){
             return await this.model.findByKsmName(ksm_name)
         }
-        else if(id_ksm){
-            return await this.model.findByKsmId(id_ksm)
+        else if(id_ksm || ksmIds){
+            return await this.model.findByKsmId(id_ksm = id_ksm || ksmIds)
         }
         else if(id_lkm){
             return await this.model.findByLkmId(id_lkm)
@@ -111,35 +150,40 @@ class LoanFactory {
             return new StatusLogger({code: 404, message:'Loan not found'}).log
         }
     }
-    async update({id, id_ksm, total_loan, loan_duration, loan_interest}){
 
-        // validate loan
-        let validator = await loanValidator(await this.read({id: id}))
-        if(validator.status == false) return validator
+    async update({loan, ksm, total_loan, loan_duration, loan_interest}){
+
+        let{loan_duration: old_duration, loan_interest: old_interest, is_valid, is_finish} = loan
+
+        if(is_finish) return isFinish(is_finish)
+        if(is_valid) return isValid(is_valid)
+
         let total_interest
 
         if(total_loan){
-
-            loan_duration = loan_duration? loan_duration : validator?.data?.loan_duration
-            loan_interest = loan_interest? loan_interest : validator?.data?.loan_interest
-
-            if(!loan_duration || !loan_interest) return new StatusLogger({code: 400}).log
+            loan_duration = loan_duration? loan_duration : old_duration
+            loan_interest = loan_interest? loan_interest : old_interest
             total_interest = calculateInterest(total_loan, loan_interest, loan_duration)
         }
         
-        let loan = {
-            id_ksm,
+        let loanData = {
+            id_ksm: ksm?.id,
             total_loan,
             total_interest,
             loan_duration,
             loan_interest,
         }
 
-        return await this.model.update(loan, id)
+        return await this.model.update(loanData, id)
     }
+
     async loanApproval({loan, start_date = new Date()}){
 
-        let {id, loan_duration} = loan
+        let {id, loan_duration, is_valid, is_finish} = loan
+
+        if(is_finish) return isFinish(is_finish)
+        if(is_valid) return isValid(is_valid)
+
         let {loan_start, loan_end} = calculateDuration(start_date, loan_duration)
 
         let approved = {
@@ -149,33 +193,40 @@ class LoanFactory {
         }
         return await this.model.update(approved, id)
     }
-    async paidOff({id}){
 
-        // validate loan
-        let validator = await loanValidator(await this.read({id: id}), true)
-        if(validator.status == false) return validator
+    async bulkLoanApproval({loans}){
 
-        let {ksm:{name},is_valid, is_finish} = validator.data
-        
-        if(is_valid == false){
-            return new StatusLogger({code: 400, message: 'Loan is in approval proccess'}).log
+        let approvedId = []
+        if(loans.length > 0){
+            for(let i = 0 ; i < loans.length; i++){
+                let approve = await this.loanApproval({loan: loans[i], start_date: loans[i].start_date})
+                if(approve.status) approvedId.push(loans[i].id)
+            }
         }
-        else if(is_finish){
-            return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
-        }
+        return new DataLogger({data: approvedId}).log
+    }
 
-        let loan = {
+    async paidOff({loan}){
+
+        let {id, ksm:{name}, is_valid, is_finish} = loan
+
+        if(is_finish) return isFinish(is_finish)
+        if(is_valid == false) return isValid(is_valid)
+
+        let loadData = {
             is_finish: true
         }
-        let payoff = await this.model.update(loan, id)
-        if(payoff.status) return new StatusLogger({code: 200, message:`${name} loans is finished`})
-        return payoff
+        let result = await this.model.update(loadData, id)
+        if(result.status) return new StatusLogger({code: 200, message:`${name} loans is finished`})
+        return result
     }
-    async delete({id}){
 
-        // validate loan
-        let validator = await loanValidator(await this.read({id: id}))
-        if(validator.status == false) return validator
+    async delete({loan}){
+
+        let {id, is_valid, is_finish} = loan
+
+        if(is_finish) return isFinish(is_finish)
+        if(is_valid) return isValid(is_valid)
 
         return await this.model.delete(id)
     }
@@ -197,18 +248,13 @@ function calculateInterest(total_loan, loan_interest, loan_duration){
     let rounded_interest = Math.ceil(monthly_interest / 100) * 100
     return rounded_interest * loan_duration
 }
-async function loanValidator({data, status}, skipProgression = false){
-
-    if(status == false) {
-        return new StatusLogger({code: 404, message: 'Loan not found'}).log
-    }
-    if(skipProgression){
-        return new DataLogger({data}).log
-    }
-    if(data?.is_valid || data?.is_finish){
-        return new StatusLogger({code: 400, message: 'Loan is in progress or already finish'}).log
-    }
-    return new DataLogger({data}).log
+function isFinish(is_valid){
+    if(is_valid) return new StatusLogger({code: 400, message: 'Loan is already validated'}).log
+    return new StatusLogger({code: 400, message: 'Loan is currently not validated'}).log
+}
+function isValid(is_finish){
+    if(is_valid) return new StatusLogger({code: 400, message: 'Loan is already finished'}).log
+    return new StatusLogger({code: 400, message: 'Loan is currently not finished'}).log
 }
 
 module.exports = { LoanFactory }
