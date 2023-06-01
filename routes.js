@@ -1,5 +1,6 @@
 const router = require('express').Router()
-const {endRequest} = require('./controllers/base-controller')
+const {endRequest, authorize, validator} = require('./controllers/base-controller')
+const {input} = require('./routes-allowedKey')
 const user = require('./controllers/user-controller')
 const transaction = require('./controllers/transaction-controller')
 const transactionLoan = require('./controllers/transactionLoan-controller')
@@ -10,11 +11,40 @@ const loan = require('./controllers/loan-controller')
 const loanPayment = require('./controllers/loanPayment-controller')
 const report = require('./controllers/report-controller')
 
-// // LKM route
-router.post('/lkm', user.auth, lkm.create, endRequest)
-// router.get('/lkm', user.auth, lkm.read, endRequest)
-// router.put('/lkm', user.auth, lkm.update, endRequest)
-// router.delete('/lkm', user.auth, lkm.delete, endRequest)
+// LKM route
+router.post('/lkm', 
+    (req, res, next) => validator(req, res, next, input.lkm.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.create, endRequest
+)
+router.get('/lkm', 
+    (req, res, next) => validator(req, res, next, input.lkm.read), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.read, endRequest
+)
+router.put('/lkm', 
+    (req, res, next) => validator(req, res, next, input.lkm.update), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.update, endRequest
+)
+router.delete('/lkm', 
+    (req, res, next) => validator(req, res, next, input.lkm.destroy), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.destroy, endRequest
+)
+
+// KSM route
+router.post('/ksm', 
+    (req, res, next) => validator(req, res, next, input.ksm.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),
+    ksm.create, endRequest
+)
+router.post('/ksms', user.auth, ksm.creates, endRequest)
+router.get('/ksm', user.auth, ksm.read, endRequest)
+router.put('/ksm', user.auth, ksm.update, endRequest)
+router.delete('/ksm', user.auth, ksm.delete, endRequest)
+
+
 
 // // Transaction route
 // router.post('/transaction', user.auth, transaction.create, endRequest)
@@ -23,12 +53,7 @@ router.post('/lkm', user.auth, lkm.create, endRequest)
 // router.put('/transaction', user.auth, transaction.update, endRequest)
 // router.delete('/transaction', user.auth, transaction.delete, endRequest)
 
-// // KSM route
-// router.post('/ksm', user.auth, ksm.create, endRequest)
-// router.post('/ksms', user.auth, ksm.creates, endRequest)
-// router.get('/ksm', user.auth, ksm.read, endRequest)
-// router.put('/ksm', user.auth, ksm.update, endRequest)
-// router.delete('/ksm', user.auth, ksm.delete, endRequest)
+
 
 // // COA route
 // router.post('/coa', user.auth, coa.create, endRequest)

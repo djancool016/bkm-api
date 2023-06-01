@@ -26,13 +26,13 @@ class LkmFactory {
     constructor(){
         this.model = new LkmModel()
     }
-    async create({id_kelurahan, name, phone, address}){
+    async create({id, id_kelurahan, name, phone, address}){
 
         if(!id_kelurahan || !name || !phone || !address) {
             return new StatusLogger({code: 400, message:'LKM have invalid input'}).log
         }
-
         return await this.model.create({
+            id,
             id_kelurahan,
             name,
             phone,
@@ -58,12 +58,15 @@ class LkmFactory {
         }
     }
     async update({id, id_kelurahan, name, phone, address}){
-        return await this.model.update({
+        let update = await this.model.update({
             id_kelurahan,
             name,
             phone,
             address
         }, id)
+
+        if(update.code == 404) update.message = "LKM not found"
+        return update
     }
     async delete({id}){
         
