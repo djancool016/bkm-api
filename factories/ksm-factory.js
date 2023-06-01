@@ -71,9 +71,9 @@ class KsmFactory {
             return new StatusLogger({code: 404, message:'KSM not found'}).log
         }
     }
-    async update({id, name, rw}){
+    async update({id, id_lkm, name, rw}){
 
-        return await this.model.update({name, rw}, id)
+        return await this.model.update({name, rw, id_lkm}, id)
     }
     async delete({id}){
 

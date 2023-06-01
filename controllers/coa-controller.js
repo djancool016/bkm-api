@@ -2,71 +2,47 @@ const {middlewareRequest} = require('./base-controller')
 const {CoaFactory} = require('../factories/coa-factory')
 const factory = new CoaFactory
 
-async function createCoa(req, res, next){
+async function create(req, res, next){
 
-    let allowedKey = {
-        integer: ['id_register', 'id_account'],
-        string: ['description']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.create(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    req.coa = result
+    return next()
 }
 
-async function readCoa(req, res, next){
+async function read(req, res, next){
 
-    let allowedKey = {
-        integer: ['id','id_register', 'id_account'],
-        boolean: ['findLatest']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.read(req.body)
+    let result = await middlewareRequest(req, res, model)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    let{status, code, data} = req.result
-    req.coa = data
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    req.coa = result
+    return next()
 }
 
-async function updateCoa(req, res, next){
+async function update(req, res, next){
 
-    let allowedKey = {
-        integer: ['id','id_register', 'id_account'],
-        string: ['description']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.update(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    return next()
 }
 
-async function deleteCoa(req, res, next){
+async function destroy(req, res, next){
     
-    let allowedKey = {
-        integer: ['id']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.delete(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    return next()
 }
 
-module.exports = {
-    create: createCoa,
-    read: readCoa,
-    update: updateCoa,
-    delete: deleteCoa
-}
+module.exports = {create, read, update, destroy}
 
 

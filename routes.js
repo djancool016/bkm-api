@@ -39,10 +39,58 @@ router.post('/ksm',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]),
     ksm.create, endRequest
 )
-router.post('/ksms', user.auth, ksm.creates, endRequest)
-router.get('/ksm', user.auth, ksm.read, endRequest)
-router.put('/ksm', user.auth, ksm.update, endRequest)
-router.delete('/ksm', user.auth, ksm.delete, endRequest)
+router.post('/ksms', 
+    (req, res, next) => validator(req, res, next, input.ksm.creates), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),
+    ksm.creates, endRequest
+)
+router.get('/ksm', 
+    (req, res, next) => validator(req, res, next, input.ksm.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),
+    ksm.read, endRequest
+)
+router.put('/ksm', 
+    (req, res, next) => validator(req, res, next, input.ksm.update), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),
+    ksm.update, endRequest
+)
+router.delete('/ksm', 
+    (req, res, next) => validator(req, res, next, input.ksm.destroy), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),
+    ksm.destroy, endRequest
+)
+
+// Coa route
+router.post('/coa', 
+    (req, res, next) => validator(req, res, next, input.coa.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    coa.create, endRequest
+)
+router.get('/coa', 
+    (req, res, next) => validator(req, res, next, input.coa.read), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    coa.read, endRequest
+)
+router.put('/coa', 
+    (req, res, next) => validator(req, res, next, input.coa.update), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    coa.update, endRequest
+)
+router.delete('/coa', 
+    (req, res, next) => validator(req, res, next, input.coa.destroy), user.auth,
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    coa.destroy, endRequest
+)
+
+
+
+// Loan route
+// router.post('/loan', user.auth, ksm.read, loan.read, loan.create, endRequest)
+// router.post('/loans', user.auth, ksm.read, loan.read, loan.creates, loan.approves, loanPayment.creates, endRequest)
+// router.get('/loan', user.auth, loan.read, endRequest)
+// router.put('/loan', user.auth, loan.update, endRequest)
+// router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)
+// router.delete('/loan', user.auth, loan.delete, endRequest)
 
 
 
@@ -61,13 +109,7 @@ router.delete('/ksm', user.auth, ksm.delete, endRequest)
 // router.put('/coa', user.auth, coa.update, endRequest)
 // router.delete('/coa', user.auth, coa.delete, endRequest)
 
-// // Loan route
-// router.post('/loan', user.auth, ksm.read, loan.read, loan.create, endRequest)
-// router.post('/loans', user.auth, ksm.read, loan.read, loan.creates, loan.approves, loanPayment.creates, endRequest)
-// router.get('/loan', user.auth, loan.read, endRequest)
-// router.put('/loan', user.auth, loan.update, endRequest)
-// router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)
-// router.delete('/loan', user.auth, loan.delete, endRequest)
+
 
 // Loan Payment route
 // router.post('/loanPayment', user.auth, loan.read, loanPayment.read, 

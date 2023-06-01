@@ -35,8 +35,8 @@ class CoaModel extends BaseModel {
         this.query.order = [['created_at','DESC']]
         return this.findOne()
     }
-    findByIds(ids){
-        this.query.where = {id: ids}
+    findByIds(coaIds){
+        this.query.where = {id: coaIds}
         return this.findAll()
     }
 }
@@ -57,7 +57,7 @@ class CoaFactory {
             description: description
         })
     }
-    async read({id, id_register, id_account, findLatest = false, ids = []}){
+    async read({id, id_register, id_account, findLatest = false, coaIds = []}){
 
         if(id){
             return await this.model.findByPk(id)
@@ -71,8 +71,8 @@ class CoaFactory {
         else if (findLatest) {
             return await this.model.findLatestOne()
         }
-        else if (ids.length > 0){
-            return await this.model.findByIds(ids)
+        else if (coaIds.length > 0){
+            return await this.model.findByIds(coaIds)
         }
         else {
             return await this.model.findAll()
@@ -86,7 +86,7 @@ class CoaFactory {
             description
         }, id)
     }
-    async delete(id){
+    async delete({id}){
 
         return await this.model.delete(id)
 

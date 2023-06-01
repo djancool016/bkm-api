@@ -2,90 +2,58 @@ const {middlewareRequest} = require('./base-controller')
 const {KsmFactory} = require('../factories/ksm-factory')
 const factory = new KsmFactory
 
-async function createKsm(req, res, next){
+async function create(req, res, next){
 
-    let allowedKey = {
-        integer: ['id_lkm', 'rw', 'ksms'],
-        string: ['name']
-    }
-    let allowedRole = [1, 2]
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body), true)
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    let model = factory.create(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
+
+    req.result = result
+    req.ksm = result
+    return next()
 }
 
-async function bulkCreateKsm(req, res, next){
+async function creates(req, res, next){
 
-    let allowedKey = {
-        array: ['ksms']
-    }
-    let allowedRole = [1, 2]
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.bulkCreate(req.body), true)
-    let{status, code} = req.result
+    let model = factory.bulkCreate(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
     
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    req.ksm = result
+    return next()
 }
 
-async function readKsm(req, res, next){
+async function read(req, res, next){
 
-    let allowedKey = {
-        integer: ['id','id_lkm'],
-        boolean: ['findLatest'],
-        string: ['name'],
-        array: ['loans']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.read(req.body)
+    let result = await middlewareRequest(req, res, model)
 
-    if(req.body.loans) req.body.ksmIds = req.body.loans.map(loan => loan.id_ksm)
-
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    let{status, code, data} = req.result
-    if(code == 404) req.result.message = "Ksm not found"
-    
-    if(Array.isArray(data)) req.ksms = data
-    else req.ksm = data
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    req.ksm = result
+    return next()
 }
 
-async function updateKsm(req, res, next){
+async function update(req, res, next){
 
-    let allowedKey = {
-        integer: ['id','id_lkm','rw'],
-        string: ['name']
-    }
-    let allowedRole = [1, 2]
+    let model = factory.update(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.update(req.body))
-    let{status, code} = req.result
+    req.result = result
+    return next()
+}
+
+async function destroy(req, res, next){
     
-    if(status) return next()
-    res.status(code).json(req.result)
+    let model = factory.delete(req.body)
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
+
+    req.result = result
+    return next()
 }
 
-async function deleteKsm(req, res, next){
-    let allowedKey = {
-        integer: ['id']
-    }
-    let allowedRole = [1, 2]
-
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.delete(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
-}
-
-module.exports = {
-    create: createKsm,
-    creates: bulkCreateKsm,
-    read: readKsm,
-    update: updateKsm,
-    delete: deleteKsm
-}
+module.exports = {create, creates, read, update, destroy}
 
 
