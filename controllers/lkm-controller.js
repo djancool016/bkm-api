@@ -2,7 +2,7 @@ const {middlewareRequest} = require('./base-controller')
 const {LkmFactory} = require('../factories/lkm-factory')
 const factory = new LkmFactory
 
-async function createLkm(req, res, next){
+async function create(req, res, next){
 
     let allowedKey = {
         string: ['id_kelurahan', 'name', 'phone', 'address']
@@ -16,7 +16,7 @@ async function createLkm(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function readLkm(req, res, next){
+async function read(req, res, next){
 
     let allowedKey = {
         integer: ['id'],
@@ -33,7 +33,7 @@ async function readLkm(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function updateLkm(req, res, next){
+async function update(req, res, next){
 
     let allowedKey = {
         integer: ['id'],
@@ -48,7 +48,7 @@ async function updateLkm(req, res, next){
     res.status(code).json(req.result)
 }
 
-async function deleteLkm(req, res, next){
+async function destroy(req, res, next){
     let allowedKey = {
         integer: ['id']
     }
@@ -61,9 +61,5 @@ async function deleteLkm(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {
-    create: createLkm,
-    read: readLkm,
-    update: updateLkm,
-    delete: deleteLkm
+module.exports = {create, read, update, destroy
 }

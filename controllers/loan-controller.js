@@ -1,9 +1,7 @@
 const {middlewareRequest} = require('./base-controller')
 const {LoanFactory} = require('../factories/loan-factory')
-const {LoanPaymentFactory} = require('../factories/loanPayment-factory')
 const { StatusLogger, DataLogger } = require('../utils')
 const factory = new LoanFactory
-const loanPayment = new LoanPaymentFactory()
 
 async function create(req, res, next, allowedKey = {}, keyValidation = false){
 
@@ -54,16 +52,12 @@ async function read(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    let {loanIds, id_ksm, ksm_name, ksmIds} = req.body
+    let result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    if (result.code == 404) result.message = 'Loan not found'
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    let{code, data} = req.result
-    if(code == 404) req.result.message = 'Loan not found'
+    req.result = result
+    req.loan = result
 
-    if(ksmIds || ksm_name || id_ksm) req.ksmLoans = data
-    else if(loanIds) req.loans = data
-    else req.loan = data
-    
     return next()
 }
 

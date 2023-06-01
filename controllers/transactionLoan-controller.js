@@ -1,6 +1,7 @@
 const {middlewareRequest} = require('./base-controller')
 const {TransactionLoanFactory} = require('../factories/transactionLoan-factory')
-const { StatusLogger } = require('../utils')
+const { StatusLogger, DataLogger } = require('../utils')
+const axios = require('axios')
 const factory = new TransactionLoanFactory
 
 async function create (req, res, next){
@@ -20,6 +21,50 @@ async function create (req, res, next){
     res.status(code).json(req.result)
 }
 
+async function creates (req, res, next){
+    try {
+        
+        let responseData = []
+        let badResponse = []
+        let url = 'http://localhost:5100/loanPayment'
+        let {transactionLoans} = req.body
+
+        //make bulk request
+        let requests = transactionLoans.map( data => axios.post(url, data))
+
+        const responses = await Promise.allSettled(requests)
+
+        responses.forEach( response => {
+            if (response.status === 'fulfilled') responseData.push(response.value.data)
+            else badResponse.push(response.reason.response.data)
+        })
+
+        if(badResponse.length > 0) return res.status(400).json(new DataLogger({
+            data: badResponse,
+            code: 400,
+            message: 'Some requests failed to process'
+        }).log) 
+
+        if(responseData.length > 0) {
+            req.result = new DataLogger({
+                data: badResponse,
+                code: 400,
+                message: 'Some requests failed to process'
+            }).log 
+
+            return next()
+        }
+        return res.status(400).json(new StatusLogger({
+            code: 400,
+            message: 'All loan payments failed to process'
+        }))  
+
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+        res.status(500).json(error.message) 
+    }
+}
+
 async function read(req, res, next){
 
     let allowedKey = {
@@ -27,16 +72,20 @@ async function read(req, res, next){
     }
     let allowedRole = [1, 2]
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
-    let{code, data} = req.result
-    if(code == 404) req.result.message = 'LoanPayment not found'
-    req.transactionLoan = data
-    
+    let result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.read(req.body))
+    if (result.code == 404) result.message = 'TransactionLoan not found'
+
+    req.result = result
+    req.transactionLoan = result
+
     return next()
 }
 
 async function check(req, res, next){
-    let allowedKey = {}
+    let allowedKey = {
+        integer:['id_loan', 'id_coa', 'total'],
+        data:['trans_date']
+    }
     let allowedRole = [1, 2]
     let model = factory.checkPayments({
         loan: req.loan,
@@ -52,4 +101,4 @@ async function check(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {create, read, check}
+module.exports = {create, creates, read, check}

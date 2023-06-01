@@ -13,8 +13,8 @@ async function create(req, res, next){
     let allowedRole = [1, 2]
 
     req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    let{status, code, data} = req.result
-    req.transaction = data
+    let{status, code} = req.result
+    req.transaction = req.result
     
     if(status) return next()
     res.status(code).json(req.result)

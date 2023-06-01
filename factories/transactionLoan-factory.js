@@ -66,8 +66,13 @@ class TransactionLoanFactory {
     }
     async checkPayments({loan, loanPayment, transaction, transactionLoan}){
 
+        if(loan.status == false) return loan
+        if(loanPayment.status == false) return loanPayment
+
         let {id_coa, total} = transaction
-        let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan
+        if(!id_coa || !total) return new StatusLogger({code:400, message:"Invalid input"}).log
+
+        let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan.data
         let remaining = {loan:0, interest:0}
         let full = {loan:0, interest:0}
         let paid = {loan:0, interest:0}
@@ -91,9 +96,9 @@ class TransactionLoanFactory {
                 return new StatusLogger({code: 400, message:'Invalid Transaction Coa'}).log
         }
 
-        for(let i = 0; i < loanPayment.length; i++){
+        for(let i = 0; i < loanPayment.data.length; i++){
             
-            let {loan_full, loan_remaining, interest_full, interest_remaining} = loanPayment[i]
+            let {loan_full, loan_remaining, interest_full, interest_remaining} = loanPayment.data[i]
 
             remaining.loan += loan_remaining
             remaining.interest += interest_remaining
@@ -102,10 +107,10 @@ class TransactionLoanFactory {
             full.interest += interest_full
         }
         
-        if(transactionLoan){
-            for(let i = 0; i < transactionLoan.length; i++){
+        if(transactionLoan.data){
+            for(let i = 0; i < transactionLoan.data.length; i++){
 
-                let {transaction} = transactionLoan[i]
+                let {transaction} = transactionLoan.data[i]
     
                 switch(transaction.id_coa){
                     case 16:

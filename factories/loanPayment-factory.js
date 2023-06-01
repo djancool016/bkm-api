@@ -165,11 +165,9 @@ class LoanPaymentFactory {
             if(payment.loan_remaining == 0 && payment.interest_remaining == 0){
                 payment.is_settled = true
             }
-            console.log(payment)
 
             let update = await this.model.update(payment, id)
            
-
             if(update.status == false){
                 new StatusLogger({code: 500, message: 'Update payment failed'}).log
             }

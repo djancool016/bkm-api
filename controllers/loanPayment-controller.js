@@ -37,11 +37,12 @@ async function read(req, res, next){
     let allowedRole = [1, 2]
     let model = factory.read(req.body)
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
-    let{code, data} = req.result
-    if(code == 404) req.result.message = 'LoanPayment not found'
-    req.loanPayment = data
-    
+    let result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
+    if (result.code == 404) req.result.message = 'LoanPayment not found'
+
+    req.result = result
+    req.loanPayment = result
+
     return next()
 }
 
