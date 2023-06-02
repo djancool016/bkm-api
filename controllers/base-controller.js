@@ -34,7 +34,7 @@ class RequestValidator {
         // cleaning allowed key into an array
         let combinedAllowedKey = Object.values(this.allowedKey).flat(Infinity)
         let keys = Object.keys(this.req)
-
+        this.keys = keys
         if(this.keyValidation){
             // return true if request keys is valid
             for(let i = 0; i < keys.length; i++){
@@ -94,12 +94,21 @@ class RequestValidator {
             }
             // not null validator
             else if (key == 'notnull'){
-                for(let [k, v] of Object.entries(filteredKey)){
-                    if(!v){
-                        this.message = `${k} is undefined`
+
+                let {notnull} = this.allowedKey
+                
+                for(let i = 0; i < notnull.length; i++){
+                    if(this.keys.includes(notnull[i]) == false){
+                        this.message = `Missing keys`
                         return false
                     }
                 }
+                for(let [k, v] of Object.entries(filteredKey)){
+                    if(!v){
+                        this.message = `${k} is empty`
+                        return false
+                    }
+                }  
             }
         }
         return true

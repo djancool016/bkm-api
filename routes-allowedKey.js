@@ -80,6 +80,31 @@ module.exports = {
                 integer:['id'],
                 notnull:['id']
             },
+        },
+        transaction: {
+            create:{
+                integer:['id_coa','id_lkm','total'],
+                date: ['trans_date'],
+                string: ['remark'],
+                notnull: ['id_coa','id_lkm','total']
+            },
+            creates:{
+                array:['loans']
+            },
+            read:{
+                integer:['id', 'id_loan', 'id_account','id_lkm'],
+                boolean:['findLatest'],
+                string:['ksm_name'],
+                array:['ksmIds','loanIds']
+            },
+            update:{
+                integer:['id_loan','id_ksm','total_loan','loan_duration','loan_interest'],
+                notnull:['id_loan']
+            },
+            destroy:{
+                integer:['id'],
+                notnull:['id']
+            },
         }
     }
 }
