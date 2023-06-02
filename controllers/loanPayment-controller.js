@@ -4,29 +4,18 @@ const factory = new LoanPaymentFactory
 
 async function create(req, res, next){
 
-    let allowedKey = {
-        integer: ['id_loan']
-    }
-    let allowedRole = [1, 2]
+    if(!req.isApproved) return next()
 
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, factory.create(req.body))
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
-}
+    let model = factory.create({
+        loan: req.loan,
+        ksm: req.ksm
+    })
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
 
-async function creates(req, res, next){
-
-    let allowedKey = {}
-    let allowedRole = [1, 2]
-    let model = factory.bulkCreate({approvedIds: req.approvedIds, loans: req.loans})
-
-    req.result = await middlewareRequest(req, res, allowedKey, allowedRole, model)
-    let{status, code} = req.result
-    
-    if(status) return next()
-    res.status(code).json(req.result)
+    req.result = result
+    req.loanPayment = result
+    return next()
 }
 
 async function read(req, res, next){
@@ -80,4 +69,4 @@ async function destroy(req, res, next){
     res.status(code).json(req.result)
 }
 
-module.exports = {create, creates, read, update, destroy}
+module.exports = {create, read, update, destroy}

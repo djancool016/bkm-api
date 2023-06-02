@@ -1,4 +1,5 @@
-const {DateFormat, StatusLogger, filterKeys} = require('../utils')
+const {DateFormat, StatusLogger, DataLogger, filterKeys} = require('../utils')
+const axios = require('axios')
 
 class RequestValidator {
     constructor(req, res, allowedKey, keyValidation = false) {
@@ -57,7 +58,7 @@ class RequestValidator {
             if (key == 'integer'){
                 for(let [k, v] of Object.entries(filteredKey)){
                     if(isNaN(v)){
-                        this.message = `${v} is not a number`
+                        this.message = `${k} is not a number`
                         return false
                     }
                 }
@@ -67,7 +68,7 @@ class RequestValidator {
                 for(let [k, v] of Object.entries(filteredKey)){
                     if(v == 1 || v == 0) return true
                     if(typeof(v) != 'boolean'){
-                        this.message = `${v} is not a boolean`
+                        this.message = `${k} is not a boolean`
                         return false
                     }
                 }
@@ -77,7 +78,7 @@ class RequestValidator {
                 for(let [k, v] of Object.entries(filteredKey)){
                     let date = new DateFormat(v).toISOString()
                     if(date === 'Invalid date'){
-                        this.message = `${v} is invalid date`
+                        this.message = `${k} is invalid date`
                         return false
                     }
                 }
@@ -86,7 +87,16 @@ class RequestValidator {
             else if (key == 'array'){
                 for(let [k, v] of Object.entries(filteredKey)){
                     if(Array.isArray(v) == false){
-                        this.message = `${v} is not an array`
+                        this.message = `${k} is not an array`
+                        return false
+                    }
+                }
+            }
+            // not null validator
+            else if (key == 'notnull'){
+                for(let [k, v] of Object.entries(filteredKey)){
+                    if(!v){
+                        this.message = `${k} is undefined`
                         return false
                     }
                 }
@@ -177,6 +187,56 @@ async function middlewareRequest(req, res, model){
     return result
 }
 
+async function bulkRequest(array, url){
+
+    try {
+
+        let okResponse = []
+        let badResponse = []
+
+        //make bulk request
+        let requests = array.map( data => axios.post(url, data))
+
+        const responses = await Promise.allSettled(requests)
+
+        responses.forEach( response => {
+            if (response.status === 'fulfilled') okResponse.push(response.value.data)
+            else badResponse.push(response.reason.response.data)
+        })
+
+        let response = new DataLogger({
+            data: {okResponse},
+            code: 200,
+            message: `All ${okResponse.length} requests is proceed`
+        }).log
+
+        if(badResponse.length > 0 && okResponse > 0){
+            response.data = {okResponse, badResponse},
+            response.message = `${okResponse.length} requests is proceed, ${badResponse.length} requests is failed to process`
+            response.code = 200
+            return response
+        }
+
+        if(okResponse.length > 0){
+            return response
+        }
+
+        return new DataLogger({
+            data: {badResponse},
+            code: 400,
+            message: `All ${badResponse.length} requests failed to process`
+        }).log  
+
+    } catch (error) {
+
+        console.error('An error occurred:', error.message);
+        new StatusLogger({
+            code: 500,
+            message: 'Internal Server Error'
+        })
+    }
+}
+
 async function validator(req, res, next, allowedKey = {}){
     // Validate request input body
     let validator = new RequestValidator(req.body, res, allowedKey, true).sendResponse
@@ -199,7 +259,8 @@ async function endRequest(req, res){
 
     // this is for last middleware, returning http response
     let result = await req.result
+    if(result.badRequest) result.badRequest = req.badRequest
     return res.status(result.code).json(result)
 }
 
-module.exports = {BaseController, RequestValidator, middlewareRequest, validator, authorize, endRequest}
+module.exports = {BaseController, RequestValidator, middlewareRequest, bulkRequest, validator, authorize, endRequest}

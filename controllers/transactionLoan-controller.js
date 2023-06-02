@@ -22,9 +22,10 @@ async function create (req, res, next){
 }
 
 async function creates (req, res, next){
+    
     try {
         
-        let responseData = []
+        let okResponse = []
         let badResponse = []
         let url = 'http://localhost:5100/loanPayment'
         let {transactionLoans} = req.body
@@ -35,7 +36,7 @@ async function creates (req, res, next){
         const responses = await Promise.allSettled(requests)
 
         responses.forEach( response => {
-            if (response.status === 'fulfilled') responseData.push(response.value.data)
+            if (response.status === 'fulfilled') okResponse.push(response.value.data.data)
             else badResponse.push(response.reason.response.data)
         })
 
@@ -45,7 +46,7 @@ async function creates (req, res, next){
             message: 'Some requests failed to process'
         }).log) 
 
-        if(responseData.length > 0) {
+        if(okResponse.length > 0) {
             req.result = new DataLogger({
                 data: badResponse,
                 code: 400,

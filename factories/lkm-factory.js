@@ -41,22 +41,25 @@ class LkmFactory {
     }
     async read({id, name, findLatest = false, ids = []}){
 
+        let result 
+
         if(id){
-            return await this.model.findByPk(id)
+            result = await this.model.findByPk(id)
         }
         else if(name){
-            return await this.model.findByName(name)
+            result = await this.model.findByName(name)
         }
         else if(findLatest){
-            return await this.model.findLatestOne()
+            result = await this.model.findLatestOne()
         }
         else if(ids.length > 0){
-            return await this.model.findByIds(ids)
+            result = await this.model.findByIds(ids)
         }
-        else {
-            return new StatusLogger({code: 404, message: "LKM not found"}).log
-        }
+
+        if(result.status) return result
+        return new StatusLogger({code: 404, message:'LKM not found'}).log
     }
+
     async update({id, id_kelurahan, name, phone, address}){
         let update = await this.model.update({
             id_kelurahan,

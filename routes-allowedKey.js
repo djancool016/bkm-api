@@ -57,6 +57,29 @@ module.exports = {
             destroy:{
                 integer:['id']
             },
+        },
+        loan: {
+            create:{
+                integer:['id','id_ksm','total_loan','loan_duration','loan_interest'],
+                date: ['loan_start']
+            },
+            creates:{
+                array:['loans']
+            },
+            read:{
+                integer:['id', 'id_loan', 'id_account','id_lkm'],
+                boolean:['findLatest'],
+                string:['ksm_name'],
+                array:['ksmIds','loanIds']
+            },
+            update:{
+                integer:['id_loan','id_ksm','total_loan','loan_duration','loan_interest'],
+                notnull:['id_loan']
+            },
+            destroy:{
+                integer:['id'],
+                notnull:['id']
+            },
         }
     }
 }

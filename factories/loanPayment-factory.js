@@ -1,6 +1,6 @@
 const {BaseModel} = require('./base-factory')
 const {LoanFactory} = require('./loan-factory')
-const {StatusLogger, DateFormat, DataLogger} = require('../utils')
+const {StatusLogger, DateFormat} = require('../utils')
 const model = require('../models')
 
 class LoanPaymentModel extends BaseModel {
@@ -42,19 +42,12 @@ class LoanPaymentFactory {
         this.model = new LoanPaymentModel()
         this.loan = new LoanFactory()
     }
-    async create({id_loan}){
+    async create({loan, ksm = null}){
 
-        // Loan Validator
-        let loan = await this.loan.read({id: id_loan})
         if(loan.status == false) return loan
-        if(loan.data?.is_finish == 1) return new StatusLogger({code: 400, message: 'Loan is already finish'}).log
-
-        // Loan Payment Validator
-        let {status} = await this.read({id_loan: id_loan})
-        if(status) return new StatusLogger({code: 400, message: 'Loan Payments is already created'}).log
 
         // calculate monthly payment
-        let {total_loan, total_interest, loan_duration, loan_start} = loan.data
+        let {id: id_loan, total_loan, total_interest, loan_duration, loan_start} = loan.data
         let {loan_remaining, interest_remaining, last_loan, last_interest} = calculateLoanPayment({total_loan, total_interest, loan_duration})
         
         // build array of payments
@@ -79,41 +72,40 @@ class LoanPaymentFactory {
                 interest_remaining,
             })
         }
-        return await this.model.bulkCreate(payments)
-    }
-
-    async bulkCreate({approvedIds, loans}){
-
-        let approved = []
-
-        for(let i = 0; i < approvedIds.length; i++){
-            let loanPayment = await this.create({id_loan: approvedIds[i]})
-            if(loanPayment.status) approved.push(loans.find(loan => loan.id == approvedIds[i]))
+        let result = await this.model.bulkCreate(payments)
+        result = new StatusLogger({code:result.code, message: result.message}).log
+        
+        if(result.status) {
+            result.message = `Loan Payment successfully created`
         }
-
-        if(approved.length > 0) {
-            return new DataLogger({data: approved, message:`Successfully approve ${approved.length} loans`}).log 
+        if(result.status == false){
+            result.message = `Failed to create Loan Payment`
+        }   
+        if(ksm.data?.name) {
+            result.message = `KSM (${ksm.data.name}) ${result.message}`
         }
-        return new StatusLogger({code: 400, message:'Loans approval failed'}).log
+        return result
     }
 
     async read({id, id_loan, id_ksm, ids = [], is_settled}){
 
+        let result 
+
         if(id){
-            return await this.model.findByPk(id)
+            result = await this.model.findByPk(id)
         }
         else if(id_loan){
-            return await this.model.findByIdLoan(id_loan, is_settled)
+            result =  await this.model.findByIdLoan(id_loan, is_settled)
         }
         else if(id_ksm){
-            return await this.model.findByKsmId(id_ksm, is_settled)
+            result =  await this.model.findByKsmId(id_ksm, is_settled)
         }
         else if(ids.length > 0){
-            return await this.model.findByIds(ids, is_settled)
+            result =  await this.model.findByIds(ids, is_settled)
         }
-        else {
-            return new StatusLogger({code: 404, message:'Loan Payment not found'}).log
-        }
+
+        if(result.status) return result
+        return new StatusLogger({code: 404, message:'Loan Payments not found'}).log
     }
 
     async delete({id_loan}){

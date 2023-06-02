@@ -10,6 +10,7 @@ const coa = require('./controllers/coa-controller')
 const loan = require('./controllers/loan-controller')
 const loanPayment = require('./controllers/loanPayment-controller')
 const report = require('./controllers/report-controller')
+const { StatusLogger } = require('./utils')
 
 // LKM route
 router.post('/lkm', 
@@ -81,16 +82,48 @@ router.delete('/coa',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     coa.destroy, endRequest
 )
-
-
-
+ 
 // Loan route
-// router.post('/loan', user.auth, ksm.read, loan.read, loan.create, endRequest)
-// router.post('/loans', user.auth, ksm.read, loan.read, loan.creates, loan.approves, loanPayment.creates, endRequest)
-// router.get('/loan', user.auth, loan.read, endRequest)
-// router.put('/loan', user.auth, loan.update, endRequest)
-// router.put('/loan/approval', user.auth, loan.read, loan.approveLoan, loanPayment.create, endRequest)
-// router.delete('/loan', user.auth, loan.delete, endRequest)
+router.post('/loan', 
+    (req, res, next) => validator(req, res, next, input.loan.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    ksm.read, loan.read, loan.create, loan.approve, 
+    (req, res, next) => {
+        if(req.isApproved.status) return next()
+        return endRequest(req, res) 
+    }, 
+    loanPayment.create, endRequest
+)
+router.post('/loans', 
+    (req, res, next) => validator(req, res, next, input.loan.creates), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
+    loan.creates, endRequest
+)
+/router.get('/loan', 
+    (req, res, next) => validator(req, res, next, input.loan.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
+    loan.read, endRequest
+)
+router.put('/loan', 
+    (req, res, next) => validator(req, res, next, input.loan.update), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
+    ksm.read, loan.read, loan.update, endRequest
+)
+router.put('/loan/approval', 
+    (req, res, next) => validator(req, res, next, input.loan.approve), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    loan.read, loan.approve, 
+    (req, res, next) => {
+        if(req.isApproved.status) return next()
+        return endRequest(req, res) 
+    }, 
+    loanPayment.create, endRequest
+)
+router.delete('/loan', 
+    (req, res, next) => validator(req, res, next, input.loan.destroy), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    loan.read, loan.destroy, endRequest
+)
 
 
 
@@ -100,14 +133,6 @@ router.delete('/coa',
 // router.get('/transaction', user.auth, transaction.read, endRequest)
 // router.put('/transaction', user.auth, transaction.update, endRequest)
 // router.delete('/transaction', user.auth, transaction.delete, endRequest)
-
-
-
-// // COA route
-// router.post('/coa', user.auth, coa.create, endRequest)
-// router.get('/coa', user.auth, coa.read, endRequest)
-// router.put('/coa', user.auth, coa.update, endRequest)
-// router.delete('/coa', user.auth, coa.delete, endRequest)
 
 
 

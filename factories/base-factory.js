@@ -6,7 +6,7 @@ async function sequelizeGetRequest(model){
         if(result) return new DataLogger({data: result}).log
         return new StatusLogger({code: 404}).log
     } catch (error) {
-        if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+        if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
         console.log(error.message)
         return new StatusLogger({code: 500}).log
     }
@@ -35,8 +35,8 @@ class BaseModel {
             if(result.id) return new DataLogger({data: result, code: 201, message: "Create Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
-            if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
-            if(error.original.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
+            if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+            if(error.original?.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
             console.log(error)
             return new StatusLogger({code: 500}).log
         }
@@ -47,8 +47,8 @@ class BaseModel {
             if(result) return new DataLogger({data: result, code: 201, message: "Create Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
-            if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
-            if(error.original.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
+            if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+            if(error.original?.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
             console.log(error)
             return new StatusLogger({code: 500}).log
         }
@@ -59,8 +59,8 @@ class BaseModel {
             if(result[1]) return new StatusLogger({code: 200, message: "Update Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
-            if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
-            if(error.original.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
+            if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+            if(error.original?.code.includes('ER_DUP_ENTRY')) return new StatusLogger({code: 400, message:'Unique identifier is already in use'}).log
             console.log(error)
             return new StatusLogger({code: 500}).log
         }
@@ -71,8 +71,8 @@ class BaseModel {
             if(result) return new StatusLogger({code: 200, message: "Delete Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
-            if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
-            if(error.original.code.includes('ER_ROW_IS_REFERENCED')) return new StatusLogger({code: 400, message:'Foreign key constraint fails'}).log
+            if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+            if(error.original?.code.includes('ER_ROW_IS_REFERENCED')) return new StatusLogger({code: 400, message:'Foreign key constraint fails'}).log
             console.log(error)
             return new StatusLogger({code: 500}).log
         }
@@ -84,8 +84,8 @@ class BaseModel {
             if(result) return new StatusLogger({code: 200, message: "Delete Successfull"}).log
             return new StatusLogger({code: 404}).log
         } catch (error) {
-            if(error.original.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
-            if(error.original.code.includes('ER_ROW_IS_REFERENCED')) return new StatusLogger({code: 400, message:'Foreign key constraint fails'}).log
+            if(error.original?.code.includes('WRONG_VALUE_FOR_FIELD')) return new StatusLogger({code: 400, message:'Datatype mismatch'}).log
+            if(error.original?.code.includes('ER_ROW_IS_REFERENCED')) return new StatusLogger({code: 400, message:'Foreign key constraint fails'}).log
             console.log(error)
             return new StatusLogger({code: 500}).log
         }

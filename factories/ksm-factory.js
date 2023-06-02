@@ -52,24 +52,26 @@ class KsmFactory {
     }
     async read({id, id_ksm, id_lkm, name, findLatest = false, ksmIds = []}){
 
+        let result
+
         if(id || id_ksm){
-            return await this.model.findByPk(id = id || id_ksm)
+            result = await this.model.findByPk(id = id || id_ksm)
         }
         else if(name){
-            return await this.model.findByKsmName(name)
+            result = await this.model.findByKsmName(name)
         }
         else if(id_lkm){
-            return await this.model.findByLkm(id_lkm)
+            result = await this.model.findByLkm(id_lkm)
         }
         else if(findLatest){
-            return await this.model.findLatestOne()
+            result = await this.model.findLatestOne()
         }
         else if(ksmIds.length > 0){
-            return await this.model.findByIds(ksmIds)
+            result = await this.model.findByIds(ksmIds)
         }
-        else {
-            return new StatusLogger({code: 404, message:'KSM not found'}).log
-        }
+
+        if(result.status) return result
+        return new StatusLogger({code: 404, message:'KSM not found'}).log
     }
     async update({id, id_lkm, name, rw}){
 
