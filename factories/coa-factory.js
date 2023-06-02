@@ -57,26 +57,28 @@ class CoaFactory {
             description: description
         })
     }
-    async read({id, id_register, id_account, findLatest = false, coaIds = []}){
+    async read({id, id_coa, id_register, id_account, findLatest = false, coaIds = []}){
 
-        if(id){
-            return await this.model.findByPk(id)
+        let result
+
+        if(id || id_coa){
+            result = await this.model.findByPk(id || id_coa)
         } 
         else if (id_register) {
-            return await this.model.findByRegister(id_register)
+            result = await this.model.findByRegister(id_register)
         } 
         else if (id_account) {
-            return await this.model.findByAccount(id_account)
+            result = await this.model.findByAccount(id_account)
         } 
         else if (findLatest) {
-            return await this.model.findLatestOne()
+            result = await this.model.findLatestOne()
         }
         else if (coaIds.length > 0){
-            return await this.model.findByIds(coaIds)
+            result = await this.model.findByIds(coaIds)
         }
-        else {
-            return await this.model.findAll()
-        }
+
+        if(result.status) return result
+        return new StatusLogger({code: 404, message:'COA not found'}).log
     }
     async update({id, id_register, id_account, description}){
 
