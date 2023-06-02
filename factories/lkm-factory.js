@@ -39,12 +39,12 @@ class LkmFactory {
             address
         })
     }
-    async read({id, name, findLatest = false, ids = []}){
+    async read({id, id_lkm, name, findLatest = false, ids = []}){
 
         let result 
 
-        if(id){
-            result = await this.model.findByPk(id)
+        if(id_lkm || id){
+            result = await this.model.findByPk(id_lkm || id)
         }
         else if(name){
             result = await this.model.findByName(name)
