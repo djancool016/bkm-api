@@ -68,23 +68,20 @@ class TransactionFactory {
         this.account = new AccountFactory()
         this.coa = new CoaFactory()
     }
-    async create({id_coa, total, remark, trans_date}){
+    async create({coa, lkm, requestBody: {total, remark, trans_date}}){
 
-        // validate not null input
-        if(!total || !id_coa) return new StatusLogger({code: 400}).log
+        if(!coa || coa.status == false) return coa
+        if(!lkm || lkm.status == false) return lkm
 
-        // validate coa
-        let coa = await this.coa.read({id: id_coa})
-        let {data:{account, description}} = coa
-        if(coa.status == false) return coa
+        let{id: id_coa, description, account:{id: id_account, counter, code}} = coa.data
 
         // build transaction object
         trans_date = new DateFormat(trans_date).toISOString(false) || new DateFormat().toISOString(false)
-        let counter = Number(account.counter) + 1
-        let trans_code = `${account.code}/${dateToCode(trans_date)}/${String(counter).padStart(4, '0')}`
+        counter = Number(counter) + 1
+        let trans_code = `${code}/${dateToCode(trans_date)}/${String(counter).padStart(4, '0')}`
 
         let transaction = {
-            id_lkm: 1,
+            id_lkm: lkm.data.id,
             id_coa: id_coa,
             trans_date: trans_date,
             trans_code: trans_code,
@@ -94,7 +91,7 @@ class TransactionFactory {
 
         // update counter
         let updateCounter = () => {
-            return this.account.update({id: account.id, counter: counter})
+            return this.account.update({id: id_account, counter: counter})
         }
 
         return updateCounter()
@@ -102,58 +99,44 @@ class TransactionFactory {
                 if(result.status == false) return result
                 return this.model.create(transaction)
             })
+            .then(result => {
+                result.message = `${result.message} (${description})`
+                return result
+            })
             .catch(error => {
                 console.log(error)
                 return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
             })
     }
-    async bulkCreate({transactions}){
 
-        // array validator
-        if(Array.isArray(transactions) == false) return new StatusLogger({code: 400, message:'input is not an array'}).log
-        let coaIds = []
-
-        // data requirement validator
-        for(let i = 0; i > transactions.length; i++){
-            if(!transactions[i].total || !transactions[i].id_coa){
-                return new StatusLogger({code: 400, message:'transactions have invalid input'}).log
-            }
-            coaIds.push(transactions[i].id_coa)
-        }
-
-        // ksmIds validator
-        let uniqueIds = [...new Set(coaIds)]
-        let {status} = await this.coa.read({ids: uniqueIds})
-        if(status == false) return new StatusLogger({code: 400, message:'transactions have invalid coa id'}).log
-
-        return await this.model.bulkCreate(loans)
-    }
     async read({id, id_coa, id_account, id_register, trans_code, findLatest = false, ids = []}){
 
+        let result
+
         if(id){
-            return await this.model.findByPk(id)
+            result = await this.model.findByPk(id)
         }
         else if(id_coa) {
-            return await this.model.findByCoa(id_coa)
+            result = await this.model.findByCoa(id_coa)
         }
         else if(id_account){
-            return await this.model.findByAccount(id_account)
+            result = await this.model.findByAccount(id_account)
         }
         else if(id_register){
-            return await this.model.findByRegister(id_register)
+            result = await this.model.findByRegister(id_register)
         }
         else if(trans_code){
-            return await this.model.findByTransCode(trans_code)
+            result = await this.model.findByTransCode(trans_code)
         }
         else if(findLatest){
-            return await this.model.findLatestOne()
+            result = await this.model.findLatestOne()
         }
         else if(ids.length > 0){
-            return await this.model.findByIds(ids)
+            result = await this.model.findByIds(ids)
         }
-        else {
-            return new StatusLogger({code: 404, message: 'Transaction not found'}).log
-        }
+
+        if(result.status) return result
+        return new StatusLogger({code: 404, message:'Transaction not found'}).log
     }
     async update({id, id_coa, total, trans_date, remark}){
 
