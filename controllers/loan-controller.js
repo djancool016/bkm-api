@@ -1,6 +1,6 @@
 const {middlewareRequest, bulkRequest} = require('./base-controller')
 const {LoanFactory} = require('../factories/loan-factory')
-const { DateFormat, StatusLogger } = require('../utils')
+const { StatusLogger } = require('../utils')
 const factory = new LoanFactory
 
 async function create(req, res, next){
@@ -35,7 +35,7 @@ async function read(req, res, next){
 
     let model = factory.read(req.body)
     let result = await middlewareRequest(req, res, model)
-
+    
     req.result = result
     req.loan = result
     return next()
