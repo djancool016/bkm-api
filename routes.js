@@ -126,9 +126,12 @@ router.delete('/loan',
 )
 
 
-
-// // Transaction route
-// router.post('/transaction', user.auth, transaction.create, endRequest)
+// Transaction route
+router.post('/transaction', 
+    (req, res, next) => validator(req, res, next, input.transaction.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.read, coa.read ,transaction.create, endRequest
+)
 // router.post('/transaction/loan', user.auth, loan.read, transaction.createTransactionLoan, loanPayment.update, endRequest)
 // router.get('/transaction', user.auth, transaction.read, endRequest)
 // router.put('/transaction', user.auth, transaction.update, endRequest)
