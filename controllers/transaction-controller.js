@@ -1,4 +1,4 @@
-const {middlewareRequest} = require('./base-controller')
+const {middlewareRequest, bulkRequest} = require('./base-controller')
 const {TransactionFactory} = require('../factories/transaction-factory')
 const factory = new TransactionFactory
 
@@ -14,6 +14,18 @@ async function create(req, res, next){
 
     req.result = result
     req.transaction = result
+    return next()
+}
+async function creates(req, res, next){
+
+    let url = 'http://localhost:5100/transaction'
+    let {transactions} = req.body
+
+    let result = await bulkRequest(transactions, url)
+    console.log(result)
+    if (result.status == false) return res.status(result.code).json(result)
+
+    req.result = result
     return next()
 }
 async function read(req, res, next){
@@ -44,4 +56,4 @@ async function destroy(req, res, next){
     return next()
 }
 
-module.exports = {create, read, update, destroy}
+module.exports = {create, creates, read, update, destroy}

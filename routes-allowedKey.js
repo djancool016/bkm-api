@@ -89,7 +89,8 @@ module.exports = {
                 notnull: ['id_coa','id_lkm','total']
             },
             creates:{
-                array:['loans']
+                array:['transactions'],
+                nonull:['transactions']
             },
             read:{
                 integer:['id', 'id_loan', 'id_account','id_lkm'],

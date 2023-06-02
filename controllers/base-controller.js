@@ -104,7 +104,7 @@ class RequestValidator {
                     }
                 }
                 for(let [k, v] of Object.entries(filteredKey)){
-                    if(!v){
+                    if(!v || v.length == 0){
                         this.message = `${k} is empty`
                         return false
                     }
@@ -196,22 +196,42 @@ async function middlewareRequest(req, res, model){
     return result
 }
 
+
+
+
 async function bulkRequest(array, url){
 
     try {
 
         let okResponse = []
         let badResponse = []
+        const MAX_RETRIES = 3; // Maximum number of retries
+        const RETRY_DELAY = 1000; // Delay between retries in milliseconds
+        
+        let res
 
-        //make bulk request
-        let requests = array.map( data => axios.post(url, data))
+        for(let i = 0; i < array.length; i++){
+            
+            let response = async (retries = 0) => {
+                try {
+                    
+                    res = await axios.post(url, array[i])
+                    return res.data
+                } catch (error) {
 
-        const responses = await Promise.allSettled(requests)
+                    if(retries < MAX_RETRIES){
+                        console.error('Request failed. Retrying...')
+                        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
+                        return response(retries + 1)
+                    }
+                    return error.response.data
+                }
+            }
 
-        responses.forEach( response => {
-            if (response.status === 'fulfilled') okResponse.push(response.value.data)
-            else badResponse.push(response.reason.response.data)
-        })
+            let result = await response()
+            if(result.status) okResponse.push(result)
+            else badResponse.push(result)
+        }
 
         let response = new DataLogger({
             data: {okResponse},
@@ -219,7 +239,7 @@ async function bulkRequest(array, url){
             message: `All ${okResponse.length} requests is proceed`
         }).log
 
-        if(badResponse.length > 0 && okResponse > 0){
+        if(badResponse.length > 0 && okResponse.length > 0){
             response.data = {okResponse, badResponse},
             response.message = `${okResponse.length} requests is proceed, ${badResponse.length} requests is failed to process`
             response.code = 200
