@@ -108,6 +108,27 @@ module.exports = {
                 integer:['id'],
                 notnull:['id']
             },
+        },
+        transactionLoan: {
+            create:{
+                integer:['id_loan','id_coa','id_lkm','total'],
+                date: ['trans_date'],
+                string: ['remark'],
+                notnull: ['id_loan','id_coa','id_lkm','total']
+            },
+            creates:{
+                array:['transactionLoans'],
+                nonull:['transactionLoans']
+            },
+            read:{
+                integer:['id', 'id_transaction', 'id_loan','id_ksm'],
+                string:['trans_code']
+            }
+        },
+        loanPayment: {
+            read:{
+                integer:['id_loan']
+            } 
         }
     }
 }

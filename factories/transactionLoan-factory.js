@@ -46,6 +46,10 @@ class TransactionLoan extends BaseModel {
         this.query.where = {id: ids}
         return this.findAll()
     }
+    findByTransCode(trans_code){
+        this.query.where = {'$transaction.trans_code$': trans_code}
+        return this.findOne()
+    }
 }
 
 class TransactionLoanFactory {
@@ -55,21 +59,23 @@ class TransactionLoanFactory {
         this.loanPayment = new LoanPaymentFactory()
     }
     async create({loan, transaction}){
-        if(!loan || !transaction) return new StatusLogger({code:400}).log
+        if(loan.status == false) return loan
+        if(loan.status == false) return transaction
 
         // start transactionLoan query
         let create = await this.model.create({
-            id_loan: loan.id,
-            id_transaction: transaction.id
+            id_loan: loan.data.id,
+            id_transaction: transaction.data.id
         })
         return create
     }
-    async checkPayments({loan, loanPayment, transaction, transactionLoan}){
+    async checkPayments({loan, loanPayment, requestBody, transactionLoan}){
 
         if(loan.status == false) return loan
         if(loanPayment.status == false) return loanPayment
+        if(transactionLoan && transactionLoan.status == false) return loanPayment
 
-        let {id_coa, total} = transaction
+        let {id_coa, total} = requestBody
         if(!id_coa || !total) return new StatusLogger({code:400, message:"Invalid input"}).log
 
         let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan.data
@@ -84,7 +90,7 @@ class TransactionLoanFactory {
         if(is_valid == false){
             return new StatusLogger({code: 400, message:`Loan KSM ${name} is not approved`}).log
         }
-
+        
         switch(id_coa){
             case 16:
                 pay.loan = total
@@ -111,7 +117,7 @@ class TransactionLoanFactory {
             for(let i = 0; i < transactionLoan.data.length; i++){
 
                 let {transaction} = transactionLoan.data[i]
-    
+
                 switch(transaction.id_coa){
                     case 16:
                         paid.loan = transaction.total
@@ -120,21 +126,25 @@ class TransactionLoanFactory {
                         paid.interest = transaction.total
                         break
                     default:
-                        return new StatusLogger({code: 400, message:'Invalid Transaction Coa'}).log
+                        break
                 }
             }  
         }
-    
-        if((full.loan > total_loan) || (pay.loan > remaining.loan || (paid.loan + pay.loan > total_loan))){
+        console.log({full, paid, remaining, pay})
+        
+        if((full.loan != total_loan) || (full.interest != total_interest)){
+            return new StatusLogger({code: 400, message:`Loan Payment KSM ${name} is wrong, please check first`}).log
+        }
+        if((paid.loan + pay.loan > total_loan) || (pay.loan > remaining.loan)){
             return new StatusLogger({code: 400, message:`Loan KSM ${name} is exceeding loan payment`}).log
         }
-        if((full.interest > total_interest || (pay.interest > remaining.interest) || (paid.interest + pay.interest > total_interest))){
+        if((paid.interest + pay.interest > total_interest) || (pay.interest > remaining.interest) ){
             return new StatusLogger({code: 400, message:`Interest KSM ${name} is exceeding interest payment`}).log
         }
         return new DataLogger({data: {loan, full, paid, pay}, message:'Loan Payment ready to proccess'}).log
     }
 
-    async read({id, id_transaction, id_loan, id_ksm, ids = []}){
+    async read({id, id_transaction, id_loan, id_ksm, trans_code,ids = []}){
         if(id){
             return await this.model.findByPk(id)
         }
@@ -147,11 +157,14 @@ class TransactionLoanFactory {
         else if(id_ksm){
             return await this.model.findByIdKsm(id_ksm)
         }
+        else if(trans_code){
+            return await this.model.findByTransCode(trans_code)
+        }
         else if(ids.length > 0){
             return await this.model.findByIds(ids)
         }
         else {
-            return new StatusLogger({code: 400, message:"Transaction Loan not found"})
+            return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log
         }
     }
     async delete(id){

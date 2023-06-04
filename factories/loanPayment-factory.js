@@ -120,20 +120,22 @@ class LoanPaymentFactory {
         return await this.model.deleteByIdLoan(id_loan)
     }
 
-    async updatePayment({payments, loan, transaction}){
+    async updatePayment({loanPayment, loan, transaction}){
 
-        if(!payments || !loan || !transaction) return new StatusLogger({code: 400, message:'Update Payment Failed'}).log
+        if(loanPayment.status == false) return loanPayment
+        if(loan.status == false) return loan
+        if(transaction.status == false) return transaction
 
-        let {total: total_payment, id_coa} = transaction
-        let {id: id_loan} = loan
+        let {total: total_payment, id_coa} = transaction.data
+        
         let currentPayment
 
-        for(let i = 0; i < payments.length; i++) {
+        for(let i = 0; i < loanPayment.data.length; i++) {
             
             if(total_payment === 0) break
 
             // get id and lan_remaining for each payment
-            let { id, loan_remaining, interest_remaining } = payments[i]
+            let { id, loan_remaining, interest_remaining } = loanPayment.data[i]
             let payment = {loan_remaining, interest_remaining}
             let installments_remaining
 
@@ -164,8 +166,8 @@ class LoanPaymentFactory {
                 new StatusLogger({code: 500, message: 'Update payment failed'}).log
             }
 
-            if(i == (payments.length - 1) && payment.is_settled){
-                let payOff = await this.loan.paidOff({id: id_loan})
+            if(i == (loanPayment.data.length - 1) && payment.is_settled){
+                let payOff = await this.loan.paidOff({loan})
                 if(payOff.status) return new StatusLogger('Successfully pay off all loan payments')
             }
         }

@@ -22,7 +22,6 @@ async function creates(req, res, next){
     let {transactions} = req.body
 
     let result = await bulkRequest(transactions, url)
-    console.log(result)
     if (result.status == false) return res.status(result.code).json(result)
 
     req.result = result

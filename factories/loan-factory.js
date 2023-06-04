@@ -178,7 +178,7 @@ class LoanFactory {
 
     async paidOff({loan}){
 
-        let {id, ksm:{name}, is_valid, is_finish} = loan
+        let {id, ksm:{name}, is_valid, is_finish} = loan.data
 
         if(is_finish) return isFinish(is_finish)
         if(is_valid == false) return isValid(is_valid)

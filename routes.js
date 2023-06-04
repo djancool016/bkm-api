@@ -153,15 +153,31 @@ router.delete('/transaction',
     transaction.destroy, endRequest
 )
 
-
+// Transaction Loan route
+router.post('/transactionLoan', 
+    (req, res, next) => validator(req, res, next, input.transactionLoan.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.read, coa.read, loan.read, loanPayment.read, transactionLoan.read, 
+    transactionLoan.check, transaction.create, 
+    transactionLoan.create, loanPayment.update, endRequest
+)
+router.post('/transactionLoans', 
+    (req, res, next) => validator(req, res, next, input.transactionLoan.creates), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transactionLoan.creates, endRequest
+)
+router.get('/transactionLoan', 
+    (req, res, next) => validator(req, res, next, input.transactionLoan.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transactionLoan.read, endRequest
+)
 
 // Loan Payment route
-// router.post('/loanPayment', user.auth, loan.read, loanPayment.read, 
-//     transactionLoan.read, transactionLoan.check, transaction.create, 
-//     transactionLoan.create, loanPayment.update, endRequest
-// )
-// router.post('/loanPayments', user.auth, transactionLoan.creates, endRequest)
-// router.get('/loanpayment', user.auth, loanPayment.read, endRequest)
+router.get('/loanpayment', 
+    (req, res, next) => validator(req, res, next, input.loanPayment.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    loanPayment.read, endRequest
+)
 
 // // Report route
 // router.get('/report/collectibility/download', report.collectibilityReport)

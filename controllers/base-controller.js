@@ -99,7 +99,7 @@ class RequestValidator {
                 
                 for(let i = 0; i < notnull.length; i++){
                     if(this.keys.includes(notnull[i]) == false){
-                        this.message = `Missing keys "${notnull[i]}"`
+                        this.message = `Missing keys ${notnull[i]}`
                         return false
                     }
                 }
