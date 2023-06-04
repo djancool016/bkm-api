@@ -137,10 +137,21 @@ router.post('/transactions',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     transaction.creates, endRequest
 )
-
-// router.get('/transaction', user.auth, transaction.read, endRequest)
-// router.put('/transaction', user.auth, transaction.update, endRequest)
-// router.delete('/transaction', user.auth, transaction.delete, endRequest)
+router.get('/transaction', 
+    (req, res, next) => validator(req, res, next, input.transaction.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transaction.read, endRequest
+)
+router.put('/transaction', 
+    (req, res, next) => validator(req, res, next, input.transaction.update), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transaction.update, endRequest
+)
+router.delete('/transaction', 
+    (req, res, next) => validator(req, res, next, input.transaction.destroy), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transaction.destroy, endRequest
+)
 
 
 

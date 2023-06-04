@@ -93,14 +93,16 @@ module.exports = {
                 nonull:['transactions']
             },
             read:{
-                integer:['id', 'id_loan', 'id_account','id_lkm'],
+                integer:['id', 'id_coa', 'id_account','id_register'],
                 boolean:['findLatest'],
-                string:['ksm_name'],
-                array:['ksmIds','loanIds']
+                string:['trans_code'],
+                array:['transactionIds']
             },
             update:{
-                integer:['id_loan','id_ksm','total_loan','loan_duration','loan_interest'],
-                notnull:['id_loan']
+                integer:['id','id_coa', 'total'],
+                string:['remark'],
+                date:['trans_date'],
+                notnull:['id']
             },
             destroy:{
                 integer:['id'],

@@ -56,8 +56,8 @@ class TransactionModel extends BaseModel {
         this.query.where = {'$coa.account.id$': id_account}
         return this.findAll()
     }
-    findByIds(ids){
-        this.query.where = {id: ids}
+    findByIds(transactionIds){
+        this.query.where = {id: transactionIds}
         return this.findAll()
     }
 }
@@ -109,7 +109,7 @@ class TransactionFactory {
             })
     }
 
-    async read({id, id_coa, id_account, id_register, trans_code, findLatest = false, ids = []}){
+    async read({id, id_coa, id_account, id_register, trans_code, findLatest = false, transactionIds = []}){
 
         let result
 
@@ -131,8 +131,8 @@ class TransactionFactory {
         else if(findLatest){
             result = await this.model.findLatestOne()
         }
-        else if(ids.length > 0){
-            result = await this.model.findByIds(ids)
+        else if(transactionIds.length > 0){
+            result = await this.model.findByIds(transactionIds)
         }
 
         if(result.status) return result
