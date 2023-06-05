@@ -196,17 +196,15 @@ async function middlewareRequest(req, res, model){
     return result
 }
 
-
-
-
 async function bulkRequest(array, url){
 
     try {
 
         let okResponse = []
         let badResponse = []
-        const MAX_RETRIES = 3; // Maximum number of retries
-        const RETRY_DELAY = 1000; // Delay between retries in milliseconds
+        
+        const MAX_RETRIES = 3 // Maximum number of retries
+        const RETRY_DELAY = 1000 // Delay between retries in milliseconds
         
         let res
 
@@ -219,7 +217,7 @@ async function bulkRequest(array, url){
                     return res.data
                 } catch (error) {
 
-                    if(retries < MAX_RETRIES){
+                    if(retries < MAX_RETRIES && error.response.data.code == 500){
                         console.error('Request failed. Retrying...')
                         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
                         return response(retries + 1)
