@@ -171,7 +171,7 @@ class LoanPaymentFactory {
                 if(payOff.status) return new StatusLogger('Successfully pay off all loan payments')
             }
         }
-        return new StatusLogger({code: 200, message:'Successfully update payment'}).log
+        return new StatusLogger({code: 200, message:`Successfully update payment ${transaction.data.remark}`}).log
     }
 }
 

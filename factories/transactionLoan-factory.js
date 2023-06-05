@@ -60,14 +60,15 @@ class TransactionLoanFactory {
     }
     async create({loan, transaction}){
         if(loan.status == false) return loan
-        if(loan.status == false) return transaction
+        if(transaction.status == false) return transaction
 
         // start transactionLoan query
-        let create = await this.model.create({
+        let result = await this.model.create({
             id_loan: loan.data.id,
             id_transaction: transaction.data.id
         })
-        return create
+        result.message = `${result.message} (${transaction.data.remark})`
+        return result
     }
     async checkPayments({loan, loanPayment, requestBody, transactionLoan}){
 
@@ -99,7 +100,7 @@ class TransactionLoanFactory {
                 pay.interest = total
                 break
             default:
-                return new StatusLogger({code: 400, message:'Invalid Transaction Coa'}).log
+                break
         }
 
         for(let i = 0; i < loanPayment.data.length; i++){
@@ -130,7 +131,6 @@ class TransactionLoanFactory {
                 }
             }  
         }
-        console.log({full, paid, remaining, pay})
         
         if((full.loan != total_loan) || (full.interest != total_interest)){
             return new StatusLogger({code: 400, message:`Loan Payment KSM ${name} is wrong, please check first`}).log
@@ -142,6 +142,20 @@ class TransactionLoanFactory {
             return new StatusLogger({code: 400, message:`Interest KSM ${name} is exceeding interest payment`}).log
         }
         return new DataLogger({data: {loan, full, paid, pay}, message:'Loan Payment ready to proccess'}).log
+    }
+
+    async checkBop({loan, requestBody:{id_coa}}){
+
+        if(loan.status == false) return loan
+
+        switch(id_coa){
+            case 18:
+                return new StatusLogger({code: 200, message:'BOP payment transaction'}).log 
+            case 19:
+                return new StatusLogger({code: 200, message:'BOP withdrawal transaction'}).log 
+            default:
+                return new StatusLogger({code: 400, message:`Coa ID  is not a BOP transaction`}).log  
+        }
     }
 
     async read({id, id_transaction, id_loan, id_ksm, trans_code,ids = []}){

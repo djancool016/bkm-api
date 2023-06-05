@@ -28,6 +28,18 @@ async function creates (req, res, next){
     return next()
 }
 
+async function createBops (req, res, next){
+
+    let url = 'http://localhost:5100/transactionBop'
+    let {transactionBops} = req.body
+
+    let result = await bulkRequest(transactionBops, url)
+    if (result.status == false) return res.status(result.code).json(result)
+
+    req.result = result
+    return next()
+}
+
 async function read(req, res, next){
 
     let model = factory.read(req.body)
@@ -54,4 +66,15 @@ async function check(req, res, next){
     return next()
 }
 
-module.exports = {create, creates, read, check}
+async function checkBop(req, res, next){
+    let model = factory.checkBop({
+        loan: req.loan,
+        requestBody: req.body
+    })
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
+    
+    return next()
+}
+
+module.exports = {create, creates, read, check, checkBop, createBops}

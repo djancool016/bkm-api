@@ -68,7 +68,7 @@ class TransactionFactory {
         this.account = new AccountFactory()
         this.coa = new CoaFactory()
     }
-    async create({coa, lkm, requestBody: {total, remark, trans_date}}){
+    async create({coa, lkm, requestBody: {total, remark, trans_date}, loan}){
 
         if(!coa || coa.status == false) return coa
         if(!lkm || lkm.status == false) return lkm
@@ -79,6 +79,11 @@ class TransactionFactory {
         trans_date = new DateFormat(trans_date).toISOString(false) || new DateFormat().toISOString(false)
         counter = Number(counter) + 1
         let trans_code = `${code}/${dateToCode(trans_date)}/${String(counter).padStart(4, '0')}`
+
+        if(loan.status){
+            let {ksm:{name:ksm_name}} = loan.data
+            description = `${description} ${ksm_name}`
+        }
 
         let transaction = {
             id_lkm: lkm.data.id,

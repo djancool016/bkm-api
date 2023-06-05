@@ -7,7 +7,8 @@ async function create(req, res, next){
     let model = factory.create({
         coa: req.coa,
         lkm: req.lkm,
-        requestBody: req.body
+        requestBody: req.body,
+        loan: req.loan
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
