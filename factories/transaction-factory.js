@@ -80,7 +80,7 @@ class TransactionFactory {
         counter = Number(counter) + 1
         let trans_code = `${code}/${dateToCode(trans_date)}/${String(counter).padStart(4, '0')}`
 
-        if(loan.status){
+        if(loan?.status){
             let {ksm:{name:ksm_name}} = loan.data
             description = `${description} ${ksm_name}`
         }

@@ -67,8 +67,58 @@ class TransactionLoanFactory {
             id_loan: loan.data.id,
             id_transaction: transaction.data.id
         })
-        result.message = `${result.message} (${transaction.data.remark})`
+        result.message = `${result.message} ${transaction.data.remark}`
         return result
+    }
+    async createBop({loan, transaction}){
+        if(loan.status == false) return loan
+        if(transaction.status == false) return transaction
+
+        // start transactionLoan query
+        let result = await this.model.create({
+            id_loan: loan.data.id,
+            id_transaction: transaction.data.id
+        })
+        result.message = `${result.message} ${transaction.data.remark}`
+        return new StatusLogger({code: result.code, message: result.message}).log
+    }
+    async createLIB(requestBody){
+        let transactionLIB = []
+
+        let{id_loan, id_lkm, trans_date, pay_loan, pay_interest, pay_bop} = requestBody
+
+        if(pay_loan){
+            transactionLIB.push({
+                id_loan, 
+                id_lkm, 
+                id_coa: 16,
+                trans_date, 
+                total : pay_loan,
+                url: 'http://localhost:5100/transactionLoan'
+            })
+        }
+        if(pay_interest){
+            transactionLIB.push({
+                id_loan, 
+                id_lkm, 
+                id_coa: 17,
+                trans_date, 
+                total : pay_interest,
+                url: 'http://localhost:5100/transactionLoan'
+            })
+        }
+        if(pay_bop){
+            transactionLIB.push({
+                id_loan, 
+                id_lkm, 
+                id_coa: 18,
+                trans_date, 
+                total : pay_bop,
+                url: 'http://localhost:5100/transactionBop'
+            })
+        }
+
+        return transactionLIB
     }
     async checkPayments({loan, loanPayment, requestBody, transactionLoan}){
 

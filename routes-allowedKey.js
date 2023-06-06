@@ -113,7 +113,7 @@ module.exports = {
             create:{
                 integer:['id_loan','id_coa','id_lkm','total'],
                 date: ['trans_date'],
-                string: ['remark'],
+                string: ['remark','url'],
                 notnull: ['id_loan','id_coa','id_lkm','total']
             },
             creates:{
@@ -129,7 +129,7 @@ module.exports = {
             create:{
                 integer:['id_loan','id_coa','id_lkm','total'],
                 date: ['trans_date'],
-                string: ['remark'],
+                string: ['remark','url'],
                 notnull: ['id_loan','id_coa','id_lkm','total']
             },
             creates:{
@@ -139,6 +139,18 @@ module.exports = {
             read:{
                 integer:['id', 'id_transaction', 'id_loan','id_ksm'],
                 string:['trans_code']
+            }
+        },
+        transactionLIB: {
+            create:{
+                integer:['id_loan','id_lkm','pay_loan','pay_interest','pay_bop'],
+                date: ['trans_date'],
+                string: ['remark'],
+                notnull: ['id_loan','id_lkm']
+            },
+            creates:{
+                array:['transactionLIBs'],
+                nonull:['transactionLIBs']
             }
         },
         loanPayment: {

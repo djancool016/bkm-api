@@ -196,7 +196,7 @@ async function middlewareRequest(req, res, model){
     return result
 }
 
-async function bulkRequest(array, url){
+async function bulkRequest(array, url = ''){
 
     try {
 
@@ -213,7 +213,12 @@ async function bulkRequest(array, url){
             let response = async (retries = 0) => {
                 try {
                     
-                    res = await axios.post(url, array[i])
+                    if(array[i].url){
+                        res = await axios.post(array[i].url, array[i])
+                    }else {
+                        res = await axios.post(url, array[i])
+                    }
+                    
                     return res.data
                 } catch (error) {
 

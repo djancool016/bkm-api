@@ -177,12 +177,24 @@ router.post('/transactionBop',
     (req, res, next) => validator(req, res, next, input.transactionBop.create), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     lkm.read, coa.read, loan.read, transactionLoan.checkBop, transaction.create, 
-    transactionLoan.create, endRequest
+    transactionLoan.createBop, endRequest
 )
 router.post('/transactionBops', 
     (req, res, next) => validator(req, res, next, input.transactionBop.creates), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     transactionLoan.createBops, endRequest
+)
+
+// Transaction LIB route
+router.post('/transactionLIB', 
+    (req, res, next) => validator(req, res, next, input.transactionLIB.create), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transactionLoan.createLIB, endRequest
+)
+router.post('/transactionLIBs', 
+    (req, res, next) => validator(req, res, next, input.transactionLIB.creates), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transactionLoan.createLIBs, endRequest
 )
 
 // Loan Payment route

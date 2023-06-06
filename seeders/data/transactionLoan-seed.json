@@ -1,6 +1,7 @@
 [
     {
         "id_loan": 1,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 3166700,
         "pay_interest": 551000,
@@ -8,6 +9,7 @@
     },
     {
         "id_loan": 2,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 500000,
         "pay_interest": 0,
@@ -15,6 +17,7 @@
     },
     {
         "id_loan": 3,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 2916700,
         "pay_interest": 507500,
@@ -22,6 +25,7 @@
     },
     {
         "id_loan": 4,
+        "id_lkm": 1,
         "trans_date": "2023-01-20",
         "pay_loan": 1916700,
         "pay_interest": 333500,
@@ -29,6 +33,7 @@
     },
     {
         "id_loan": 5,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 2500000,
         "pay_interest": 435000,
@@ -36,6 +41,7 @@
     },
     {
         "id_loan": 6,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 10000000,
         "pay_interest": 1450000,
@@ -43,6 +49,7 @@
     },
     {
         "id_loan": 7,
+        "id_lkm": 1,
         "trans_date": "2023-01-27",
         "pay_loan": 2010000,
         "pay_interest": 522000,
@@ -50,6 +57,7 @@
     },
     {
         "id_loan": 8,
+        "id_lkm": 1,
         "trans_date": "2023-01-12",
         "pay_loan": 14166700,
         "pay_interest": 2465000,
@@ -57,6 +65,7 @@
     },
     {
         "id_loan": 9,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 2920000,
         "pay_interest": 1044000,
@@ -64,6 +73,7 @@
     },
     {
         "id_loan": 10,
+        "id_lkm": 1,
         "trans_date": "2023-01-27",
         "pay_loan": 8166700,
         "pay_interest": 1421000,
@@ -71,6 +81,7 @@
     },
     {
         "id_loan": 11,
+        "id_lkm": 1,
         "trans_date": "2023-01-12",
         "pay_loan": 1166700,
         "pay_interest": 203000,
@@ -78,6 +89,7 @@
     },
     {
         "id_loan": 12,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 10000000,
         "pay_interest": 1740000,
@@ -85,6 +97,7 @@
     },
     {
         "id_loan": 13,
+        "id_lkm": 1,
         "trans_date": "2023-01-20",
         "pay_loan": 3333400,
         "pay_interest": 580000,
@@ -92,6 +105,7 @@
     },
     {
         "id_loan": 14,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 7400000,
         "pay_interest": 1740000,
@@ -99,6 +113,7 @@
     },
     {
         "id_loan": 15,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 2916700,
         "pay_interest": 507500,
@@ -106,6 +121,7 @@
     },
     {
         "id_loan": 16,
+        "id_lkm": 1,
         "trans_date": "2023-01-12",
         "pay_loan": 1583400,
         "pay_interest": 275500,
@@ -113,6 +129,7 @@
     },
     {
         "id_loan": 17,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 4000000,
         "pay_interest": 696000,
@@ -120,6 +137,7 @@
     },
     {
         "id_loan": 18,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 9833400,
         "pay_interest": 1711000,
@@ -127,6 +145,7 @@
     },
     {
         "id_loan": 19,
+        "id_lkm": 1,
         "trans_date": "2023-01-27",
         "pay_loan": 4166700,
         "pay_interest": 725000,
@@ -134,6 +153,7 @@
     },
     {
         "id_loan": 20,
+        "id_lkm": 1,
         "trans_date": "2023-01-27",
         "pay_loan": 8250000,
         "pay_interest": 1435500,
@@ -141,6 +161,7 @@
     },
     {
         "id_loan": 21,
+        "id_lkm": 1,
         "trans_date": "2023-01-12",
         "pay_loan": 3000000,
         "pay_interest": 522000,
@@ -148,6 +169,7 @@
     },
     {
         "id_loan": 22,
+        "id_lkm": 1,
         "trans_date": "2023-01-31",
         "pay_loan": 3000000,
         "pay_interest": 522000,
@@ -155,6 +177,7 @@
     },
     {
         "id_loan": 23,
+        "id_lkm": 1,
         "trans_date": "2023-01-25",
         "pay_loan": 1833400,
         "pay_interest": 319000,
@@ -162,6 +185,7 @@
     },
     {
         "id_loan": 24,
+        "id_lkm": 1,
         "trans_date": "2023-01-12",
         "pay_loan": 3083400,
         "pay_interest": 536500,
