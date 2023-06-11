@@ -184,14 +184,22 @@ class ReportFactory {
         if(paymentReport.status == false) return paymentReport
 
         const workbook = new ExcelJs.Workbook()
-        const worksheet = workbook.addWorksheet('Angsuran')
-
-        // Set header and footer
-        worksheet.headerFooter.oddHeader = 'Header Text'
-        worksheet.headerFooter.oddFooter = 'Footer Text'
+        const worksheet = workbook.addWorksheet('Angsuran', {
+            pageSetup:{paperSize: 5, orientation:'landscape', fitToPage: true}
+        })
 
         let insertedRow = 0
         let types = []
+
+        // START HEADER
+        insertedRow ++
+        let headerText = [
+            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
+            "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
+            "KERURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
+            "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
+        ]
+        insertedRow = fillHeader(worksheet, headerText, 'A', 'N', insertedRow)
 
         // START TABLE HEAD
         let row = worksheet.getRow(2 + insertedRow)
@@ -234,6 +242,33 @@ class ReportFactory {
         let buffer = await workbook.xlsx.writeBuffer()
         return new DataLogger({data: buffer}).log
     }
+}
+
+// Header Text
+function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
+    let i = 0
+    strings.forEach(text => {
+        let cell = worksheet.getRow(insertedRow).getCell(columnStart)
+        cell.value = text
+        cell.alignment = {horizontal: 'center', vertical:'middle'}
+        switch(i){
+            case 0:
+                cell.font = { bold: true, size: 14 }
+                break
+            case 1:
+                cell.font = { bold: true, size: 18 }
+                break
+            case 2:
+                cell.font = { bold: true, size: 14 }
+                break
+            default:
+                break
+        }
+        worksheet.mergeCells(`${columnStart}${insertedRow}:${columnEnd}${insertedRow}`)
+        i ++
+        insertedRow ++
+    })
+    return insertedRow
 }
 
 // full head table
