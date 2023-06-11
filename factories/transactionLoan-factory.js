@@ -1,7 +1,8 @@
 const {BaseModel} = require('./base-factory')
 const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionFactory} = require('./transaction-factory')
-const {StatusLogger, DataLogger} = require('../utils')
+const {StatusLogger, DataLogger, DateFormat} = require('../utils')
+const {Op} = require('sequelize')
 const model = require('../models')
 
 class TransactionLoan extends BaseModel {
@@ -30,8 +31,10 @@ class TransactionLoan extends BaseModel {
         this.query.order = [['created_at','DESC']]
         return this.findOne()
     }
-    findByIdLoan(id_loan){
-        this.query.where = {id_loan: id_loan}
+    findByIdLoan(id_loan, start_date, end_date){
+        
+        this.query.where = {id_loan}
+        this.queryOption(start_date, end_date)
         return this.findAll()
     }
     findByIdTransaction(id_transaction){
@@ -49,6 +52,20 @@ class TransactionLoan extends BaseModel {
     findByTransCode(trans_code){
         this.query.where = {'$transaction.trans_code$': trans_code}
         return this.findOne()
+    }
+    findByDateRange(start_date, end_date) {
+        this.queryOption(start_date, end_date)
+        return this.findAll()
+    }
+    queryOption(start_date, end_date){
+
+        if(start_date || end_date){
+
+            start_date = new DateFormat(start_date? start_date : "2000-01-01").toISOString(false)
+            end_date = new DateFormat(end_date? end_date : new Date()).toISOString(false)
+
+            this.query.where = { ...this.query.where, ['$transaction.trans_date$']: {[Op.between]: [start_date, end_date]}} 
+        }
     }
 }
 
@@ -208,7 +225,7 @@ class TransactionLoanFactory {
         }
     }
 
-    async read({id, id_transaction, id_loan, id_ksm, trans_code,ids = []}){
+    async read({id, id_transaction, id_loan, id_ksm, trans_code,ids = [], start_date, end_date}){
         if(id){
             return await this.model.findByPk(id)
         }
@@ -216,7 +233,7 @@ class TransactionLoanFactory {
             return await this.model.findByIdTransaction(id_transaction)
         }
         else if(id_loan){
-            return await this.model.findByIdLoan(id_loan)
+            return await this.model.findByIdLoan(id_loan, start_date, end_date)
         }
         else if(id_ksm){
             return await this.model.findByIdKsm(id_ksm)
@@ -226,6 +243,13 @@ class TransactionLoanFactory {
         }
         else if(ids.length > 0){
             return await this.model.findByIds(ids)
+        }
+        else if(start_date && end_date){
+            
+            start_date = new DateFormat(start_date).toISOString(false)
+            end_date = new DateFormat(end_date).toISOString(false)
+
+            return await this.model.findByDateRange(start_date, end_date)
         }
         else {
             return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log

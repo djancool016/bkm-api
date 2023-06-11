@@ -204,7 +204,18 @@ router.get('/loanpayment',
     loanPayment.read, endRequest
 )
 
-// // Report route
-// router.get('/report/collectibility/download', report.collectibilityReport)
+// Report route
+
+router.get('/loanpayment/report', 
+    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    report.paymentReport, endRequest
+)
+
+router.get('/loanpayment/report/download', 
+    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    report.paymentReport, report.reportXls, endRequest
+)
 
 module.exports = router

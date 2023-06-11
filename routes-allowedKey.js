@@ -68,7 +68,7 @@ module.exports = {
             },
             read:{
                 integer:['id', 'id_loan', 'id_account','id_lkm'],
-                boolean:['findLatest'],
+                boolean:['findLatest','is_finish'],
                 string:['ksm_name'],
                 array:['ksmIds','loanIds']
             },
@@ -122,7 +122,8 @@ module.exports = {
             },
             read:{
                 integer:['id', 'id_transaction', 'id_loan','id_ksm'],
-                string:['trans_code']
+                string:['trans_code'],
+                date:['start_date', 'end_date']
             }
         },
         transactionBop: {
@@ -157,6 +158,14 @@ module.exports = {
             read:{
                 integer:['id_loan']
             } 
+        },
+        report: {
+            payment:{
+                date:['start_date', 'end_date']
+            },
+            prototype:{
+                integer:['year','month','id_lkm']
+            }
         }
     }
 }

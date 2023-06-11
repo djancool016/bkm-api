@@ -20,21 +20,34 @@ class LoanModel extends BaseModel {
         this.query.order = [['created_at','DESC']]
         return this.findOne()
     }
-    findByKsmName(ksm_name){
+    findByKsmName(ksm_name, opt){
         this.query.where = {'$ksm.name$': {[Op.like]: `%${ksm_name}%`}}
+        this.queryOption(opt)
         return this.findAll()
     }
-    findByKsmId(id_ksm){
+    findByKsmId(id_ksm, opt){
         this.query.where = {id_ksm: id_ksm}
+        this.queryOption(opt)
         return this.findAll()
     }
-    findByLkmId(id_lkm){
+    findByLkmId(id_lkm, opt){
         this.query.where = {'$ksm.id_lkm$': id_lkm}
+        this.queryOption(opt)
         return this.findAll()
     }
-    findByIds(loanIds){
+    findByIds(loanIds, opt){
         this.query.where = {id: loanIds}
+        this.queryOption(opt)
         return this.findAll()
+    }
+    queryOption({is_finish, is_valid}){
+
+        if(is_finish || is_finish === false){
+            this.query.where = { ...this.query.where, ['is_finish']: is_finish} 
+        }
+        if(is_valid || is_valid === false){
+            this.query.where = { ...this.query.where, ['is_valid']: is_valid} 
+        }
     }
 }
 
@@ -44,7 +57,7 @@ class LoanFactory {
         this.ksm = new KsmFactory()
     }
 
-    async create({loan = [], ksm, requestBody:{id, total_loan, loan_duration, loan_interest}}){
+    async create({loan = [], ksm, requestBody:{id, total_loan, loan_duration, loan_interest, loan_start}}){
 
         if(!ksm || ksm.status == false ){
             return new StatusLogger({code: 404, message:'KSM not found'}).log
@@ -73,6 +86,7 @@ class LoanFactory {
                 }).log
             }
         }
+        loan_start = loan_start? new DateFormat(loan_start).toISOString(false) : null
 
         // build loan object
         let total_interest = calculateInterest(total_loan, loan_interest,loan_duration)
@@ -83,7 +97,7 @@ class LoanFactory {
             total_interest,
             loan_duration,
             loan_interest,
-            loan_start: null,
+            loan_start,
             loan_end: null,
             is_valid: false,
             is_finish: false
@@ -93,7 +107,7 @@ class LoanFactory {
         return result
     }
 
-    async read({id, id_loan, id_ksm, ksmIds, ksm_name, findLatest = false, id_lkm, loanIds = []}){
+    async read({id, id_loan, id_ksm, ksmIds, ksm_name, findLatest = false, id_lkm, loanIds = [], is_finish, is_valid = true}){
 
         let result
 
@@ -101,19 +115,19 @@ class LoanFactory {
             result = await this.model.findByPk(id = id || id_loan)
         }
         else if(ksm_name){
-            result = await this.model.findByKsmName(ksm_name)
+            result = await this.model.findByKsmName(ksm_name, {is_finish, is_valid})
         }
         else if(id_ksm || ksmIds){
-            result = await this.model.findByKsmId(id_ksm = id_ksm || ksmIds)
+            result = await this.model.findByKsmId(id_ksm = id_ksm || ksmIds, {is_finish, is_valid})
         }
         else if(id_lkm){
-            result = await this.model.findByLkmId(id_lkm)
+            result = await this.model.findByLkmId(id_lkm, {is_finish, is_valid})
         }
         else if(findLatest){
             result = await this.model.findLatestOne()
         }
         else if(loanIds.length > 0){
-            result = await this.model.findByIds(loanIds)
+            result = await this.model.findByIds(loanIds, {is_finish, is_valid})
         }
 
         if(result.status) return result
