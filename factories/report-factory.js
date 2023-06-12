@@ -179,71 +179,139 @@ class ReportFactory {
         return new DataLogger({data: paymentReport}).log
     }
 
-    async paymentReportXls(paymentReport){
+    async paymentReportXls(paymentReport, requestBody){
 
         if(paymentReport.status == false) return paymentReport
 
         const workbook = new ExcelJs.Workbook()
         const worksheet = workbook.addWorksheet('Angsuran', {
-            pageSetup:{paperSize: 5, orientation:'landscape', fitToPage: true}
+            pageSetup: {paperSize: 5, orientation:'landscape', fitToPage: true}
         })
 
-        let insertedRow = 0
-        let types = []
+        let content = []
+        let contentType = [
+            'number','string','date','currency','date','number',
+            'currency','currency','currency','currency',
+            'currency','currency','currency','currency',
+            'string'
+        ]
+        let insertedRow = 1
 
         // START HEADER
-        insertedRow ++
         let headerText = [
             "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
             "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
-            "KERURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
+            "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
             "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
         ]
-        insertedRow = fillHeader(worksheet, headerText, 'A', 'N', insertedRow)
+        insertedRow = fillHeader(worksheet, headerText, 'A', 'O', insertedRow)
 
-        // START TABLE HEAD
-        let row = worksheet.getRow(2 + insertedRow)
-        let head = [
-            'No','KSM', 'Tanggal Pencairan', 
-            'Jumlah Pinjaman','Tanggal Angsuran','Angs ke',
-            'Pokok', 'Bunga', 'BOP', 'Jumlah',
-            'Pokok', 'Bunga', 'BOP', 'Jumlah'
-        ]
-        fillHeadTable(row, head)
+        // Date report
+        let{year, month}= requestBody
+        let date = new DateFormat(`${year}-${month+1}`)
+        date.addDays = -1
+        date = `Angsuran : ${date.toLocaleString(false)}`
+        mergeColumn(worksheet, date, 'M', 'O', 0, insertedRow, 'right', {bold: true})
 
-        mergeRows(worksheet, ['A','B','C','D','E','F'], 1, 2, insertedRow)
-        mergeColumn(worksheet, "Angsuran Bulan Ini",'G', 'J', 1, insertedRow)
-        mergeColumn(worksheet, "Sisa Angsuran Bulan Ini",'K', 'N', 1, insertedRow)
+        insertedRow ++
 
-        // START TABLE CONTENT
         paymentReport.data.forEach((item, index) => {
+    
+            let {current, deliquent, doubtful, nonperforming, default: failed} = item.collectibillity
+            let remark
 
-            let row = worksheet.getRow(index + 3 + insertedRow)
-            let content = [
-                {data: index + 1, type: 'number'},
-                {data: item.ksm_name, type: 'string'},
-                {data: item.loan_start, type: 'date'},
-                {data: item.total_loan, type: 'currency'},       
-                {data: item.trans_date, type: 'date'},  
-                {data: item.this_month_payment.payment_no, type: 'number'}, 
-                {data: item.pay_loan, type: 'currency'}, 
-                {data: item.pay_interest, type: 'currency'}, 
-                {data: item.pay_bop, type: 'currency'}, 
-                {data: item.pay_loan + item.pay_interest + item.pay_bop, type: 'currency'},
-                {data: item.remaining_loan, type: 'currency'}, 
-                {data: item.remaining_interest, type: 'currency'}, 
-                {data: item.remaining_bop, type: 'currency'}, 
-                {data: item.remaining_loan + item.remaining_interest + item.remaining_bop, type: 'currency'}, 
-            ]
-            types = fillContents(row, content)
+            if(failed) remark = 'Macet'
+            else if(nonperforming) remark = 'Diragukan'
+            else if(doubtful) remark = 'Kurang Lancar'
+            else if(deliquent) remark = 'Perlu Perhatian'
+            else if(current) remark = 'Lancar'
+            else remark = 'Invalid Payment'
+
+            content.push([
+                index + 1,
+                item.ksm_name,
+                new Date(item.loan_start),
+                item.total_loan,
+                new Date(item.trans_date),
+                item.this_month_payment.payment_no,
+                item.pay_loan,
+                item.pay_interest,
+                item.pay_bop,
+                item.pay_loan + item.pay_interest + item.pay_bop,
+                item.remaining_loan,
+                item.remaining_interest,
+                item.remaining_bop,
+                item.remaining_loan + item.remaining_interest + item.remaining_bop,
+                remark
+            ])
         })
 
-        columnWidth(worksheet, types)
+        // CREATE TABLE
+        worksheet.addTable({
+            name: 'PaymentReport',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            headerRowCount: 2,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'KSM'},
+              {name: 'Tanggal Pencairan', filterButton: true},
+              {name: 'Jumlah Pinjaman', totalsRowFunction: 'sum'},
+              {name: 'Tanggal Angsuran', filterButton: true},
+              {name: 'Angs ke'},
+              {name: 'Angsuran Pokok', totalsRowFunction: 'sum'},
+              {name: 'Angsuran Bunga 1.45%', totalsRowFunction: 'sum'},
+              {name: 'Angsuran BOP 0.05%', totalsRowFunction: 'sum'},
+              {name: 'Jumlah Angsuran', totalsRowFunction: 'sum'},
+              {name: 'Sisa Pokok', totalsRowFunction: 'sum'},
+              {name: 'Sisa Bunga', totalsRowFunction: 'sum'},
+              {name: 'Sisa BOP', totalsRowFunction: 'sum'},
+              {name: 'Jumlah Sisa', totalsRowFunction: 'sum'},
+              {name: 'Keterangan'}
+            ],
+            rows: content
+        })
+
+        columnWidth(worksheet, contentType)
+        formatContent(worksheet, contentType, content.length + 1, insertedRow)
+        worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
+
         let buffer = await workbook.xlsx.writeBuffer()
         return new DataLogger({data: buffer}).log
     }
 }
 
+// format content
+function formatContent(worksheet, contentType, contentLength, insertedRow){
+
+    for(let i = 1; i <= contentLength; i++){
+
+        contentType.forEach((type, index) => {
+
+            let cell = worksheet.getRow(insertedRow + i).getCell(index + 1)
+
+            switch(type){
+                case 'number':
+                    cell.alignment = {horizontal: 'center'}
+                    break
+                case 'date':
+                    cell.alignment = {horizontal: 'center'}
+                    cell.numFmt = 'yyyy/mm/dd'
+                    break
+                case 'currency':
+                    cell.numFmt = '#,##0'
+                    break
+                default:
+                    break
+            } 
+        })
+    }
+}
 // Header Text
 function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
     let i = 0
@@ -270,7 +338,6 @@ function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
     })
     return insertedRow
 }
-
 // full head table
 function fillHeadTable(row, obj){
 
@@ -284,7 +351,6 @@ function fillHeadTable(row, obj){
         return cell
     })
 }
-
 // fill content cell
 function fillContents(row, obj){
 
@@ -315,7 +381,6 @@ function fillContents(row, obj){
     })
     return types
 }
-
 // column witdh by array
 function columnWidth(worksheet, type){
     let i = 0
@@ -339,7 +404,6 @@ function columnWidth(worksheet, type){
         i++
     })
 }
-
 // merge rows on every columns sequentialy, ex A1:A2, B1,B2, ... ect
 function mergeRows(worksheet, columns, rowStart, rowEnd, insertedRow){
     columns.forEach(char => {
@@ -351,12 +415,12 @@ function mergeRows(worksheet, columns, rowStart, rowEnd, insertedRow){
         return worksheet.mergeCells(`${char}${rowStart + insertedRow}:${char}${rowEnd + insertedRow}`)
     })
 }
-
 // merge columns
-function mergeColumn(worksheet, value, columnStart, columnEnd, row, insertedRow){
+function mergeColumn(worksheet, value, columnStart, columnEnd, row, insertedRow, align = 'center', font = {}){
     let cell = worksheet.getCell(`${columnStart}${row + insertedRow}`)
     cell.value = value
-    cell.alignment = {horizontal: 'center', vertical: 'middle', wrapText: true} 
+    cell.alignment = {horizontal: align, vertical: 'middle', wrapText: true} 
+    cell.font = font
     return worksheet.mergeCells(`${columnStart}${row + insertedRow}:${columnEnd}${row + insertedRow}`)
 }
 
