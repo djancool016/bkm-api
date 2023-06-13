@@ -206,13 +206,17 @@ router.get('/loanpayment',
 
 // Report route
 
-router.get('/loanpayment/report', 
+router.get('/report/loanPayment', 
     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     report.paymentReport, endRequest
 )
-
-router.get('/loanpayment/report/download', 
+router.get('/report/cash', 
+    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    report.cashReport, endRequest
+)
+router.get('/report/download', 
     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     report.paymentReport, report.reportXls, endRequest

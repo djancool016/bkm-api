@@ -93,7 +93,7 @@ module.exports = {
                 nonull:['transactions']
             },
             read:{
-                integer:['id', 'id_coa', 'id_account','id_register'],
+                integer:['id', 'id_coa', 'id_account','id_register','id_lkm'],
                 boolean:['findLatest'],
                 string:['trans_code'],
                 array:['transactionIds']
