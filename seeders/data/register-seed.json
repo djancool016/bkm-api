@@ -7,5 +7,9 @@
         "id": 2,
         "code": "CUK",
         "description": "catatan uang keluar (kredit)"
+    },{
+        "id": 3,
+        "code": "CAT",
+        "description": "catatan anggaran tahunan"
     }
 ]

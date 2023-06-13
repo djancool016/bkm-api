@@ -132,7 +132,7 @@
     },
     {
         "id": 23,
-        "id_register": 1,
+        "id_register": 3,
         "id_account": 5,
         "description": "Dana Lingkungan Tahunan"
     },
@@ -144,7 +144,7 @@
     },
     {
         "id": 25,
-        "id_register": 1,
+        "id_register": 3,
         "id_account": 6,
         "description": "Dana Sosial Tahunan"
     },
@@ -162,7 +162,7 @@
     },
     {
         "id": 28,
-        "id_register": 1,
+        "id_register": 3,
         "id_account": 7,
         "description": "BOP BKM Tahunan"
     },
@@ -237,5 +237,12 @@
         "id_register": 2,
         "id_account": 7,
         "description": "Pendampingan Sistem Komputer"
+    }
+    ,
+    {
+        "id": 41,
+        "id_register": 1,
+        "id_account": 7,
+        "description": "Sewa Kios"
     }
 ]
