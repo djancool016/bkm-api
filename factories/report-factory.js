@@ -2,6 +2,7 @@ const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionLoanFactory} = require('./transactionLoan-factory')
 const {LoanFactory} = require('./loan-factory')
 const {TransactionFactory} = require('./transaction-factory')
+const {CoaFactory} = require('./coa-factory')
 const ExcelJs = require('exceljs')
 const { DataLogger, DateFormat, StatusLogger } = require('../utils')
 
@@ -11,6 +12,7 @@ class ReportFactory {
         this.loanPayment = new LoanPaymentFactory
         this.transactionLoan = new TransactionLoanFactory
         this.transaction = new TransactionFactory
+        this.coa = new CoaFactory
     }
     
     async paymentReport({id_lkm = 1, year, month}){
@@ -234,6 +236,125 @@ class ReportFactory {
             }
         }
         return new DataLogger({data: {paymentReport, risk}}).log
+    }
+    // Credit Debit report
+    async cashReport({id_lkm = 1, year, month}){
+
+        month = String(month).padStart(2, '0')
+
+        let start_date = new DateFormat(`${year}-${month}`)
+        if(start_date.toISOString() == 'Invalid date') return new StatusLogger({code:400, message:'Invalid date format'}).log
+
+        let end_date = new DateFormat(`${year}-${month}`)
+        end_date.addMonths = 1
+        end_date.addDays = -1
+        end_date = end_date.toISOString(false)
+
+        let lastMonth = new DateFormat(`${year}-${month}`)
+        lastMonth.addDays = -1
+        lastMonth = lastMonth.toISOString(false)
+
+        let cashReport = {}
+        let incomes = {
+            loan_interest: [], bank_interest: []
+        }
+        let costs = {
+            bank: [], upe: [], ups: [], upl: [], bkm: [], inventory: []
+        }
+
+        // Find loan data
+        start_date = start_date.toISOString(false)
+        let debit = await this.transaction.read({id_register: 1, id_lkm, start_date, end_date})
+        if(debit.status == false) return debit
+
+        let credit = await this.transaction.read({id_register: 2, id_lkm, start_date, end_date})
+        if(credit.status == false) return credit
+
+        const updateIncomes = (data) => {
+            
+            const update = (arr, data) => {
+                if(arr.length === 0) return arr.push(data)
+                arr.forEach(obj => obj.total += data.total )
+            }
+    
+            switch(data.id_account){
+                case 2:
+                    update(incomes.bank_interest, data)
+                    break
+                case 4:
+                    update(incomes.loan_interest, data)
+                    break
+            }
+        }
+        const updateCosts = (data) => {
+
+            const update = (arr, data) => {
+
+                const index = arr.findIndex(item => {
+                    return item.id_coa == data.id_coa
+                })
+
+                if(index == -1) return arr.push(data)
+                arr[index].total += data.total
+            }
+
+            switch(data.id_account){
+                case 2:
+                    update(costs.bank, data)
+                    break
+                case 3:
+                    update(costs.inventory, data)
+                    break
+                case 4:
+                    update(costs.upe, data)
+                    break
+                case 5:
+                    update(costs.upl, data)
+                    break
+                case 6:
+                    update(costs.ups, data)
+                    break
+                case 7:
+                    update(costs.bkm, data)
+                    break
+            }
+        }
+
+        let incomeCoa = [4,17,41]
+        let costCoa = [6,9,10,12,19,21,22,24,26,29,30,31,32,33,34,35,36,37,38,39,40]
+
+        debit.data.forEach(obj => {
+            let data = {
+                id_coa: obj.coa.id,
+                id_account: obj.coa.account.id,
+                id_register: obj.coa.register.id,
+                description: obj.coa.description,
+                total: obj.total
+            }
+            incomeCoa.forEach(coa => {
+                if(data.id_coa == coa)  updateIncomes(data)
+            })
+        })
+        credit.data.forEach(obj => {
+            let data = {
+                id_coa: obj.coa.id,
+                id_account: obj.coa.account.id,
+                id_register: obj.coa.register.id,
+                description: obj.coa.description,
+                total: obj.total
+            }
+            costCoa.forEach(coa => {
+                if(data.id_coa == coa) updateCosts(data)
+            })
+        })
+
+        // cashReport.debit = debit.data
+        // cashReport.credit = credit.data
+
+        cashReport.income = incomes
+        cashReport.cost = costs
+
+        return new DataLogger({data: cashReport}).log
     }
 
     async reportXls({requestBody, paymentReport}){
