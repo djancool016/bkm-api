@@ -21,7 +21,10 @@ async function reportXls(req, res, next){
     res.setHeader('Content-Disposition', 'attachment; filename=download.xlsx')
     res.setHeader('Content-Transfer-Encoding', 'binary')
 
-    let model = factory.paymentReportXls(req.paymentReport, req.body)
+    let model = factory.reportXls({
+        requestBody: req.body,
+        paymentReport: req.paymentReport
+    })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
 

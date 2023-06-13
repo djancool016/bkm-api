@@ -1,6 +1,7 @@
 const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionLoanFactory} = require('./transactionLoan-factory')
 const {LoanFactory} = require('./loan-factory')
+const {TransactionFactory} = require('./transaction-factory')
 const ExcelJs = require('exceljs')
 const { DataLogger, DateFormat, StatusLogger } = require('../utils')
 
@@ -9,6 +10,7 @@ class ReportFactory {
         this.loan = new LoanFactory
         this.loanPayment = new LoanPaymentFactory
         this.transactionLoan = new TransactionLoanFactory
+        this.transaction = new TransactionFactory
     }
     
     async paymentReport({id_lkm = 1, year, month}){
@@ -108,17 +110,27 @@ class ReportFactory {
             paymentReport[index].remaining_bop = total_bop - (paid_bop + pay_bop)
         })
 
+        let totalCurrent = 0
+        let totalDeliquent = 0
+        let totalDoubtful = 0
+        let totalNonPerforming = 0
+        let totalDefault = 0
+        let totalAllRemainingLoan = 0
+
         for(let i = 0; i < paymentReport.length; i++){
 
             let loanPayment = await this.loanPayment.read({id_loan : paymentReport[i].id_loan})
             if(loanPayment.status == false) return loanPayment
             
-            let {trans_date} = paymentReport[i]
+            let {trans_date, remaining_loan, total_loan} = paymentReport[i]
             let dateParts = trans_date.split("-")
             let newtransDate = `${dateParts[0]}-${dateParts[1].padStart(2,'0')}`
+            totalAllRemainingLoan += remaining_loan
 
             // use this if ignore date, set all date to 1
             trans_date = new DateFormat(newtransDate)
+
+            let this_month_payment
 
             let collectibillity = {
                 current: 0,
@@ -128,6 +140,8 @@ class ReportFactory {
                 default: 0
             }
 
+            let trueLoanCredit = total_loan
+
             loanPayment.data.forEach(obj => {
                 
                 let {
@@ -135,7 +149,7 @@ class ReportFactory {
                     loan_full: monthly_loan, loan_remaining, interest_full: monthly_interest, 
                     interest_remaining, is_settled
                 } = obj
-
+                
                 let parts = due_date.split('-')
                 let newDueDate = `${parts[0]}-${parts[1].padStart(2,'0')}-01`
 
@@ -143,47 +157,100 @@ class ReportFactory {
                 let isThisMonth = trans_date.diffDays(newDueDate)
 
                 // default
-                if(isThisMonth < -270){
+                if(isThisMonth < -270 || collectibillity.default > 0){
                     collectibillity.default += loan_remaining
+                    totalDefault += loan_remaining
                 }
                 // non-performing
-                else if(isThisMonth < -180){
+                else if(isThisMonth < -180 || collectibillity.nonperforming > 0){
                     collectibillity.nonperforming += loan_remaining
+                    totalNonPerforming += loan_remaining
                 }
                 // doubtful
-                else if(isThisMonth < -90){
+                else if(isThisMonth < -90 || collectibillity.doubtful > 0){
                     collectibillity.doubtful += loan_remaining
+                    totalDoubtful += loan_remaining
                 }
                 // deliquent
-                else if(isThisMonth <= 0){
+                else if(isThisMonth <= 0 || collectibillity.deliquent > 0){
                     collectibillity.deliquent += loan_remaining
+                    totalDeliquent += loan_remaining
                 }
                 // current
                 else {
                     collectibillity.current += loan_remaining
+                    totalCurrent += loan_remaining
                 }
-                
+
+                if(isThisMonth <= 0) trueLoanCredit -= monthly_loan
+
                 // chack if transaction is in 30 days from due_date
                 if(isThisMonth <= 0 && isThisMonth >= -30) {
-                    paymentReport[i] = {
-                        ...paymentReport[i], 
-                        ['this_month_payment']: {
-                            payment_no, due_date, loan_remaining, interest_remaining, monthly_loan, monthly_interest,is_settled
-                        },
-                        ['collectibillity']: collectibillity
+
+                    this_month_payment = {
+                        payment_no, due_date, loan_remaining, interest_remaining, monthly_loan, monthly_interest,is_settled
                     }
                 }
             })
+
+            paymentReport[i] = {
+                ...paymentReport[i], 
+                ['true_loan_credit']: trueLoanCredit,
+                ['this_month_payment']: this_month_payment,
+                ['collectibillity']: collectibillity
+            }
         }
 
-        return new DataLogger({data: paymentReport}).log
+        let risk = {
+            default: {
+                total: totalDefault, 
+                loss_percent: 100, 
+                loss_total: Math.floor(totalDefault * 100 / 10000) * 100,
+                rating: Math.round(totalDefault / totalAllRemainingLoan * 100000) / 1000 
+            },
+            nonperforming: {
+                total: totalNonPerforming, 
+                loss_percent: 50, 
+                loss_total: Math.round(totalNonPerforming * 50 / 10000) * 100,
+                rating: Math.round(totalNonPerforming / totalAllRemainingLoan * 100000) / 1000 
+            },
+            doubtful: {
+                total: totalDefault, 
+                loss_percent: 10, 
+                loss_total: Math.round(totalDefault * 10 / 10000) * 100,
+                rating: Math.round(totalDefault / totalAllRemainingLoan * 10000) / 1000 
+            },
+            deliquent: {
+                total: totalDeliquent, 
+                loss_percent: 0.5, 
+                loss_total: Math.round(totalDeliquent * 0.5 / 10000) * 100,
+                rating: Math.round(totalDeliquent / totalAllRemainingLoan * 100000) / 1000 
+            },
+            current: {
+                total: totalCurrent, 
+                loss_percent: 0.5, 
+                loss_total: Math.round(totalCurrent * 0.5 / 10000) * 100,
+                rating: Math.round(totalCurrent / totalAllRemainingLoan * 100000) / 1000 
+            }
+        }
+        return new DataLogger({data: {paymentReport, risk}}).log
     }
 
-    async paymentReportXls(paymentReport, requestBody){
-
-        if(paymentReport.status == false) return paymentReport
+    async reportXls({requestBody, paymentReport}){
 
         const workbook = new ExcelJs.Workbook()
+
+        if(paymentReport.status){
+            this.paymentReportXls(paymentReport.data, requestBody, workbook)
+            this.collectibillityReportXls(paymentReport.data, requestBody, workbook)
+        }
+
+        let buffer = await workbook.xlsx.writeBuffer()
+        return new DataLogger({data: buffer}).log
+    }
+
+    async paymentReportXls({paymentReport}, requestBody, workbook){
+
         const worksheet = workbook.addWorksheet('Angsuran', {
             pageSetup: {paperSize: 5, orientation:'landscape', fitToPage: true}
         })
@@ -215,7 +282,7 @@ class ReportFactory {
 
         insertedRow ++
 
-        paymentReport.data.forEach((item, index) => {
+        paymentReport.forEach((item, index) => {
     
             let {current, deliquent, doubtful, nonperforming, default: failed} = item.collectibillity
             let remark
@@ -281,8 +348,129 @@ class ReportFactory {
         formatContent(worksheet, contentType, content.length + 1, insertedRow)
         worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
 
-        let buffer = await workbook.xlsx.writeBuffer()
-        return new DataLogger({data: buffer}).log
+        return worksheet
+    }
+
+    async collectibillityReportXls({paymentReport, risk}, requestBody, workbook){
+
+        const worksheet = workbook.addWorksheet('Kolektibilitas', {
+            pageSetup: {paperSize: 5, orientation:'landscape', fitToPage: true}
+        })
+
+        let content = []
+        let contentType = [
+            'number','string','date','date',
+            'currency','currency','currency','currency','currency',
+            'currency','currency','currency','currency',
+        ]
+        let insertedRow = 1
+
+        // START HEADER
+        let headerText = [
+            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
+            "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
+            "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
+            "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
+        ]
+        insertedRow = fillHeader(worksheet, headerText, 'A', 'M', insertedRow)
+
+        // Date report
+        let{year, month}= requestBody
+        let date = new DateFormat(`${year}-${month+1}`)
+        date.addDays = -1
+        date = `Angsuran : ${date.toLocaleString(false)}`
+        mergeColumn(worksheet, date, 'K', 'M', 0, insertedRow, 'right', {bold: true})
+
+        insertedRow ++
+
+        paymentReport.forEach((item, index) => {
+
+            content.push([
+                index + 1,
+                item.ksm_name,
+                new Date(item.loan_start),
+                new Date(item.loan_end),
+                item.total_loan,
+                item.pay_loan,
+                item.true_loan_credit,
+                item.remaining_loan,
+                item.collectibillity.current,
+                item.collectibillity.deliquent,
+                item.collectibillity.doubtful,
+                item.collectibillity.nonperforming,
+                item.collectibillity.default
+            ])
+        })
+
+        // CREATE TABLE
+        worksheet.addTable({
+            name: 'CollectibilityReport',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'KSM'},
+              {name: 'Tanggal Realisasi', filterButton: true},
+              {name: 'Tanggal Jatuh Tempo', filterButton: true},
+              {name: 'Jumlah Pinjaman', totalsRowFunction: 'sum'},
+              {name: 'Angsuran Pinjaman', totalsRowFunction: 'sum'},
+              {name: 'Saldo Kredit Seharusnya', totalsRowFunction: 'sum'},
+              {name: 'Saldo Kredit Sebenarnya', totalsRowFunction: 'sum'},
+              {name: 'Lancar', totalsRowFunction: 'sum'},
+              {name: 'Perhatian', totalsRowFunction: 'sum'},
+              {name: 'Kurang Lancar', totalsRowFunction: 'sum'},
+              {name: 'Diragukan', totalsRowFunction: 'sum'},
+              {name: 'Macet', totalsRowFunction: 'sum'}
+            ],
+            rows: content
+        })
+
+        columnWidth(worksheet, contentType)
+        formatContent(worksheet, contentType, content.length + 1, insertedRow)
+        worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
+
+
+        // PROSENTASE RESIKO
+        mergeColumn(worksheet, 'Prosentase Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
+        let loss_percent = [
+            {data: risk.current.loss_percent, type: 'percent'},
+            {data: risk.deliquent.loss_percent, type: 'percent'},
+            {data: risk.doubtful.loss_percent, type: 'percent'},
+            {data: risk.nonperforming.loss_percent, type: 'percent'},
+            {data: risk.default.loss_percent, type: 'percent'}
+        ]
+        fillContents(worksheet, content.length + 2, 9, loss_percent , insertedRow)
+        insertedRow ++
+        
+        // RR and NPL
+        mergeColumn(worksheet, 'RR / NPL', 'A', 'B', content.length + 2, insertedRow, 'left')
+        let rating = [
+            {data: risk.current.rating, type: 'percent'},
+            {data: risk.deliquent.rating, type: 'percent'},
+            {data: risk.doubtful.rating, type: 'percent'},
+            {data: risk.nonperforming.rating, type: 'percent'},
+            {data: risk.default.rating, type: 'percent'}
+        ]
+        fillContents(worksheet, content.length + 2, 9, rating , insertedRow)
+        insertedRow ++
+        
+        // NILAI RESIKO
+        mergeColumn(worksheet, 'Nilai Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
+        let loss_total = [
+            {data: risk.current.loss_total, type: 'currency'},
+            {data: risk.deliquent.loss_total, type: 'currency'},
+            {data: risk.doubtful.loss_total, type: 'currency'},
+            {data: risk.nonperforming.loss_total, type: 'currency'},
+            {data: risk.default.loss_total, type: 'currency'}
+        ]
+        fillContents(worksheet, content.length + 2, 9, loss_total , insertedRow, null, {bold: true})
+
+        return worksheet
     }
 }
 
@@ -352,34 +540,38 @@ function fillHeadTable(row, obj){
     })
 }
 // fill content cell
-function fillContents(row, obj){
+function fillContents(worksheet, row, columnNum, arr, insertedRow, alignment, font = {}){
 
-    let cellNum = 1
-    let types = []
+    arr.forEach(({data, type}) => { 
 
-    obj.forEach(({data, type}) => { 
-
-        let cell = row.getCell(cellNum)
+        let cell = worksheet.getRow(row + insertedRow).getCell(columnNum)
         cell.value = data
-        types.push(type)
 
         switch(type){
             case 'number':
-                cell.alignment = {horizontal: 'center'}
+                cell.alignment = alignment || {horizontal: 'center'}
+                cell.font = font
                 break
             case 'date':
-                cell.alignment = {horizontal: 'center'}
+                cell.alignment = alignment || {horizontal: 'center'}
+                cell.font = font
+                break
+            case 'percent':
+                cell.alignment = alignment || {horizontal: 'right'}
+                cell.value = data / 100
+                cell.font = font
+                cell.numFmt = '#,##0.00%'
                 break
             case 'currency':
+                cell.alignment = alignment || {horizontal: 'right'}
+                cell.font = font
                 cell.numFmt = '#,##0'
                 break
             default:
                 break
         } 
-        cellNum ++
-        return cell
+        columnNum ++
     })
-    return types
 }
 // column witdh by array
 function columnWidth(worksheet, type){
