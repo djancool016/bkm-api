@@ -14,7 +14,8 @@ class ReportFactory {
         this.transaction = new TransactionFactory
         this.coa = new CoaFactory
     }
-    
+
+    // create payment report
     async paymentReport({id_lkm = 1, year, month}){
 
         month = String(month).padStart(2, '0')
@@ -237,7 +238,8 @@ class ReportFactory {
         }
         return new DataLogger({data: {paymentReport, risk}}).log
     }
-    // Credit Debit report
+
+    // create credit, debit, and cash report
     async cashReport({id_lkm = 1, year, month}){
 
         month = String(month).padStart(2, '0')
@@ -254,10 +256,11 @@ class ReportFactory {
         lastMonth.addDays = -1
         lastMonth = lastMonth.toISOString(false)
 
-        let cashReport = {}
+        // initiate empty incomes object
         let incomes = {
             loan_interest: [], bank_interest: []
         }
+        // initiate empty costs object
         let costs = {
             bank: [], upe: [], ups: [], upl: [], bkm: [], inventory: []
         }
@@ -270,6 +273,7 @@ class ReportFactory {
         let credit = await this.transaction.read({id_register: 2, id_lkm, start_date, end_date})
         if(credit.status == false) return credit
 
+        // function for updaing income object
         const updateIncomes = (data) => {
             
             const update = (arr, data) => {
@@ -286,6 +290,8 @@ class ReportFactory {
                     break
             }
         }
+
+        // function for updating costs object
         const updateCosts = (data) => {
 
             const update = (arr, data) => {
@@ -320,9 +326,15 @@ class ReportFactory {
             }
         }
 
+        // list of id COA for debit and credit 
         let incomeCoa = [4,17,41]
         let costCoa = [6,9,10,12,19,21,22,24,26,29,30,31,32,33,34,35,36,37,38,39,40]
 
+        // Find coa data
+        let coas = await this.coa.read({coaIds:[...incomeCoa, ...costCoa]})
+        if(coas.status == false) return coas
+
+        // creating debit or income object
         debit.data.forEach(obj => {
             let data = {
                 id_coa: obj.coa.id,
@@ -332,9 +344,23 @@ class ReportFactory {
                 total: obj.total
             }
             incomeCoa.forEach(coa => {
+                // create list of income type with 0 total
+                coas.data.forEach(obj => {
+                    if(obj.id === coa) updateIncomes({
+                        id_coa: obj.id,
+                        id_account: obj.account.id,
+                        id_register: obj.register.id,
+                        description: obj.description,
+                        total: 0
+                    })
+                })
+                // fill incomes with transaction data
                 if(data.id_coa == coa)  updateIncomes(data)
+                
             })
         })
+
+        // creating credit or cost object
         credit.data.forEach(obj => {
             let data = {
                 id_coa: obj.coa.id,
@@ -344,19 +370,31 @@ class ReportFactory {
                 total: obj.total
             }
             costCoa.forEach(coa => {
+                // create list of cost type with 0 total
+                coas.data.forEach(obj => {
+                    if(obj.id === coa) updateCosts({
+                        id_coa: obj.id,
+                        id_account: obj.account.id,
+                        id_register: obj.register.id,
+                        description: obj.description,
+                        total: 0
+                    })
+                })
+                // fill all cost with transaction data
                 if(data.id_coa == coa) updateCosts(data)
             })
         })
 
-        // cashReport.debit = debit.data
-        // cashReport.credit = credit.data
-
-        cashReport.income = incomes
-        cashReport.cost = costs
-
+        let cashReport = {
+            debit: debit.data,
+            credit: credit.data,
+            income: incomes,
+            cost: costs
+        }
         return new DataLogger({data: cashReport}).log
     }
 
+    // create a xls workbook
     async reportXls({requestBody, paymentReport}){
 
         const workbook = new ExcelJs.Workbook()
@@ -370,6 +408,7 @@ class ReportFactory {
         return new DataLogger({data: buffer}).log
     }
 
+    // create payment report worksheet
     async paymentReportXls({paymentReport}, requestBody, workbook){
 
         const worksheet = workbook.addWorksheet('Angsuran', {
@@ -472,6 +511,7 @@ class ReportFactory {
         return worksheet
     }
 
+    // create collectibility worksheet
     async collectibillityReportXls({paymentReport, risk}, requestBody, workbook){
 
         const worksheet = workbook.addWorksheet('Kolektibilitas', {
