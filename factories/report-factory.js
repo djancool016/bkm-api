@@ -205,23 +205,11 @@ class ReportFactory {
         }
 
         let risk = {
-            default: {
-                total: totalDefault, 
-                loss_percent: 100, 
-                loss_total: Math.floor(totalDefault * 100 / 10000) * 100,
-                rating: Math.round(totalDefault / totalAllRemainingLoan * 100000) / 1000 
-            },
-            nonperforming: {
-                total: totalNonPerforming, 
-                loss_percent: 50, 
-                loss_total: Math.round(totalNonPerforming * 50 / 10000) * 100,
-                rating: Math.round(totalNonPerforming / totalAllRemainingLoan * 100000) / 1000 
-            },
-            doubtful: {
-                total: totalDefault, 
-                loss_percent: 10, 
-                loss_total: Math.round(totalDefault * 10 / 10000) * 100,
-                rating: Math.round(totalDefault / totalAllRemainingLoan * 10000) / 1000 
+            current: {
+                total: totalCurrent, 
+                loss_percent: 0.5, 
+                loss_total: Math.round(totalCurrent * 0.5 / 10000) * 100,
+                rating: Math.round(totalCurrent / totalAllRemainingLoan * 100000) / 1000 
             },
             deliquent: {
                 total: totalDeliquent, 
@@ -229,12 +217,24 @@ class ReportFactory {
                 loss_total: Math.round(totalDeliquent * 0.5 / 10000) * 100,
                 rating: Math.round(totalDeliquent / totalAllRemainingLoan * 100000) / 1000 
             },
-            current: {
-                total: totalCurrent, 
-                loss_percent: 0.5, 
-                loss_total: Math.round(totalCurrent * 0.5 / 10000) * 100,
-                rating: Math.round(totalCurrent / totalAllRemainingLoan * 100000) / 1000 
-            }
+            doubtful: {
+                total: totalDefault, 
+                loss_percent: 10, 
+                loss_total: Math.round(totalDefault * 10 / 10000) * 100,
+                rating: Math.round(totalDefault / totalAllRemainingLoan * 10000) / 1000 
+            },
+            nonperforming: {
+                total: totalNonPerforming, 
+                loss_percent: 50, 
+                loss_total: Math.round(totalNonPerforming * 50 / 10000) * 100,
+                rating: Math.round(totalNonPerforming / totalAllRemainingLoan * 100000) / 1000 
+            },
+            default: {
+                total: totalDefault, 
+                loss_percent: 100, 
+                loss_total: Math.floor(totalDefault * 100 / 10000) * 100,
+                rating: Math.round(totalDefault / totalAllRemainingLoan * 100000) / 1000 
+            }      
         }
         return new DataLogger({data: {paymentReport, risk}}).log
     }
@@ -258,11 +258,11 @@ class ReportFactory {
 
         // initiate empty incomes object
         let incomes = {
-            loan_interest: [], bank_interest: []
+            upe: [], bkm: []
         }
         // initiate empty costs object
         let costs = {
-            bank: [], upe: [], ups: [], upl: [], bkm: [], inventory: []
+            upe: [], ups: [], upl: [], bkm: [], inventaris: []
         }
 
         // Find loan data
@@ -277,16 +277,21 @@ class ReportFactory {
         const updateIncomes = (data) => {
             
             const update = (arr, data) => {
-                if(arr.length === 0) return arr.push(data)
-                arr.forEach(obj => obj.total += data.total )
+
+                const index = arr.findIndex(item => {
+                    return item.id_coa == data.id_coa
+                })
+
+                if(index == -1) return arr.push(data)
+                arr[index].total += data.total
             }
     
             switch(data.id_account){
-                case 2:
-                    update(incomes.bank_interest, data)
-                    break
                 case 4:
-                    update(incomes.loan_interest, data)
+                    update(incomes.upe, data)
+                    break
+                case 7:
+                    update(incomes.bkm, data)
                     break
             }
         }
@@ -305,11 +310,8 @@ class ReportFactory {
             }
 
             switch(data.id_account){
-                case 2:
-                    update(costs.bank, data)
-                    break
                 case 3:
-                    update(costs.inventory, data)
+                    update(costs.inventaris, data)
                     break
                 case 4:
                     update(costs.upe, data)
@@ -391,17 +393,19 @@ class ReportFactory {
             income: incomes,
             cost: costs
         }
+
         return new DataLogger({data: cashReport}).log
     }
 
     // create a xls workbook
-    async reportXls({requestBody, paymentReport}){
+    async reportXls({requestBody, paymentReport, cashReport}){
 
         const workbook = new ExcelJs.Workbook()
 
         if(paymentReport.status){
             this.paymentReportXls(paymentReport.data, requestBody, workbook)
             this.collectibillityReportXls(paymentReport.data, requestBody, workbook)
+            this.cashReportXls(paymentReport.data, cashReport.data, requestBody, workbook)
         }
 
         let buffer = await workbook.xlsx.writeBuffer()
@@ -596,8 +600,8 @@ class ReportFactory {
         worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
 
 
-        // PROSENTASE RESIKO
-        mergeColumn(worksheet, 'Prosentase Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
+        // PERCENTASE RESIKO
+        mergeColumn(worksheet, 'Persentase Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
         let loss_percent = [
             {data: risk.current.loss_percent, type: 'percent'},
             {data: risk.deliquent.loss_percent, type: 'percent'},
@@ -630,6 +634,145 @@ class ReportFactory {
             {data: risk.default.loss_total, type: 'currency'}
         ]
         fillContents(worksheet, content.length + 2, 9, loss_total , insertedRow, null, {bold: true})
+
+        return worksheet
+    }
+
+    // create cach-in (debit) worksheet
+    async cashReportXls({risk} ,cashReport, requestBody, workbook){
+
+        const worksheet = workbook.addWorksheet('Laba-Rugi', {
+            pageSetup: {paperSize: 5, orientation:'potrait', fitToPage: true}
+        })
+
+        let insertedRow = 1
+
+        // START HEADER
+        let headerText = [
+            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
+            "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
+            "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
+            "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
+        ]
+        insertedRow = fillHeader(worksheet, headerText, 'A', 'C', insertedRow) + 1
+
+        // Date report
+        let{year, month}= requestBody
+        let date = new DateFormat(`${year}-${month+1}`)
+        date.addDays = -1
+        date = `Angsuran : ${date.toLocaleString(false)}`
+        mergeColumn(worksheet, date, 'A', 'C', 0, insertedRow, 'right', {bold: true})
+
+        insertedRow ++
+        let i = 1
+
+        let getContent = (data) => {
+            return Object.entries(data)
+            .reduce((acc, [key, value]) => {
+                acc[key] = value.map(item => [i++, item.description, item.total]);
+                return acc;
+            }, {})
+        }
+
+        let incomeContent = Object.entries(getContent(cashReport.income))
+            .flatMap(([key, value]) => value.map(([id, description, value]) => {
+                description = `${String(key).toUpperCase()} - ${description}`
+                return [id, description, value]
+            }))
+
+        i = 1
+        let costContent = Object.entries(getContent(cashReport.cost))
+            .flatMap(([key, value]) => value.map(([id, description, value]) => {
+                description = `${String(key).toUpperCase()} - ${description}`
+                return [id, description, value]
+            }))
+
+        i = 1
+        let riskContent = Object.entries(risk)
+        .map(([key, {loss_total}]) => {
+            let description
+            switch(key){
+                case 'current':
+                    description = `Lancar`
+                    break
+                case 'deliquent':
+                    description = `Perhatian`
+                    break
+                case 'doubtful':
+                    description = `Kurang Lancar`
+                    break
+                case 'nonperforming':
+                    description = `Diragukan`
+                    break
+                default:
+                    description = `Macet`
+                    break
+            }
+            return [i++, description, loss_total]
+        })
+
+        // CREATE TABLE
+        worksheet.addTable({
+            name: 'IncomeReport',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'PENDAPATAN'},
+              {name: '(RP)', totalsRowFunction: 'sum'}
+            ],
+            rows: incomeContent
+        })
+
+        insertedRow += incomeContent.length + 2
+
+        worksheet.addTable({
+            name: 'CostReport',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'BELANJA/BIAYA'},
+              {name: '(RP)', totalsRowFunction: 'sum'}    
+            ],
+            rows: costContent
+        })
+
+        insertedRow += costContent.length + 2
+
+        worksheet.addTable({
+            name: 'RiskReport',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'RESIKO KREDIT'},
+              {name: '(RP)', totalsRowFunction: 'sum'}    
+            ],
+            rows: riskContent
+        })
+
+        let col = worksheet.getColumn(2)
+        col.width = 60
+
+        col = worksheet.getColumn(3)
+        col.width = 20
+        col.numFmt = '#,##0'
 
         return worksheet
     }

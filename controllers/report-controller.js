@@ -35,7 +35,8 @@ async function reportXls(req, res, next){
 
     let model = factory.reportXls({
         requestBody: req.body,
-        paymentReport: req.paymentReport
+        paymentReport: req.paymentReport,
+        cashReport: req.cashReport
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)

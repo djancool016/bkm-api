@@ -219,7 +219,7 @@ router.get('/report/cash',
 router.get('/report/download', 
     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    report.paymentReport, report.reportXls, endRequest
+    report.paymentReport, report.cashReport, report.reportXls, endRequest
 )
 
 module.exports = router
