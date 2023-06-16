@@ -405,7 +405,7 @@ class ReportFactory {
         if(paymentReport.status){
             this.paymentReportXls(paymentReport.data, requestBody, workbook)
             this.collectibillityReportXls(paymentReport.data, requestBody, workbook)
-            this.cashReportXls(paymentReport.data, cashReport.data, requestBody, workbook)
+            this.costIncomeReportXls(paymentReport.data, cashReport.data, requestBody, workbook)
         }
 
         let buffer = await workbook.xlsx.writeBuffer()
@@ -638,8 +638,8 @@ class ReportFactory {
         return worksheet
     }
 
-    // create cach-in (debit) worksheet
-    async cashReportXls({risk} ,cashReport, requestBody, workbook){
+    // create cost/income worksheet
+    async costIncomeReportXls({risk} ,cashReport, requestBody, workbook){
 
         const worksheet = workbook.addWorksheet('Laba-Rugi', {
             pageSetup: {paperSize: 5, orientation:'potrait', fitToPage: true}
@@ -649,7 +649,7 @@ class ReportFactory {
 
         // START HEADER
         let headerText = [
-            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
+            "DAFTAR RINCIAN LABA/RUGI",
             "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
             "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
             "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
@@ -666,6 +666,10 @@ class ReportFactory {
         insertedRow ++
         let i = 1
 
+        let totalIncome = 0
+        let totalCost = 0
+        let totalRisk = 0
+
         let getContent = (data) => {
             return Object.entries(data)
             .reduce((acc, [key, value]) => {
@@ -677,6 +681,7 @@ class ReportFactory {
         let incomeContent = Object.entries(getContent(cashReport.income))
             .flatMap(([key, value]) => value.map(([id, description, value]) => {
                 description = `${String(key).toUpperCase()} - ${description}`
+                totalIncome += value
                 return [id, description, value]
             }))
 
@@ -684,6 +689,7 @@ class ReportFactory {
         let costContent = Object.entries(getContent(cashReport.cost))
             .flatMap(([key, value]) => value.map(([id, description, value]) => {
                 description = `${String(key).toUpperCase()} - ${description}`
+                totalCost += value
                 return [id, description, value]
             }))
 
@@ -691,6 +697,7 @@ class ReportFactory {
         let riskContent = Object.entries(risk)
         .map(([key, {loss_total}]) => {
             let description
+            totalRisk += loss_total
             switch(key){
                 case 'current':
                     description = `Lancar`
@@ -767,6 +774,30 @@ class ReportFactory {
             rows: riskContent
         })
 
+        insertedRow += 7
+
+        worksheet.addTable({
+            name: 'CostIncome',
+            ref: `A${insertedRow}`,
+            headerRow: true,
+            totalsRow: true,
+            style: {
+              theme: 'TableStyleMedium2',
+              showRowStripes: true,
+            },
+            columns: [
+              {name: 'No'},
+              {name: 'LABA/RUGI'},
+              {name: '(RP)', totalsRowFunction: 'sum'}    
+            ],
+            rows: [
+                [1, 'Total Pendapatan', totalIncome],
+                [2, 'Total Pengeluaran', totalCost * -1],
+                [3, 'Total Resiko Kredit', totalRisk * -1]
+            ]
+        })
+
+
         let col = worksheet.getColumn(2)
         col.width = 60
 
@@ -775,6 +806,11 @@ class ReportFactory {
         col.numFmt = '#,##0'
 
         return worksheet
+    }
+
+    // create cash flow wroksheet
+    async cashFlowReportXls(){
+        
     }
 }
 
