@@ -11,18 +11,18 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.belongsTo(models.Register, {
-                    foreignKey: 'id_register',
-                    as: 'register'
-                }),
-                this.belongsTo(models.Account, {
-                    foreignKey: 'id_account',
-                    as: 'account'
-                })
+            this.belongsTo(models.Account, {
+                foreignKey: 'id_account',
+                as: 'account'
+            }),
+            this.belongsTo(models.Unit, {
+                foreignKey: 'id_unit',
+                as: 'unit'
+            })
         }
     }
     Coa.init({
-        id_register: DataTypes.INTEGER,
+        id_unit: DataTypes.STRING,
         id_account: DataTypes.INTEGER,
         description: DataTypes.STRING
     }, {

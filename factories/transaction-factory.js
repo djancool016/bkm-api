@@ -11,18 +11,13 @@ class TransactionModel extends BaseModel {
         super()
         this.model = model.Transaction
         this.query = {
-            attributes: ['id','id_lkm','trans_code','trans_date','total','remark'],
+            attributes: ['id','id_lkm','id_register','trans_code','trans_date','total','remark'],
             include: [
                 {
                     model: model.Coa,
                     as: 'coa',
                     attributes: ['id','description'],
                     include: [
-                        {
-                            model: model.Register,
-                            as: 'register',
-                            attributes: ['id','code','description']
-                        },
                         {
                             model: model.Account,
                             as: 'account',
@@ -32,10 +27,6 @@ class TransactionModel extends BaseModel {
                 }
             ]
         }
-    }
-    findLatestOne(){
-        this.query.order = [['updated_at','DESC']]
-        return this.findOne()
     }
     findByCoa(id_coa, id_lkm, start_date, end_date){
         this.query.where = {id_coa: id_coa}
@@ -47,7 +38,7 @@ class TransactionModel extends BaseModel {
         return this.findAll()
     }
     findByRegister(id_register, id_lkm, start_date, end_date){
-        this.query.where = {'$coa.register.id$': id_register}
+        this.query.where = {id_register}
         this.queryOption(id_lkm, start_date, end_date)
         return this.findAll()
     }
@@ -81,50 +72,21 @@ class TransactionFactory {
         this.account = new AccountFactory()
         this.coa = new CoaFactory()
     }
-    async create({coa, lkm, requestBody: {total, remark, trans_date}, loan}){
+    async create({lkm, requestBody: {total, remark, trans_date}}){
 
-        if(!coa || coa.status == false) return coa
         if(!lkm || lkm.status == false) return lkm
-
-        let{id: id_coa, description, account:{id: id_account, counter, code}} = coa.data
 
         // build transaction object
         trans_date = new DateFormat(trans_date).toISOString(false) || new DateFormat().toISOString(false)
-        counter = Number(counter) + 1
-        let trans_code = `${code}/${dateToCode(trans_date)}/${String(counter).padStart(4, '0')}`
-
-        if(loan?.status){
-            let {ksm:{name:ksm_name}} = loan.data
-            description = `${description} ${ksm_name}`
-        }
 
         let transaction = {
             id_lkm: lkm.data.id,
-            id_coa: id_coa,
             trans_date: trans_date,
-            trans_code: trans_code,
             total: total,
-            remark: remark || description,
+            remark: remark || '',
         }
 
-        // update counter
-        let updateCounter = () => {
-            return this.account.update({id: id_account, counter: counter})
-        }
-
-        return updateCounter()
-            .then(result => {
-                if(result.status == false) return result
-                return this.model.create(transaction)
-            })
-            .then(result => {
-                result.message = `${result.message} (${description})`
-                return result
-            })
-            .catch(error => {
-                console.log(error)
-                return new StatusLogger({code: 500, message: 'Failed to save transaction loan'}).log
-            })
+        return this.model.create(transaction)
     }
 
     async read({id, id_coa, id_lkm, id_account, id_register, trans_code, findLatest = false, transactionIds = [], start_date, end_date}){

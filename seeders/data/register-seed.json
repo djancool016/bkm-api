@@ -1,15 +1,9 @@
 [
     {
         "id": 1,
-        "code": "CUM",
-        "description": "catatan uang masuk (debit)"
+        "name": "debit"
     },{
         "id": 2,
-        "code": "CUK",
-        "description": "catatan uang keluar (kredit)"
-    },{
-        "id": 3,
-        "code": "CAT",
-        "description": "catatan anggaran tahunan"
+        "name": "credit"
     }
 ]

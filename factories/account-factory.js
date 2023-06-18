@@ -8,14 +8,6 @@ class AccountModel extends BaseModel {
         this.model = model.Account
         this.query = {}
     }
-    findByCode(code){
-        this.query.where = {code: code}
-        return this.findAll()
-    }
-    findLatestOne(){
-        this.query.order = [['created_at','DESC']]
-        return this.findOne()
-    }
     findByIds(ids){
         this.query.where = {id: ids}
         return this.findAll()
@@ -26,26 +18,18 @@ class AccountFactory{
     constructor(){
         this.model = new AccountModel()
     }
-    async create({code, description}){
-        if(!code || !description){
+    async create({description}){
+        if(!description){
             return new StatusLogger({code: 400, message:'account have invalid input'}).log
             
         }
-        return await this.model.create({
-            code: code,
-            description: description
-        })
+        return await this.model.create({ description: description })
     }
-    async read({id, id_account, code, findLatest = false, ids = []}){
+
+    async read({id, id_account, ids = []}){
         if(id || id_account){
             return await this.model.findByPk(id = id || id_account)
         }
-        else if(code){
-            return await this.model.findByCode(code)
-        } 
-        else if (findLatest){
-            return await this.model.findLatestOne()
-        } 
         else if(ids.length > 0){
             return await this.model.findByIds(ids)
         }
@@ -53,9 +37,8 @@ class AccountFactory{
             return await this.model.findAll()
         }
     }
-    async update({id, code, description, counter}){
+    async update({id, description, counter}){
         return await this.model.update({
-            code: code,
             description: description,
             counter: counter
         }, id)

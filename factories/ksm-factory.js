@@ -9,10 +9,6 @@ class KsmModel extends BaseModel {
         this.model = model.Ksm
         this.query = {}
     }
-    findLatestOne(){
-        this.query.order = [['created_at','DESC']]
-        return this.findOne()
-    }
     findByKsmName(name){
         this.query.where = {name: {[Op.like]: `%${name}%`}}
         return this.findAll()

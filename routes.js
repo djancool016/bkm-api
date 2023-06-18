@@ -126,100 +126,100 @@ router.delete('/loan',
 )
 
 
-// Transaction route
-router.post('/transaction', 
-    (req, res, next) => validator(req, res, next, input.transaction.create), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    lkm.read, coa.read ,transaction.create, endRequest
-)
-router.post('/transactions', 
-    (req, res, next) => validator(req, res, next, input.transaction.creates), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transaction.creates, endRequest
-)
-router.get('/transaction', 
-    (req, res, next) => validator(req, res, next, input.transaction.read), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transaction.read, endRequest
-)
-router.put('/transaction', 
-    (req, res, next) => validator(req, res, next, input.transaction.update), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transaction.update, endRequest
-)
-router.delete('/transaction', 
-    (req, res, next) => validator(req, res, next, input.transaction.destroy), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transaction.destroy, endRequest
-)
+// // Transaction route
+// router.post('/transaction', 
+//     (req, res, next) => validator(req, res, next, input.transaction.create), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     lkm.read, coa.read ,transaction.create, endRequest
+// )
+// router.post('/transactions', 
+//     (req, res, next) => validator(req, res, next, input.transaction.creates), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transaction.creates, endRequest
+// )
+// router.get('/transaction', 
+//     (req, res, next) => validator(req, res, next, input.transaction.read), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transaction.read, endRequest
+// )
+// router.put('/transaction', 
+//     (req, res, next) => validator(req, res, next, input.transaction.update), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transaction.update, endRequest
+// )
+// router.delete('/transaction', 
+//     (req, res, next) => validator(req, res, next, input.transaction.destroy), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transaction.destroy, endRequest
+// )
 
-// Transaction Loan route
-router.post('/transactionLoan', 
-    (req, res, next) => validator(req, res, next, input.transactionLoan.create), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    lkm.read, coa.read, loan.read, loanPayment.read, transactionLoan.read, 
-    transactionLoan.check, transaction.create, 
-    transactionLoan.create, loanPayment.update, endRequest
-)
-router.post('/transactionLoans', 
-    (req, res, next) => validator(req, res, next, input.transactionLoan.creates), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transactionLoan.creates, endRequest
-)
-router.get('/transactionLoan', 
-    (req, res, next) => validator(req, res, next, input.transactionLoan.read), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transactionLoan.read, endRequest
-)
+// // Transaction Loan route
+// router.post('/transactionLoan', 
+//     (req, res, next) => validator(req, res, next, input.transactionLoan.create), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     lkm.read, coa.read, loan.read, loanPayment.read, transactionLoan.read, 
+//     transactionLoan.check, transaction.create, 
+//     transactionLoan.create, loanPayment.update, endRequest
+// )
+// router.post('/transactionLoans', 
+//     (req, res, next) => validator(req, res, next, input.transactionLoan.creates), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transactionLoan.creates, endRequest
+// )
+// router.get('/transactionLoan', 
+//     (req, res, next) => validator(req, res, next, input.transactionLoan.read), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transactionLoan.read, endRequest
+// )
 
-// Transaction BOP route
-router.post('/transactionBop', 
-    (req, res, next) => validator(req, res, next, input.transactionBop.create), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    lkm.read, coa.read, loan.read, transactionLoan.checkBop, transaction.create, 
-    transactionLoan.createBop, endRequest
-)
-router.post('/transactionBops', 
-    (req, res, next) => validator(req, res, next, input.transactionBop.creates), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transactionLoan.createBops, endRequest
-)
+// // Transaction BOP route
+// router.post('/transactionBop', 
+//     (req, res, next) => validator(req, res, next, input.transactionBop.create), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     lkm.read, coa.read, loan.read, transactionLoan.checkBop, transaction.create, 
+//     transactionLoan.createBop, endRequest
+// )
+// router.post('/transactionBops', 
+//     (req, res, next) => validator(req, res, next, input.transactionBop.creates), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transactionLoan.createBops, endRequest
+// )
 
-// Transaction LIB route
-router.post('/transactionLIB', 
-    (req, res, next) => validator(req, res, next, input.transactionLIB.create), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transactionLoan.createLIB, endRequest
-)
-router.post('/transactionLIBs', 
-    (req, res, next) => validator(req, res, next, input.transactionLIB.creates), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    transactionLoan.createLIBs, endRequest
-)
+// // Transaction LIB route
+// router.post('/transactionLIB', 
+//     (req, res, next) => validator(req, res, next, input.transactionLIB.create), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transactionLoan.createLIB, endRequest
+// )
+// router.post('/transactionLIBs', 
+//     (req, res, next) => validator(req, res, next, input.transactionLIB.creates), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     transactionLoan.createLIBs, endRequest
+// )
 
-// Loan Payment route
-router.get('/loanpayment', 
-    (req, res, next) => validator(req, res, next, input.loanPayment.read), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    loanPayment.read, endRequest
-)
+// // Loan Payment route
+// router.get('/loanpayment', 
+//     (req, res, next) => validator(req, res, next, input.loanPayment.read), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     loanPayment.read, endRequest
+// )
 
-// Report route
+// // Report route
 
-router.get('/report/loanPayment', 
-    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    report.paymentReport, endRequest
-)
-router.get('/report/cash', 
-    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    report.cashReport, endRequest
-)
-router.get('/report/download', 
-    (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    report.paymentReport, report.cashReport, report.reportXls, endRequest
-)
+// router.get('/report/loanPayment', 
+//     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     report.paymentReport, endRequest
+// )
+// router.get('/report/cash', 
+//     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     report.cashReport, endRequest
+// )
+// router.get('/report/download', 
+//     (req, res, next) => validator(req, res, next, input.report.prototype), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     report.paymentReport, report.cashReport, report.reportXls, endRequest
+// )
 
 module.exports = router

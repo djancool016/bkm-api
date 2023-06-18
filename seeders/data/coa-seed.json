@@ -1,248 +1,283 @@
 [{
-        "id": 1,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Kas Awal UPE"
+        "id": 1010,
+        "id_account": 1,
+        "id_unit": 1,
+        "description": "Kas UPK"
     },
     {
-        "id": 2,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Saldo Awal UPE"
+        "id": 1020,
+        "id_account": 1,
+        "id_unit": 1,
+        "description": "Rekening Bank UPK"
     },
     {
-        "id": 3,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Setoran Bank UPE"
+        "id": 1030,
+        "id_account": 1,
+        "id_unit": 1,
+        "description": "Piutang Internal"
     },
     {
-        "id": 4,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Bunga Bank UPE"
+        "id": 1040,
+        "id_account": 1,
+        "id_unit": 1,
+        "description": "Piutang KSM"
     },
     {
-        "id": 5,
-        "id_register": 2,
-        "id_account": 4,
-        "description": "Penarikan Bank UPE"
-    },
-    {
-        "id": 6,
-        "id_register": 2,
-        "id_account": 4,
-        "description": "Biaya Administrasi dan Pajak Bank UPE"
-    },
-    {
-        "id": 7,
-        "id_register": 1,
+        "id": 3010,
         "id_account": 3,
-        "description": "Inventaris Awal"
+        "id_unit": 1,
+        "description": "Titipan BOP KSM"
     },
     {
-        "id": 8,
-        "id_register": 1,
-        "id_account": 3,
-        "description": "Penambahan Inventaris"
-    },
-    {
-        "id": 9,
-        "id_register": 2,
-        "id_account": 3,
-        "description": "Pemeliharaan Inventaris"
-    },
-    {
-        "id": 10,
-        "id_register": 2,
-        "id_account": 3,
-        "description": "Penyusutan Inventaris"
-    },
-    {
-        "id": 11,
-        "id_register": 1,
-        "id_account": 3,
-        "description": "Aset Bangunan"
-    },
-    {
-        "id": 12,
-        "id_register": 2,
-        "id_account": 3,
-        "description": "Perawatan Bangunan"
-    },
-    {
-        "id": 13,
-        "id_register": 1,
+        "id": 4010,
         "id_account": 4,
-        "description": "Laba Rugi Awal"
+        "id_unit": 1,
+        "description": "Modal dari BKM"
     },
     {
-        "id": 14,
-        "id_register": 1,
+        "id": 4020,
         "id_account": 4,
-        "description": "Dana Pengembangan Modal Tahunan"
+        "id_unit": 1,
+        "description": "Modal dari Laba Tahunan"
     },
     {
-        "id": 15,
-        "id_register": 2,
-        "id_account": 4,
-        "description": "Realisasi Pinjaman"
+        "id": 5010,
+        "id_account": 5,
+        "id_unit": 1,
+        "description": "Bunga Piutang KSM"
     },
     {
-        "id": 16,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Angsuran Pokok"
+        "id": 5020,
+        "id_account": 5,
+        "id_unit": 1,
+        "description": "Bunga Bank UPK"
     },
     {
-        "id": 17,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Angsuran Bunga"
-    },
-    {
-        "id": 18,
-        "id_register": 1,
-        "id_account": 4,
-        "description": "Angsuran BOP KSM"
-    },
-    {
-        "id": 19,
-        "id_register": 2,
-        "id_account": 4,
-        "description": "Penarikan BOP KSM"
-    },
-    {
-        "id": 20,
-        "id_register": 2,
-        "id_account": 4,
-        "description": "Resiko Kredit"
-    },
-    {
-        "id": 21,
-        "id_register": 2,
-        "id_account": 4,
+        "id": 6010,
+        "id_account": 6,
+        "id_unit": 1,
         "description": "Honor Sekretaris, UPK dan Kebersihan Kantor"
     },
     {
-        "id": 22,
-        "id_register": 2,
-        "id_account": 4,
+        "id": 6020,
+        "id_account": 6,
+        "id_unit": 1,
         "description": "Lembur Petugas Pembukuan UPK"
     },
     {
-        "id": 23,
-        "id_register": 3,
-        "id_account": 5,
-        "description": "Dana Lingkungan Tahunan"
-    },
-    {
-        "id": 24,
-        "id_register": 2,
-        "id_account": 5,
-        "description": "Bantuan Kegiatan Lingkungan"
-    },
-    {
-        "id": 25,
-        "id_register": 3,
+        "id": 6030,
         "id_account": 6,
-        "description": "Dana Sosial Tahunan"
+        "id_unit": 1,
+        "description": "Biaya Administrasi dan Pajak Bank UPK"
     },
     {
-        "id": 26,
-        "id_register": 2,
+        "id": 6040,
         "id_account": 6,
-        "description": "Bantuan Kegiatan Sosial"
+        "id_unit": 1,
+        "description": "Resiko Piutang KSM"
     },
     {
-        "id": 27,
-        "id_register": 1,
-        "id_account": 7,
-        "description": "Hibah P2KP, PNPM dan P.DAPM"
+        "id": 6050,
+        "id_account": 6,
+        "id_unit": 1,
+        "description": "Anggaran UPS"
     },
     {
-        "id": 28,
-        "id_register": 3,
-        "id_account": 7,
-        "description": "BOP BKM Tahunan"
+        "id": 6060,
+        "id_account": 6,
+        "id_unit": 1,
+        "description": "Anggaran UPL"
     },
     {
-        "id": 29,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6070,
+        "id_account": 6,
+        "id_unit": 1,
+        "description": "Anggaran BOP BKM"
+    },
+    {
+        "id": 6080,
+        "id_account": 6,
+        "id_unit": 1,
+        "description": "Pemupukan Modal UPK"
+    },
+    {
+        "id": 1110,
+        "id_account": 1,
+        "id_unit": 2,
+        "description": "Kas BKM"
+    },
+    {
+        "id": 1120,
+        "id_account": 1,
+        "id_unit": 2,
+        "description": "Rekening Bank BKM"
+    },
+    {
+        "id": 2110,
+        "id_account": 2,
+        "id_unit": 2,
+        "description": "Inventaris"
+    },
+    {
+        "id": 2120,
+        "id_account": 2,
+        "id_unit": 2,
+        "description": "Bangunan"
+    },
+    {
+        "id": 3110,
+        "id_account": 3,
+        "id_unit": 2,
+        "description": "Hutang BKM"
+    },
+    {
+        "id": 4110,
+        "id_account": 4,
+        "id_unit": 2,
+        "description": "Modal dari Pihak ketiga"
+    },
+    {
+        "id": 4120,
+        "id_account": 4,
+        "id_unit": 2,
+        "description": "Anggaran BOP BKM"
+    },
+    {
+        "id": 5110,
+        "id_account": 5,
+        "id_unit": 2,
+        "description": "Bunga Bank BKM"
+    },
+    {
+        "id": 6110,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Insentif Pengurus dan Pengawas"
     },
     {
-        "id": 30,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6120,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Belanja Kantor"
     },
     {
-        "id": 31,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6130,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Belanja Rumah Tangga"
     },
     {
-        "id": 32,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6140,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Biaya Rapat"
     },
     {
-        "id": 33,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6150,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Perjalanan Dinas"
     },
     {
-        "id": 34,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6160,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Biaya Pemeriksaan"
     },
     {
-        "id": 35,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6170,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Biaya RWT"
     },
     {
-        "id": 36,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6180,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Tunjangan Hari Raya"
     },
     {
-        "id": 37,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6190,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Pembelian Seragam"
     },
     {
-        "id": 38,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6111,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Bantuan Kesehatan Tenaga Harian"
     },
     {
-        "id": 39,
-        "id_register": 2,
-        "id_account": 7,
-        "description": "Biaya Purna Tugas"
+        "id": 6112,
+        "id_account": 6,
+        "id_unit": 2,
+        "description": "Biaya Purna Tugas \/ Bhakti"
     },
     {
-        "id": 40,
-        "id_register": 2,
-        "id_account": 7,
+        "id": 6113,
+        "id_account": 6,
+        "id_unit": 2,
         "description": "Pendampingan Sistem Komputer"
-    }
-    ,
+    },
     {
-        "id": 41,
-        "id_register": 1,
-        "id_account": 7,
-        "description": "Sewa Kios"
+        "id": 6114,
+        "id_account": 6,
+        "id_unit": 2,
+        "description": "Biaya Administrasi dan Pajak Bank BKM"
+    },
+    {
+        "id": 6115,
+        "id_account": 6,
+        "id_unit": 2,
+        "description": "Pemeliharaan Inventaris"
+    },
+    {
+        "id": 6116,
+        "id_account": 6,
+        "id_unit": 2,
+        "description": "Penyusutan Inventaris"
+    },
+    {
+        "id": 6117,
+        "id_account": 6,
+        "id_unit": 2,
+        "description": "Perawatan Bangunan"
+    },
+    {
+        "id": 3210,
+        "id_account": 3,
+        "id_unit": 3,
+        "description": "Hutang UPL"
+    },
+    {
+        "id": 4210,
+        "id_account": 4,
+        "id_unit": 3,
+        "description": "Anggaran UPL"
+    },
+    {
+        "id": 6210,
+        "id_account": 6,
+        "id_unit": 3,
+        "description": "Bantuan Kegiatan Lingkungan"
+    },
+    {
+        "id": 3310,
+        "id_account": 3,
+        "id_unit": 4,
+        "description": "Untang UPS"
+    },
+    {
+        "id": 4310,
+        "id_account": 4,
+        "id_unit": 4,
+        "description": "Anggaran UPS"
+    },
+    {
+        "id": 6310,
+        "id_account": 6,
+        "id_unit": 4,
+        "description": "Bantuan Kegiatan Sosial"
     }
 ]

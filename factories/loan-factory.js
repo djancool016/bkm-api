@@ -185,6 +185,13 @@ class LoanFactory {
             is_valid: true
         }
 
+        /* 
+            Loan Realization using ransactionLoan.create
+            rule:
+            K 1010 - Kas
+            D 1030 - Piutang KSM
+        */
+
         let result = await this.model.update(approved, id)
         if(result.status) result.message = `Successfully approved KSM ${name} loan`
         return result

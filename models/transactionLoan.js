@@ -13,15 +13,11 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
             this.belongsTo(models.Loan, {
                 foreignKey: 'id_loan',
-                as: 'loan',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+                as: 'loan'
             }),
             this.belongsTo(models.Transaction, {
                 foreignKey: 'id_transaction',
-                as: 'transaction',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+                as: 'transaction'
             })
         }
     }
@@ -32,7 +28,6 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         modelName: 'TransactionLoan',
         underscored: true,
-        paranoid: true,
         freezeTableName: true
     });
     return TransactionLoan;

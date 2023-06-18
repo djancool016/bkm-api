@@ -9,19 +9,19 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            id_register: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'Register',
-                    key: 'id'
-                }
-            },
             id_account: {
                 allowNull: false,
                 type: Sequelize.INTEGER,
                 references: {
                     model: 'Account',
+                    key: 'id'
+                }
+            },
+            id_unit: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'Unit',
                     key: 'id'
                 }
             },

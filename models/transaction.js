@@ -12,21 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             this.belongsTo(models.Lkm, {
                 foreignKey: 'id_lkm',
-                as: 'lkm',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
-            }),
-            this.belongsTo(models.Coa, {
-                foreignKey: 'id_coa',
-                as: 'coa',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+                as: 'lkm'
             })
         }
     }
     Transaction.init({
         id_lkm: DataTypes.INTEGER,
-        id_coa: DataTypes.INTEGER,
         trans_code: DataTypes.STRING,
         total: DataTypes.INTEGER,
         trans_date: DataTypes.DATEONLY,
@@ -35,8 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         modelName: 'Transaction',
         underscored: true,
-        freezeTableName: true,
-        paranoid: true
+        freezeTableName: true
     });
     return Transaction;
 };

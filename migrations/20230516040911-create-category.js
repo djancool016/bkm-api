@@ -2,31 +2,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Account', {
+        await queryInterface.createTable('Category', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            id_category: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'Category',
-                    key: 'id'
-                }
-            },
             name: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            created_at: {
+            createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,
                 defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
             },
-            updated_at: {
+            updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE,
                 defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
@@ -34,6 +26,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Account');
+        await queryInterface.dropTable('Category');
     }
 };

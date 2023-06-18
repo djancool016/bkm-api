@@ -1,37 +1,31 @@
-[
-    {
+[{
         "id": 1,
-        "code": "BK",
-        "description": "Kas"
+        "id_category": 1,
+        "name": "Aset Lancar"
     },
     {
         "id": 2,
-        "code": "BI",
-        "description": "Bank"
+        "id_category": 1,
+        "name": "Aset Tetap"
     },
     {
         "id": 3,
-        "code": "BI",
-        "description": "Inventaris"
+        "id_category": 2,
+        "name": "Kewajiban Lancar"
     },
     {
         "id": 4,
-        "code": "UPE",
-        "description": "Unit Pengelola Ekonomi"
+        "id_category": 2,
+        "name": "Ekuitas"
     },
     {
         "id": 5,
-        "code": "UPL",
-        "description": "Unit Pengelola Lingkungan"
+        "id_category": 2,
+        "name": "Pendapatan"
     },
     {
         "id": 6,
-        "code": "UPS",
-        "description": "Unit Pengelola Sosial"
-    },
-    {
-        "id": 7,
-        "code": "BKM",
-        "description": "Sekretariat BKM"
+        "id_category": 2,
+        "name": "Biaya"
     }
 ]

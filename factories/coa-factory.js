@@ -7,36 +7,27 @@ class CoaModel extends BaseModel {
         super()
         this.model = model.Coa
         this.query = {
-            attributes: ['id', 'description'],
+            attributes: ['id','code', 'description'],
             include: [
-                {
-                    model: model.Register,
-                    as: 'register',
-                    attributes: ['id', 'code', 'description']
-                },
                 {
                     model: model.Account,
                     as: 'account',
-                    attributes: ['id', 'code', 'counter', 'description']
+                    attributes: ['id', 'counter', 'description']
                 }
             ]
         }
 
     }
-    findByRegister(id_register){
-        this.query.where = {id_register: id_register}
-        return this.findAll()
-    }
     findByAccount(id_account){
         this.query.where = {id_account: id_account}
         return this.findAll()
     }
-    findLatestOne(){
-        this.query.order = [['created_at','DESC']]
-        return this.findOne()
+    findByCode(code){
+        this.query.where = {code}
+        return this.findAll()
     }
-    findByIds(coaIds){
-        this.query.where = {id: coaIds}
+    findByIds(ids){
+        this.query.where = {id: ids}
         return this.findAll()
     }
 }
@@ -57,33 +48,30 @@ class CoaFactory {
             description: description
         })
     }
-    async read({id, id_coa, id_register, id_account, findLatest = false, coaIds = []}){
+    async read({id, id_coa, id_account, ids = []}){
 
         let result
 
         if(id || id_coa){
             result = await this.model.findByPk(id || id_coa)
         } 
-        else if (id_register) {
-            result = await this.model.findByRegister(id_register)
+        else if (code) {
+            result = await this.model.findByCode(code)
         } 
         else if (id_account) {
             result = await this.model.findByAccount(id_account)
         } 
-        else if (findLatest) {
-            result = await this.model.findLatestOne()
-        }
-        else if (coaIds.length > 0){
-            result = await this.model.findByIds(coaIds)
+        else if (ids.length > 0){
+            result = await this.model.findByIds(ids)
         }
 
         if(result.status) return result
         return new StatusLogger({code: 404, message:'COA not found'}).log
     }
-    async update({id, id_register, id_account, description}){
+    async update({id, code, id_account, description}){
 
         return await this.model.update({
-            id_register,
+            code,
             id_account,
             description
         }, id)

@@ -17,16 +17,8 @@ module.exports = {
                     key: 'id'
                 }
             },
-            id_coa: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'Coa',
-                    key: 'id'
-                }
-            },
             trans_code: {
-                allowNull: false,
+                allowNull: true,
                 type: Sequelize.STRING
             },
             total: {
@@ -50,10 +42,6 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE,
                 defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-            },
-            deleted_at: {
-                allowNull: true,
-                type: Sequelize.DATE
             }
         });
     },
