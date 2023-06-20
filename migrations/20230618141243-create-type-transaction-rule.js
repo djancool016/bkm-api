@@ -2,19 +2,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Unit', {
+        await queryInterface.createTable('typeTransactionRule', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            name: {
+            id_type: {
+                type: Sequelize.INTEGER,
                 allowNull: false,
-                type: Sequelize.STRING
+                references: {
+                    model: 'typeTransaction',
+                    key: 'id'
+                }
             },
-            description: {
-                type: Sequelize.STRING
+            id_coa: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                references: {
+                    model: 'Coa',
+                    key: 'id'
+                }
+            },
+            id_register: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                references: {
+                    model: 'Register',
+                    key: 'id'
+                }
             },
             createdAt: {
                 allowNull: false,
@@ -29,6 +46,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Unit');
+        await queryInterface.dropTable('typeTransactionRule');
     }
 };

@@ -17,14 +17,6 @@ module.exports = {
                     key: 'id'
                 }
             },
-            id_unit: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'Unit',
-                    key: 'id'
-                }
-            },
             description: {
                 allowNull: false,
                 type: Sequelize.STRING

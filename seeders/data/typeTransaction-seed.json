@@ -1,0 +1,236 @@
+[{
+        "id": 1,
+        "id_group": 2,
+        "description": "Setoran Kas ke Bank"
+    },
+    {
+        "id": 2,
+        "id_group": 2,
+        "description": "Tarik Tunai Bank ke Kas"
+    },
+    {
+        "id": 3,
+        "id_group": 1,
+        "description": "Realisasi Piutang KSM"
+    },
+    {
+        "id": 4,
+        "id_group": 1,
+        "description": "Angsuran Pokok KSM"
+    },
+    {
+        "id": 5,
+        "id_group": 1,
+        "description": "Angsuran Bunga KSM"
+    },
+    {
+        "id": 6,
+        "id_group": 1,
+        "description": "Titipan BOP KSM"
+    },
+    {
+        "id": 7,
+        "id_group": 6,
+        "description": "Realisasi  Inventaris"
+    },
+    {
+        "id": 8,
+        "id_group": 6,
+        "description": "Penyusutan Inventaris"
+    },
+    {
+        "id": 9,
+        "id_group": 6,
+        "description": "Perawatan Inventaris"
+    },
+    {
+        "id": 10,
+        "id_group": 6,
+        "description": "Realisasi  Bangunan"
+    },
+    {
+        "id": 11,
+        "id_group": 6,
+        "description": "Perawatan Bangunan"
+    },
+    {
+        "id": 12,
+        "id_group": 4,
+        "description": "Realisasi Anggaran BOP BKM"
+    },
+    {
+        "id": 13,
+        "id_group": 4,
+        "description": "Realisasi Anggaran UPL"
+    },
+    {
+        "id": 14,
+        "id_group": 4,
+        "description": "Realisasi Anggaran UPS"
+    },
+    {
+        "id": 15,
+        "id_group": 3,
+        "description": "Penambahan Modal dari BKM"
+    },
+    {
+        "id": 16,
+        "id_group": 3,
+        "description": "Pemupukan Modal UPK dari Laba"
+    },
+    {
+        "id": 17,
+        "id_group": 2,
+        "description": "Bunga Bank"
+    },
+    {
+        "id": 18,
+        "id_group": 5,
+        "description": "Honor Sekretaris, UPK dan Kebersihan Kantor"
+    },
+    {
+        "id": 19,
+        "id_group": 5,
+        "description": "Lembur Petugas Pembukuan UPK"
+    },
+    {
+        "id": 20,
+        "id_group": 2,
+        "description": "Biaya Administrasi dan Pajak Bank UPK"
+    },
+    {
+        "id": 21,
+        "id_group": 5,
+        "description": "Insentif Pengurus dan Pengawas"
+    },
+    {
+        "id": 22,
+        "id_group": 5,
+        "description": "Belanja Kantor"
+    },
+    {
+        "id": 23,
+        "id_group": 5,
+        "description": "Belanja Rumah Tangga"
+    },
+    {
+        "id": 24,
+        "id_group": 5,
+        "description": "Perjalanan Dinas"
+    },
+    {
+        "id": 25,
+        "id_group": 5,
+        "description": "Biaya Pemeriksaan"
+    },
+    {
+        "id": 26,
+        "id_group": 5,
+        "description": "Biaya Rapat"
+    },
+    {
+        "id": 27,
+        "id_group": 5,
+        "description": "Biaya RWT"
+    },
+    {
+        "id": 28,
+        "id_group": 5,
+        "description": "Tunjangan Hari Raya"
+    },
+    {
+        "id": 29,
+        "id_group": 5,
+        "description": "Pembelian Seragam"
+    },
+    {
+        "id": 30,
+        "id_group": 5,
+        "description": "Bantuan Kesehatan Tenaga Harian"
+    },
+    {
+        "id": 31,
+        "id_group": 5,
+        "description": "Biaya Purna Tugas \/ Bhakti"
+    },
+    {
+        "id": 32,
+        "id_group": 5,
+        "description": "Pendampingan Sistem Komputer"
+    },
+    {
+        "id": 33,
+        "id_group": 7,
+        "description": "Bantuan Kegiatan Lingkungan"
+    },
+    {
+        "id": 34,
+        "id_group": 8,
+        "description": "Bantuan Kegiatan Sosial"
+    },
+    {
+        "id": 35,
+        "id_group": 6,
+        "description": "Penyusutan bangunan"
+    },
+    {
+        "id": 36,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Kas UPK"
+    },
+    {
+        "id": 37,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Saldo Bank UPK"
+    },
+    {
+        "id": 38,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Inventaris"
+    },
+    {
+        "id": 39,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Akumulasi Penyusutan Inventaris"
+    },
+    {
+        "id": 40,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Bangunan"
+    },
+    {
+        "id": 41,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Akumulasi Penyusutan Bangunan"
+    },
+    {
+        "id": 42,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Modal \/ Hibah dari BKM"
+    },
+    {
+        "id": 43,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Modal dari Laba Tahunan"
+    },
+    {
+        "id": 44,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Bank Tahun Lalu"
+    },
+    {
+        "id": 45,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Anggaran BKM"
+    },
+    {
+        "id": 46,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Anggaran UPL"
+    },
+    {
+        "id": 47,
+        "id_group": 9,
+        "description": "Pembukuan Baru - Anggaran UPS"
+    }
+]

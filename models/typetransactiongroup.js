@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Unit extends Model {
+  class typeTransactionGroup extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,14 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Unit.init({
-    name: DataTypes.STRING,
+  typeTransactionGroup.init({
     description: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Unit',
+    modelName: 'typeTransactionGroup',
     underscored: true,
     freezeTableName: true
   });
-  return Unit;
+  return typeTransactionGroup;
 };

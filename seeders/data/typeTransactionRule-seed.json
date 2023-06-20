@@ -1,0 +1,411 @@
+[{
+        "id_type": 1,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 1,
+        "id_coa": 1020,
+        "id_register": 2
+    },
+    {
+        "id_type": 2,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 2,
+        "id_coa": 1020,
+        "id_register": 1
+    },
+    {
+        "id_type": 3,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 3,
+        "id_coa": 1030,
+        "id_register": 1
+    },
+    {
+        "id_type": 4,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 4,
+        "id_coa": 1030,
+        "id_register": 2
+    },
+    {
+        "id_type": 5,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 5,
+        "id_coa": 5010,
+        "id_register": 1
+    },
+    {
+        "id_type": 6,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 6,
+        "id_coa": 3010,
+        "id_register": 1
+    },
+    {
+        "id_type": 7,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 7,
+        "id_coa": 2010,
+        "id_register": 1
+    },
+    {
+        "id_type": 8,
+        "id_coa": 2010,
+        "id_register": 2
+    },
+    {
+        "id_type": 8,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 9,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 9,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 10,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 10,
+        "id_coa": 2020,
+        "id_register": 1
+    },
+    {
+        "id_type": 11,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 11,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 12,
+        "id_coa": 3020,
+        "id_register": 1
+    },
+    {
+        "id_type": 12,
+        "id_coa": 7020,
+        "id_register": 1
+    },
+    {
+        "id_type": 13,
+        "id_coa": 3030,
+        "id_register": 1
+    },
+    {
+        "id_type": 13,
+        "id_coa": 7030,
+        "id_register": 1
+    },
+    {
+        "id_type": 14,
+        "id_coa": 3040,
+        "id_register": 1
+    },
+    {
+        "id_type": 14,
+        "id_coa": 7040,
+        "id_register": 1
+    },
+    {
+        "id_type": 15,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 15,
+        "id_coa": 4010,
+        "id_register": 1
+    },
+    {
+        "id_type": 16,
+        "id_coa": 4020,
+        "id_register": 1
+    },
+    {
+        "id_type": 16,
+        "id_coa": 7010,
+        "id_register": 1
+    },
+    {
+        "id_type": 17,
+        "id_coa": 1020,
+        "id_register": 1
+    },
+    {
+        "id_type": 17,
+        "id_coa": 5020,
+        "id_register": 1
+    },
+    {
+        "id_type": 18,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 18,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 19,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 19,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 20,
+        "id_coa": 1020,
+        "id_register": 2
+    },
+    {
+        "id_type": 20,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 21,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 21,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 22,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 22,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 23,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 23,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 24,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 24,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 25,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 25,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 26,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 26,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 27,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 27,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 28,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 28,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 29,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 29,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 30,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 30,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 31,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 31,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 32,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 32,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 33,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 33,
+        "id_coa": 3030,
+        "id_register": 2
+    },
+    {
+        "id_type": 34,
+        "id_coa": 1010,
+        "id_register": 2
+    },
+    {
+        "id_type": 34,
+        "id_coa": 3040,
+        "id_register": 2
+    },
+    {
+        "id_type": 35,
+        "id_coa": 3020,
+        "id_register": 2
+    },
+    {
+        "id_type": 35,
+        "id_coa": 2020,
+        "id_register": 2
+    },
+    {
+        "id_type": 36,
+        "id_coa": 1010,
+        "id_register": 1
+    },
+    {
+        "id_type": 37,
+        "id_coa": 1020,
+        "id_register": 1
+    },
+    {
+        "id_type": 38,
+        "id_coa": 2010,
+        "id_register": 1
+    },
+    {
+        "id_type": 39,
+        "id_coa": 2010,
+        "id_register": 2
+    },
+    {
+        "id_type": 40,
+        "id_coa": 2020,
+        "id_register": 1
+    },
+    {
+        "id_type": 41,
+        "id_coa": 2020,
+        "id_register": 2
+    },
+    {
+        "id_type": 42,
+        "id_coa": 4010,
+        "id_register": 1
+    },
+    {
+        "id_type": 43,
+        "id_coa": 4020,
+        "id_register": 1
+    },
+    {
+        "id_type": 44,
+        "id_coa": 5020,
+        "id_register": 1
+    },
+    {
+        "id_type": 45,
+        "id_coa": 3020,
+        "id_register": 1
+    },
+    {
+        "id_type": 46,
+        "id_coa": 3030,
+        "id_register": 1
+    },
+    {
+        "id_type": 47,
+        "id_coa": 3040,
+        "id_register": 1
+    }
+]
