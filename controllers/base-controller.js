@@ -193,6 +193,7 @@ async function middlewareRequest(req, res, model){
     // Send request using BaseController
     let controller = new BaseController(req, res, model)
     let result = await controller.getResult()
+    if(result.status == undefined) result = new StatusLogger({code: 500, message: 'Internal Server Error'}).log
     return result
 }
 
@@ -224,6 +225,7 @@ async function bulkRequest(array, url = ''){
 
                     if(retries < MAX_RETRIES && error.response.data.code == 500){
                         console.error('Request failed. Retrying...')
+                        console.error(error.data)
                         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
                         return response(retries + 1)
                     }

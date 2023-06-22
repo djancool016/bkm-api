@@ -31,7 +31,7 @@
     {
         "id": 7,
         "id_group": 6,
-        "description": "Realisasi  Inventaris"
+        "description": "Aset Inventaris"
     },
     {
         "id": 8,
@@ -46,7 +46,7 @@
     {
         "id": 10,
         "id_group": 6,
-        "description": "Realisasi  Bangunan"
+        "description": "Aset Bangunan"
     },
     {
         "id": 11,
@@ -176,61 +176,91 @@
     {
         "id": 36,
         "id_group": 9,
-        "description": "Pembukuan Baru - Kas UPK"
+        "description": "Pendapatan dari Sewa Kios"
     },
     {
         "id": 37,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Saldo Bank UPK"
+        "id_group": 1,
+        "description": "Penarikan Titipan BOP KSM"
     },
     {
         "id": 38,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Inventaris"
+        "id_group": 10,
+        "description": "PB - Realisasi Pinjaman KSM"
     },
     {
         "id": 39,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Akumulasi Penyusutan Inventaris"
+        "id_group": 10,
+        "description": "PB - Angsuran Pokok KSM"
     },
     {
         "id": 40,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Bangunan"
+        "id_group": 10,
+        "description": "PB - Angsuran Bunga KSM"
     },
     {
         "id": 41,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Akumulasi Penyusutan Bangunan"
+        "id_group": 10,
+        "description": "PB - Titipan BOP KSM"
     },
     {
         "id": 42,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Modal \/ Hibah dari BKM"
+        "id_group": 10,
+        "description": "PB - Kas UPK"
     },
     {
         "id": 43,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Modal dari Laba Tahunan"
+        "id_group": 10,
+        "description": "PB - Saldo Rekening Bank UPK"
     },
     {
         "id": 44,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Bank Tahun Lalu"
+        "id_group": 10,
+        "description": "PB - Modal dari BKM"
     },
     {
         "id": 45,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Anggaran BKM"
+        "id_group": 10,
+        "description": "PB - Modal dari Laba Tahunan"
     },
     {
         "id": 46,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Anggaran UPL"
+        "id_group": 10,
+        "description": "PB - Anggaran UPS"
     },
     {
         "id": 47,
-        "id_group": 9,
-        "description": "Pembukuan Baru - Anggaran UPS"
+        "id_group": 10,
+        "description": "PB - Anggaran UPL"
+    },
+    {
+        "id": 48,
+        "id_group": 10,
+        "description": "PB - Anggaran BOP BKM"
+    },
+    {
+        "id": 49,
+        "id_group": 10,
+        "description": "PB - Laba Tahun Berjalan"
+    },
+    {
+        "id": 50,
+        "id_group": 10,
+        "description": "PB - Inventaris"
+    },
+    {
+        "id": 51,
+        "id_group": 10,
+        "description": "PB - Akumulasi Penyusutan Inventaris"
+    },
+    {
+        "id": 52,
+        "id_group": 10,
+        "description": "PB - Bangunan"
+    },
+    {
+        "id": 53,
+        "id_group": 10,
+        "description": "PB - Akumulasi Penyusutan Bangunan"
     }
 ]

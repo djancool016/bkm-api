@@ -17,9 +17,13 @@ module.exports = {
                     key: 'id'
                 }
             },
-            trans_code: {
-                allowNull: true,
-                type: Sequelize.STRING
+            id_type: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'typeTransaction',
+                    key: 'id'
+                }
             },
             total: {
                 allowNull: false,

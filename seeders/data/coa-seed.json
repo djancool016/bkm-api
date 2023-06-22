@@ -64,6 +64,16 @@
         "description": "Bunga Bank UPK"
     },
     {
+        "id": 5030,
+        "id_account": 5,
+        "description": "Sewa Kios"
+    },
+    {
+        "id": 5000,
+        "id_account": 5,
+        "description": "Pendapatan Pembukuan Lama"
+    },
+    {
         "id": 6010,
         "id_account": 6,
         "description": "Honor Sekretaris, UPK dan Kebersihan Kantor"
@@ -162,6 +172,11 @@
         "id": 6022,
         "id_account": 6,
         "description": "Perawatan Bangunan "
+    },
+    {
+        "id": 6023,
+        "id_account": 6,
+        "description": "Penyusutan Bangunan"
     },
     {
         "id": 7010,

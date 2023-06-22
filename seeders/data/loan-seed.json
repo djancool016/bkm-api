@@ -5,7 +5,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 38000000,
-        "loan_start": "2022-04-20"
+        "loan_start": "2022-04-20",
+        "id_type": 48
     },
     {
         "id": 2,
@@ -13,7 +14,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 54700000,
-        "loan_start": "2022-03-31"
+        "loan_start": "2022-03-31",
+        "id_type": 48
     },
     {
         "id": 3,
@@ -21,7 +23,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 35000000,
-        "loan_start": "2022-03-22"
+        "loan_start": "2022-03-22",
+        "id_type": 48
     },
     {
         "id": 4,
@@ -29,7 +32,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 23000000,
-        "loan_start": "2022-07-07"
+        "loan_start": "2022-07-07",
+        "id_type": 48
     },
     {
         "id": 5,
@@ -37,7 +41,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 30000000,
-        "loan_start": "2022-05-27"
+        "loan_start": "2022-05-27",
+        "id_type": 48
     },
     {
         "id": 6,
@@ -45,7 +50,8 @@
         "loan_duration": 10,
         "loan_interest": 1.45,
         "total_loan": 100000000,
-        "loan_start": "2022-09-16"
+        "loan_start": "2022-09-16",
+        "id_type": 48
     },
     {
         "id": 7,
@@ -53,7 +59,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 36000000,
-        "loan_start": "2022-04-01"
+        "loan_start": "2022-04-01",
+        "id_type": 48
     },
     {
         "id": 8,
@@ -61,7 +68,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 170000000,
-        "loan_start": "2022-04-06"
+        "loan_start": "2022-04-06",
+        "id_type": 48
     },
     {
         "id": 9,
@@ -69,7 +77,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 72000000,
-        "loan_start": "2022-09-01"
+        "loan_start": "2022-09-01",
+        "id_type": 48
     },
     {
         "id": 10,
@@ -77,7 +86,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 98000000,
-        "loan_start": "2022-02-17"
+        "loan_start": "2022-02-17",
+        "id_type": 48
     },
     {
         "id": 11,
@@ -85,7 +95,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 14000000,
-        "loan_start": "2022-09-07"
+        "loan_start": "2022-09-07",
+        "id_type": 48
     },
     {
         "id": 12,
@@ -93,7 +104,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 120000000,
-        "loan_start": "2022-12-29"
+        "loan_start": "2022-12-29",
+        "id_type": 48
     },
     {
         "id": 13,
@@ -101,7 +113,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 40000000,
-        "loan_start": "2022-11-09"
+        "loan_start": "2022-11-09",
+        "id_type": 48
     },
     {
         "id": 14,
@@ -109,7 +122,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 120000000,
-        "loan_start": "2022-10-24"
+        "loan_start": "2022-10-24",
+        "id_type": 48
     },
     {
         "id": 15,
@@ -117,7 +131,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 35000000,
-        "loan_start": "2022-09-09"
+        "loan_start": "2022-09-09",
+        "id_type": 48
     },
     {
         "id": 16,
@@ -125,7 +140,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 19000000,
-        "loan_start": "2022-11-09"
+        "loan_start": "2022-11-09",
+        "id_type": 48
     },
     {
         "id": 17,
@@ -133,7 +149,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 48000000,
-        "loan_start": "2022-05-13"
+        "loan_start": "2022-05-13",
+        "id_type": 48
     },
     {
         "id": 18,
@@ -141,7 +158,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 118000000,
-        "loan_start": "2022-10-24"
+        "loan_start": "2022-10-24",
+        "id_type": 48
     },
     {
         "id": 19,
@@ -149,7 +167,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 50000000,
-        "loan_start": "2022-06-27"
+        "loan_start": "2022-06-27",
+        "id_type": 48
     },
     {
         "id": 20,
@@ -157,7 +176,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 99000000,
-        "loan_start": "2022-11-24"
+        "loan_start": "2022-11-24",
+        "id_type": 48
     },
     {
         "id": 21,
@@ -165,7 +185,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 36000000,
-        "loan_start": "2022-06-06"
+        "loan_start": "2022-06-06",
+        "id_type": 48
     },
     {
         "id": 22,
@@ -173,7 +194,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 36000000,
-        "loan_start": "2022-08-10"
+        "loan_start": "2022-08-10",
+        "id_type": 48
     },
     {
         "id": 23,
@@ -181,7 +203,8 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 22000000,
-        "loan_start": "2022-09-28"
+        "loan_start": "2022-09-28",
+        "id_type": 48
     },
     {
         "id": 24,
@@ -189,6 +212,7 @@
         "loan_duration": 12,
         "loan_interest": 1.45,
         "total_loan": 37000000,
-        "loan_start": "2022-11-09"
+        "loan_start": "2022-11-09",
+        "id_type": 48
     }
 ]

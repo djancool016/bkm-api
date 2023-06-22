@@ -126,7 +126,7 @@ class LoanPaymentFactory {
         if(loan.status == false) return loan
         if(transaction.status == false) return transaction
 
-        let {total: total_payment, id_coa} = transaction.data
+        let {total: total_payment, id_type} = transaction.data
         
         let currentPayment
 
@@ -139,14 +139,14 @@ class LoanPaymentFactory {
             let payment = {loan_remaining, interest_remaining}
             let installments_remaining
 
-            switch (id_coa) {
-                case 16 :
+            switch (id_type) {
+                case 4,39 :
                     installments_remaining = loan_remaining - total_payment
                     currentPayment = paymentRemaining(installments_remaining, payment)
                     payment.loan_remaining = currentPayment.remaining
                     total_payment = currentPayment.total_payment
                     break
-                case 17:
+                case 5,40:
                     installments_remaining = interest_remaining - total_payment
                     currentPayment = paymentRemaining(installments_remaining, payment)
                     payment.interest_remaining = currentPayment.remaining

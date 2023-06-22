@@ -13,12 +13,16 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsTo(models.Lkm, {
                 foreignKey: 'id_lkm',
                 as: 'lkm'
+            }),
+            this.belongsTo(models.typeTransaction, {
+                foreignKey: 'id_type',
+                as: 'type'
             })
         }
     }
     Transaction.init({
         id_lkm: DataTypes.INTEGER,
-        trans_code: DataTypes.STRING,
+        id_type: DataTypes.INTEGER,
         total: DataTypes.INTEGER,
         trans_date: DataTypes.DATEONLY,
         remark: DataTypes.STRING

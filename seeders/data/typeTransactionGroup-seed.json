@@ -32,6 +32,10 @@
     },
     {
         "id": 9,
+        "description": "Pendapatan Lain"
+    },
+    {
+        "id": 10,
         "description": "Pembukuan Baru"
     }
 ]

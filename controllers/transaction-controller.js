@@ -5,10 +5,11 @@ const factory = new TransactionFactory
 async function create(req, res, next){
     
     let model = factory.create({
-        coa: req.coa,
+        typeTransaction: req.typeTransaction,
         lkm: req.lkm,
         requestBody: req.body,
-        loan: req.loan
+        loan: req.loan,
+        ksm: req.ksm
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)

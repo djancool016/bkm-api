@@ -27,43 +27,33 @@ class TransactionLoan extends BaseModel {
             }
         ]
     }
-    findLatestOne(){
-        this.query.order = [['created_at','DESC']]
-        return this.findOne()
-    }
-    findByIdLoan(id_loan, start_date, end_date){
+    findByIdLoan(id_loan, option){
         
         this.query.where = {id_loan}
-        this.queryOption(start_date, end_date)
+        this.queryOption(option)
         return this.findAll()
     }
-    findByIdTransaction(id_transaction){
+    findByIdTransaction(id_transaction, option){
+
         this.query.where = {id_transaction: id_transaction}
+        this.queryOption(option)
         return this.findAll()
     }
-    findByIdKsm(id_ksm){
+    findByIdKsm(id_ksm, option){
         this.query.where = {'$loan.ksm.id$': id_ksm}
-        return this.findOne()
+        this.queryOption(option)
+        return this.findAll()
     }
-    findByIds(ids){
+    findByIds(ids, option){
         this.query.where = {id: ids}
+        this.queryOption(option)
         return this.findAll()
     }
-    findByTransCode(trans_code){
-        this.query.where = {'$transaction.trans_code$': trans_code}
-        return this.findOne()
-    }
-    findByDateRange(start_date, end_date) {
-        this.queryOption(start_date, end_date)
-        return this.findAll()
-    }
-    queryOption(start_date, end_date){
+    queryOption({start_date, end_date}){
 
         if(start_date || end_date){
-
             start_date = new DateFormat(start_date? start_date : "2000-01-01").toISOString(false)
             end_date = new DateFormat(end_date? end_date : new Date()).toISOString(false)
-
             this.query.where = { ...this.query.where, ['$transaction.trans_date$']: {[Op.between]: [start_date, end_date]}} 
         }
     }
@@ -97,18 +87,22 @@ class TransactionLoanFactory {
             id_transaction: transaction.data.id
         })
         result.message = `${result.message} ${transaction.data.remark}`
-        return new StatusLogger({code: result.code, message: result.message}).log
+        return result
     }
     async createLIB(requestBody){
         let transactionLIB = []
 
-        let{id_loan, id_lkm, trans_date, pay_loan, pay_interest, pay_bop} = requestBody
+        let{id_loan, id_lkm, trans_date, pay_loan, pay_interest, pay_bop, isFirstLedger} = requestBody
 
+        let id_type = (a, b) => {
+            if(isFirstLedger) return a
+            return b
+        }
         if(pay_loan){
             transactionLIB.push({
                 id_loan, 
                 id_lkm, 
-                id_coa: 16,
+                id_type: id_type(39, 4),
                 trans_date, 
                 total : pay_loan,
                 url: 'http://localhost:5100/transactionLoan'
@@ -118,7 +112,7 @@ class TransactionLoanFactory {
             transactionLIB.push({
                 id_loan, 
                 id_lkm, 
-                id_coa: 17,
+                id_type: id_type(40, 5),
                 trans_date, 
                 total : pay_interest,
                 url: 'http://localhost:5100/transactionLoan'
@@ -128,7 +122,7 @@ class TransactionLoanFactory {
             transactionLIB.push({
                 id_loan, 
                 id_lkm, 
-                id_coa: 18,
+                id_type: id_type(41, 6),
                 trans_date, 
                 total : pay_bop,
                 url: 'http://localhost:5100/transactionBop'
@@ -143,8 +137,8 @@ class TransactionLoanFactory {
         if(loanPayment.status == false) return loanPayment
         if(transactionLoan && transactionLoan.status == false) return loanPayment
 
-        let {id_coa, total} = requestBody
-        if(!id_coa || !total) return new StatusLogger({code:400, message:"Invalid input"}).log
+        let {id_type, total} = requestBody
+        if(!id_type || !total) return new StatusLogger({code:400, message:"Invalid input"}).log
 
         let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan.data
         let remaining = {loan:0, interest:0}
@@ -159,11 +153,11 @@ class TransactionLoanFactory {
             return new StatusLogger({code: 400, message:`Loan KSM ${name} is not approved`}).log
         }
         
-        switch(id_coa){
-            case 16:
+        switch(id_type){
+            case 4,39:
                 pay.loan = total
                 break
-            case 17:
+            case 5,40:
                 pay.interest = total
                 break
             default:
@@ -186,11 +180,11 @@ class TransactionLoanFactory {
 
                 let {transaction} = transactionLoan.data[i]
 
-                switch(transaction.id_coa){
-                    case 16:
+                switch(transaction.id_type){
+                    case 4,39:
                         paid.loan = transaction.total
                         break
-                    case 17:
+                    case 5,40:
                         paid.interest = transaction.total
                         break
                     default:
@@ -211,52 +205,43 @@ class TransactionLoanFactory {
         return new DataLogger({data: {loan, full, paid, pay}, message:'Loan Payment ready to proccess'}).log
     }
 
-    async checkBop({loan, requestBody:{id_coa}}){
+    async checkBop({loan, requestBody:{id_type}}){
 
         if(loan.status == false) return loan
 
-        switch(id_coa){
-            case 18:
+        switch(id_type){
+            case 6,41:
                 return new StatusLogger({code: 200, message:'BOP payment transaction'}).log 
-            case 19:
+            case 37:
                 return new StatusLogger({code: 200, message:'BOP withdrawal transaction'}).log 
             default:
-                return new StatusLogger({code: 400, message:`Coa ID  is not a BOP transaction`}).log  
+                return new StatusLogger({code: 400, message:`Type Transaction ID  is not a BOP transaction`}).log  
         }
     }
 
-    async read({id, id_transaction, id_loan, id_ksm, trans_code,ids = [], start_date, end_date}){
-        if(id){
-            return await this.model.findByPk(id)
+    async read({id, id_transaction, id_loan, id_ksm, start_date, end_date}){
+
+        let result
+        let option = {start_date, end_date}
+
+        if(Array.isArray(id)){
+            result = await this.model.findByIds(id)
+        }
+        else if(id){
+            result = await this.model.findByPk(id)
         }
         else if(id_transaction){
-            return await this.model.findByIdTransaction(id_transaction)
+            result = await this.model.findByIdTransaction(id_transaction, option)
         }
         else if(id_loan){
-            return await this.model.findByIdLoan(id_loan, start_date, end_date)
+            result = await this.model.findByIdLoan(id_loan, option)
         }
         else if(id_ksm){
-            return await this.model.findByIdKsm(id_ksm)
+            result = await this.model.findByIdKsm(id_ksm, option)
         }
-        else if(trans_code){
-            return await this.model.findByTransCode(trans_code)
-        }
-        else if(ids.length > 0){
-            return await this.model.findByIds(ids)
-        }
-        else if(start_date && end_date){
-            
-            start_date = new DateFormat(start_date).toISOString(false)
-            end_date = new DateFormat(end_date).toISOString(false)
-
-            return await this.model.findByDateRange(start_date, end_date)
-        }
-        else {
-            return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log
-        }
-    }
-    async delete(id){
-        return await this.model.delete(id)
+        
+        if(result.status) return result
+        return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log
     }
 }
 

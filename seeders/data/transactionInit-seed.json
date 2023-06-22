@@ -1,72 +1,64 @@
-[
-    {
+[{
         "id_lkm": 1,
-        "id_coa": 1,
+        "id_type": 42,
         "total": 291350,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Kas Awal"
+        "trans_date": 44926,
+        "remark": "PB - Kas UPK"
     },
     {
         "id_lkm": 1,
-        "id_coa": 2,
+        "id_type": 43,
         "total": 167031129,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Saldo Awal"
+        "trans_date": 44926,
+        "remark": "PB - Saldo Rekening Bank UPK"
     },
     {
         "id_lkm": 1,
-        "id_coa": 20,
-        "total": 8324934,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Resiko Kredit"
-    },
-    {
-        "id_lkm": 1,
-        "id_coa": 7,
-        "total": 40434600,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Inventaris Awal"
-    },
-    {
-        "id_lkm": 1,
-        "id_coa": 9,
-        "total": 27905183,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Pemeliharaan Inventaris"
-    },
-    {
-        "id_lkm": 1,
-        "id_coa": 23,
-        "total": 2309156,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Dana Lingkungan Tahunan"
-    },
-    {
-        "id_lkm": 1,
-        "id_coa": 25,
-        "total": 11611470,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Dana Sosial Tahunan"
-    },
-    {
-        "id_lkm": 1,
-        "id_coa": 27,
+        "id_type": 44,
         "total": 859548616,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Hibah P2KP, PNPM dan P.DAPM"
+        "trans_date": 44926,
+        "remark": "PB - Modal dari BKM"
     },
     {
         "id_lkm": 1,
-        "id_coa": 14,
+        "id_type": 45,
         "total": 153091272,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Dana Pengembangan Modal Tahunan"
+        "trans_date": 44926,
+        "remark": "PB - Modal dari Laba Tahunan"
     },
     {
         "id_lkm": 1,
-        "id_coa": 13,
-        "total": 94021848,
-        "trans_date": "2023-01-01",
-        "remark": "Pembukuan 2022 - Laba Rugi Awal"
+        "id_type": 46,
+        "total": 11611470,
+        "trans_date": 44926,
+        "remark": "PB - Anggaran UPS"
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 47,
+        "total": 2309156,
+        "trans_date": 44926,
+        "remark": "PB - Anggaran UPL"
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 49,
+        "total": 102346782,
+        "trans_date": 44926,
+        "remark": "PB - Laba Tahun Berjalan"
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 50,
+        "total": 40434600,
+        "trans_date": 44926,
+        "remark": "PB - Inventaris"
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 51,
+        "total": 27905183,
+        "trans_date": 44926,
+        "remark": "PB - Akumulasi Penyusutan Inventaris"
     }
 ]

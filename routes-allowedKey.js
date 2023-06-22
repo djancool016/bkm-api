@@ -61,6 +61,7 @@ module.exports = {
         loan: {
             create:{
                 integer:['id','id_ksm','total_loan','loan_duration','loan_interest'],
+                boolean:['isFirstLedger'],
                 date: ['loan_start']
             },
             creates:{
@@ -83,10 +84,10 @@ module.exports = {
         },
         transaction: {
             create:{
-                integer:['id_coa','id_lkm','total'],
+                integer:['id_type','id_lkm','total'],
                 date: ['trans_date'],
                 string: ['remark'],
-                notnull: ['id_coa','id_lkm','total']
+                notnull: ['id_type','id_lkm','total']
             },
             creates:{
                 array:['transactions'],
@@ -111,10 +112,10 @@ module.exports = {
         },
         transactionLoan: {
             create:{
-                integer:['id_loan','id_coa','id_lkm','total'],
+                integer:['id_loan','id_type','id_lkm','total'],
                 date: ['trans_date'],
                 string: ['remark','url'],
-                notnull: ['id_loan','id_coa','id_lkm','total']
+                notnull: ['id_loan','id_type','id_lkm','total']
             },
             creates:{
                 array:['transactionLoans'],
@@ -128,10 +129,10 @@ module.exports = {
         },
         transactionBop: {
             create:{
-                integer:['id_loan','id_coa','id_lkm','total'],
+                integer:['id_loan','id_type','id_lkm','total'],
                 date: ['trans_date'],
                 string: ['remark','url'],
-                notnull: ['id_loan','id_coa','id_lkm','total']
+                notnull: ['id_loan','id_type','id_lkm','total']
             },
             creates:{
                 array:['transactionBops'],
@@ -147,6 +148,7 @@ module.exports = {
                 integer:['id_loan','id_lkm','pay_loan','pay_interest','pay_bop'],
                 date: ['trans_date'],
                 string: ['remark'],
+                boolean: ['isFirstLedger'],
                 notnull: ['id_loan','id_lkm']
             },
             creates:{

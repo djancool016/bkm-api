@@ -51,7 +51,8 @@ class ReportFactory {
                 loan_interest, loan_start, loan_end, trans_date: null,
                 total_loan, total_interest, total_bop,
                 paid_loan: 0, paid_interest: 0, paid_bop: 0,
-                pay_loan: 0, pay_interest: 0, pay_bop: 0
+                pay_loan: 0, pay_interest: 0, pay_bop: 0,
+                remaining_loan: total_loan, remaining_interest: total_interest, remaining_bop: total_bop
             })
         })
         
@@ -62,8 +63,8 @@ class ReportFactory {
         if(transactionLoan.status == false) return transactionLoan
 
         transactionLoan.data.forEach(obj => {
-
-            let {id_coa, trans_date, total} = obj.transaction
+            
+            let {id_type, trans_date, total} = obj.transaction
             let {id: id_loan} = obj.loan
 
             const index = paymentReport.findIndex(item => {
@@ -74,28 +75,28 @@ class ReportFactory {
             let isLastMonth = new DateFormat(trans_date).diffDays(lastMonth) >= 0
 
             if(isLastMonth){
-                switch(id_coa){
-                    case 16:
-                        paymentReport[index].paid_loan += total
+                switch(id_type){
+                    case 4,39:
+                        paymentReport[index].paid_loan += total 
                         break
-                    case 17:
+                    case 5,40:
                         paymentReport[index].paid_interest += total
                         break
-                    case 18:
+                    case 6,41:
                         paymentReport[index].paid_bop += total
                         break
                     default:
                         break
                 }
             }else{
-                switch(id_coa){
-                    case 16:
+                switch(id_type){
+                    case 4,39:
                         paymentReport[index].pay_loan += total
                         break
-                    case 17:
+                    case 5,40:
                         paymentReport[index].pay_interest += total
                         break
-                    case 18:
+                    case 6,41:
                         paymentReport[index].pay_bop += total
                         break
                     default:
@@ -107,10 +108,11 @@ class ReportFactory {
                 paid_loan, paid_interest, paid_bop,
                 pay_loan, pay_interest, pay_bop
             } = paymentReport[index]
+ 
+            paymentReport[index].remaining_loan = total_loan - paid_loan - pay_loan
+            paymentReport[index].remaining_interest = total_interest - paid_interest - pay_interest
+            paymentReport[index].remaining_bop = total_bop - paid_bop - pay_bop
 
-            paymentReport[index].remaining_loan = total_loan - (paid_loan + pay_loan)
-            paymentReport[index].remaining_interest = total_interest - (paid_interest + pay_interest)
-            paymentReport[index].remaining_bop = total_bop - (paid_bop + pay_bop)
         })
 
         let totalCurrent = 0
@@ -119,19 +121,21 @@ class ReportFactory {
         let totalNonPerforming = 0
         let totalDefault = 0
         let totalAllRemainingLoan = 0
-
+   
         for(let i = 0; i < paymentReport.length; i++){
 
             let loanPayment = await this.loanPayment.read({id_loan : paymentReport[i].id_loan})
             if(loanPayment.status == false) return loanPayment
             
             let {trans_date, remaining_loan, total_loan} = paymentReport[i]
-            let dateParts = trans_date.split("-")
-            let newtransDate = `${dateParts[0]}-${dateParts[1].padStart(2,'0')}`
-            totalAllRemainingLoan += remaining_loan
 
-            // use this if ignore date, set all date to 1
-            trans_date = new DateFormat(newtransDate)
+            if(trans_date){
+                let dateParts = trans_date.split("-")
+                let newtransDate = `${dateParts[0]}-${dateParts[1].padStart(2,'0')}`
+                // use this if ignore date, set all date to 1
+                trans_date = new DateFormat(newtransDate)
+            }
+            totalAllRemainingLoan += remaining_loan
 
             let this_month_payment
 
@@ -157,7 +161,7 @@ class ReportFactory {
                 let newDueDate = `${parts[0]}-${parts[1].padStart(2,'0')}-01`
 
                 // chack if transaction is in due_date month
-                let isThisMonth = trans_date.diffDays(newDueDate)
+                let isThisMonth = trans_date? trans_date.diffDays(newDueDate) : 1
 
                 // default
                 if(isThisMonth < -270 || collectibillity.default > 0){
@@ -188,7 +192,7 @@ class ReportFactory {
                 if(isThisMonth <= 0) trueLoanCredit -= monthly_loan
 
                 // chack if transaction is in 30 days from due_date
-                if(isThisMonth <= 0 && isThisMonth >= -30) {
+                if((isThisMonth <= 0 && isThisMonth >= -30) || (!this_month_payment && isThisMonth == 1)) {
 
                     this_month_payment = {
                         payment_no, due_date, loan_remaining, interest_remaining, monthly_loan, monthly_interest,is_settled
