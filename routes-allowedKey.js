@@ -96,6 +96,7 @@ module.exports = {
             read:{
                 integer:['id', 'id_coa', 'id_account','id_register','id_lkm'],
                 boolean:['findLatest'],
+                date: ['start_date','end_date'],
                 string:['trans_code'],
                 array:['transactionIds']
             },
@@ -158,12 +159,13 @@ module.exports = {
         },
         loanPayment: {
             read:{
-                integer:['id_loan']
+                integer:['id_loan'],
+                date:['end_date']
             } 
         },
         report: {
             payment:{
-                date:['start_date', 'end_date']
+                date:['id_lkm','start_date', 'end_date']
             },
             prototype:{
                 integer:['year','month','id_lkm']
