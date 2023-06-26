@@ -70,12 +70,14 @@ class LedgerFactory {
                 let{
                     id:id_coa, 
                     account: {id:id_account, name, category},
+                    description
                 } = data.coa
 
                 let{register:{id:id_register, name: registerName}} = data
 
                 let transaction = {
                     id_coa,
+                    coa: description,
                     id_register,
                     register: registerName,
                     id_transaction,

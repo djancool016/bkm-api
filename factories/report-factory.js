@@ -244,172 +244,59 @@ class ReportFactory {
     }
 
     // create credit, debit, and cash report
-    async cashReport({id_lkm = 1, year, month}){
+    async cashReport({ledger, requestBody}){
 
-        month = String(month).padStart(2, '0')
+        if(ledger.status == false) return ledger
+        let upk = []
+        let ups = []
+        let upl = []
+        let bkm = []
 
-        let start_date = new DateFormat(`${year}-${month}`)
-        if(start_date.toISOString() == 'Invalid date') return new StatusLogger({code:400, message:'Invalid date format'}).log
-
-        let end_date = new DateFormat(`${year}-${month}`)
-        end_date.addMonths = 1
-        end_date.addDays = -1
-        end_date = end_date.toISOString(false)
-
-        let lastMonth = new DateFormat(`${year}-${month}`)
-        lastMonth.addDays = -1
-        lastMonth = lastMonth.toISOString(false)
-
-        // initiate empty incomes object
-        let incomes = {
-            upe: [], bkm: []
-        }
-        // initiate empty costs object
-        let costs = {
-            upe: [], ups: [], upl: [], bkm: [], inventaris: []
-        }
-
-        // Find loan data
-        start_date = start_date.toISOString(false)
-        let debit = await this.transaction.read({id_register: 1, id_lkm, start_date, end_date})
-        if(debit.status == false) return debit
-
-        let credit = await this.transaction.read({id_register: 2, id_lkm, start_date, end_date})
-        if(credit.status == false) return credit
-
-        // function for updaing income object
-        const updateIncomes = (data) => {
+        ledger.data.forEach(arr => {
             
-            const update = (arr, data) => {
+            arr.account.forEach(account => {
+                const transactionAccount = (unitManagement) => {
+                    account?.transaction?.forEach(obj => {
+                        let index = unitManagement.findIndex(data => data.id_coa == obj.id_coa)
+                        if(index == -1) {
+                            let cashFlow = {
+                                id_coa: obj.id_coa, 
+                                coa: obj.coa,
+                                debit: 0,
+                                credit: 0
+                            }
+                            switch(obj.id_register){
+                                case 1:
+                                    cashFlow.debit += obj.total
+                                    break
+                                case 2:
+                                    cashFlow.credit += obj.total
+                            }
+                            return unitManagement.push(cashFlow)
+                        }
+                        if(obj.id_register == 1) return unitManagement[index].debit += obj.total
+                        unitManagement[index].credit += obj.total
+                    })  
+                }
 
-                const index = arr.findIndex(item => {
-                    return item.id_coa == data.id_coa
-                })
-
-                if(index == -1) return arr.push(data)
-                arr[index].total += data.total
-            }
-    
-            switch(data.id_account){
-                case 4:
-                    update(incomes.upe, data)
-                    break
-                case 7:
-                    update(incomes.bkm, data)
-                    break
-            }
-        }
-
-        // function for updating costs object
-        const updateCosts = (data) => {
-
-            const update = (arr, data) => {
-
-                const index = arr.findIndex(item => {
-                    return item.id_coa == data.id_coa
-                })
-
-                if(index == -1) return arr.push(data)
-                arr[index].total += data.total
-            }
-
-            switch(data.id_account){
-                case 3:
-                    update(costs.inventaris, data)
-                    break
-                case 4:
-                    update(costs.upe, data)
-                    break
-                case 5:
-                    update(costs.upl, data)
-                    break
-                case 6:
-                    update(costs.ups, data)
-                    break
-                case 7:
-                    update(costs.bkm, data)
-                    break
-            }
-        }
-
-        // list of id COA for debit and credit 
-        let incomeCoa = [4,17,41]
-        let costCoa = [6,9,10,12,19,21,22,24,26,29,30,31,32,33,34,35,36,37,38,39,40]
-
-        // Find coa data
-        let coas = await this.coa.read({coaIds:[...incomeCoa, ...costCoa]})
-        if(coas.status == false) return coas
-
-        // creating debit or income object
-        debit.data.forEach(obj => {
-            let data = {
-                id_coa: obj.coa.id,
-                id_account: obj.coa.account.id,
-                id_register: obj.coa.register.id,
-                description: obj.coa.description,
-                total: obj.total
-            }
-            incomeCoa.forEach(coa => {
-                // create list of income type with 0 total
-                coas.data.forEach(obj => {
-                    if(obj.id === coa) updateIncomes({
-                        id_coa: obj.id,
-                        id_account: obj.account.id,
-                        id_register: obj.register.id,
-                        description: obj.description,
-                        total: 0
-                    })
-                })
-                // fill incomes with transaction data
-                if(data.id_coa == coa)  updateIncomes(data)
-                
+                transactionAccount(upk)
             })
         })
-
-        // creating credit or cost object
-        credit.data.forEach(obj => {
-            let data = {
-                id_coa: obj.coa.id,
-                id_account: obj.coa.account.id,
-                id_register: obj.coa.register.id,
-                description: obj.coa.description,
-                total: obj.total
-            }
-            costCoa.forEach(coa => {
-                // create list of cost type with 0 total
-                coas.data.forEach(obj => {
-                    if(obj.id === coa) updateCosts({
-                        id_coa: obj.id,
-                        id_account: obj.account.id,
-                        id_register: obj.register.id,
-                        description: obj.description,
-                        total: 0
-                    })
-                })
-                // fill all cost with transaction data
-                if(data.id_coa == coa) updateCosts(data)
-            })
-        })
-
-        let cashReport = {
-            debit: debit.data,
-            credit: credit.data,
-            income: incomes,
-            cost: costs
+        let output = {
+            upk
         }
 
-        return new DataLogger({data: cashReport}).log
+        return new DataLogger({data:output}).log
     }
 
     // create a xls workbook
-    async reportXls({requestBody, paymentReport, cashReport}){
+    async reportXls({requestBody, paymentReport}){
 
         const workbook = new ExcelJs.Workbook()
 
         if(paymentReport.status){
             this.paymentReportXls(paymentReport.data, requestBody, workbook)
             this.collectibillityReportXls(paymentReport.data, requestBody, workbook)
-            this.costIncomeReportXls(paymentReport.data, cashReport.data, requestBody, workbook)
         }
 
         let buffer = await workbook.xlsx.writeBuffer()

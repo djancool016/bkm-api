@@ -16,8 +16,11 @@ async function paymentReport(req, res, next){
 }
 
 async function cashReport(req, res, next){
-    
-    let model = factory.cashReport(req.body)
+
+    let model = factory.cashReport({
+        ledger: req.ledger,
+        requestBody: req.body
+    })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
 
@@ -35,8 +38,7 @@ async function reportXls(req, res, next){
 
     let model = factory.reportXls({
         requestBody: req.body,
-        paymentReport: req.paymentReport,
-        cashReport: req.cashReport
+        paymentReport: req.paymentReport
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)

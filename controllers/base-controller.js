@@ -193,7 +193,7 @@ async function middlewareRequest(req, res, model){
     // Send request using BaseController
     let controller = new BaseController(req, res, model)
     let result = await controller.getResult()
-    if(result.status == undefined) result = new StatusLogger({code: 500, message: 'Internal Server Error'}).log
+    if(result?.status == undefined) result = new StatusLogger({code: 500, message: 'Internal Server Error'}).log
     return result
 }
 

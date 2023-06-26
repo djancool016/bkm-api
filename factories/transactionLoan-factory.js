@@ -1,5 +1,4 @@
 const {BaseModel} = require('./base-factory')
-const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionFactory} = require('./transaction-factory')
 const {StatusLogger, DataLogger, DateFormat} = require('../utils')
 const {Op} = require('sequelize')
@@ -59,25 +58,57 @@ class TransactionLoan extends BaseModel {
     }
 }
 
+class TransactionLoanValidator {
+    constructor({loanPayment, requestBody}){
+        this.loanPayment = loanPayment.data
+        this.requestBody = requestBody
+    }
+    get validateTotal(){
+
+        const {remaining_loan, remaining_interest, remaining_bop} = this.loanPayment.paymentRemaining
+        const {ksm:{name}} = this.loanPayment.loan
+        const {total, id_type} = this.requestBody
+
+        switch(id_type){
+            case 4,39:
+                if(total < remaining_loan) return new StatusLogger({
+                    code: 400, message:`KSM ${name} payments exceeding loan payment`
+                }).log
+                break
+            case 5,40:
+                if(total < remaining_interest) return new StatusLogger({
+                    code: 400, message:`KSM ${name} payments exceeding interest payment`
+                }).log
+                break
+            case 6,41:
+                if(total < remaining_bop) return new StatusLogger({
+                    code: 400, message:`KSM ${name} payments exceeding BOP payment`
+                }).log
+                break
+            default:
+                return new StatusLogger({code: 400, message: 'Invalid id_type Loan Transaction'}).log
+        }
+    }
+    get validateStatus(){
+
+        const {ksm:{name}, is_valid, is_finish} = this.loanPayment.loan
+
+        if(is_finish){
+            return new StatusLogger({code: 400, message:`KSM ${name} loans already finish`}).log
+        }
+        if(is_valid == false){
+            return new StatusLogger({code: 400, message:`KSM ${name} loans waiting for approval`}).log
+        }
+        
+    }
+}
+
 class TransactionLoanFactory {
     constructor(){
         this.model = new TransactionLoan()
         this.transaction = new TransactionFactory()
-        this.loanPayment = new LoanPaymentFactory()
     }
     async create({loan, transaction}){
-        if(loan.status == false) return loan
-        if(transaction.status == false) return transaction
-
-        // start transactionLoan query
-        let result = await this.model.create({
-            id_loan: loan.data.id,
-            id_transaction: transaction.data.id
-        })
-        result.message = `${result.message} ${transaction.data.remark}`
-        return result
-    }
-    async createBop({loan, transaction}){
         if(loan.status == false) return loan
         if(transaction.status == false) return transaction
 
@@ -125,100 +156,12 @@ class TransactionLoanFactory {
                 id_type: id_type(41, 6),
                 trans_date, 
                 total : pay_bop,
-                url: 'http://localhost:5100/transactionBop'
+                url: 'http://localhost:5100/transactionLoan'
             })
         }
 
         return transactionLIB
     }
-    async checkPayments({loan, loanPayment, requestBody, transactionLoan}){
-
-        if(loan.status == false) return loan
-        if(loanPayment.status == false) return loanPayment
-        if(transactionLoan && transactionLoan.status == false) return loanPayment
-
-        let {id_type, total} = requestBody
-        if(!id_type || !total) return new StatusLogger({code:400, message:"Invalid input"}).log
-
-        let {total_loan, total_interest, is_finish, is_valid, ksm:{name}} = loan.data
-        let remaining = {loan:0, interest:0}
-        let full = {loan:0, interest:0}
-        let paid = {loan:0, interest:0}
-        let pay = {loan:0, interest:0}
-
-        if(is_finish){
-            return new StatusLogger({code: 400, message:`Loan KSM ${name} is already finish`}).log
-        }
-        if(is_valid == false){
-            return new StatusLogger({code: 400, message:`Loan KSM ${name} is not approved`}).log
-        }
-        
-        switch(id_type){
-            case 4,39:
-                pay.loan = total
-                break
-            case 5,40:
-                pay.interest = total
-                break
-            default:
-                break
-        }
-
-        for(let i = 0; i < loanPayment.data.length; i++){
-            
-            let {loan_full, loan_remaining, interest_full, interest_remaining} = loanPayment.data[i]
-
-            remaining.loan += loan_remaining
-            remaining.interest += interest_remaining
-
-            full.loan += loan_full,
-            full.interest += interest_full
-        }
-        
-        if(transactionLoan.data){
-            for(let i = 0; i < transactionLoan.data.length; i++){
-
-                let {transaction} = transactionLoan.data[i]
-
-                switch(transaction.id_type){
-                    case 4,39:
-                        paid.loan = transaction.total
-                        break
-                    case 5,40:
-                        paid.interest = transaction.total
-                        break
-                    default:
-                        break
-                }
-            }  
-        }
-        
-        if((full.loan != total_loan) || (full.interest != total_interest)){
-            return new StatusLogger({code: 400, message:`Loan Payment KSM ${name} is wrong, please check first`}).log
-        }
-        if((paid.loan + pay.loan > total_loan) || (pay.loan > remaining.loan)){
-            return new StatusLogger({code: 400, message:`Loan KSM ${name} is exceeding loan payment`}).log
-        }
-        if((paid.interest + pay.interest > total_interest) || (pay.interest > remaining.interest) ){
-            return new StatusLogger({code: 400, message:`Interest KSM ${name} is exceeding interest payment`}).log
-        }
-        return new DataLogger({data: {loan, full, paid, pay}, message:'Loan Payment ready to proccess'}).log
-    }
-
-    async checkBop({loan, requestBody:{id_type}}){
-
-        if(loan.status == false) return loan
-
-        switch(id_type){
-            case 6,41:
-                return new StatusLogger({code: 200, message:'BOP payment transaction'}).log 
-            case 37:
-                return new StatusLogger({code: 200, message:'BOP withdrawal transaction'}).log 
-            default:
-                return new StatusLogger({code: 400, message:`Type Transaction ID  is not a BOP transaction`}).log  
-        }
-    }
-
     async read({id, id_transaction, id_loan, id_ksm, start_date, end_date}){
 
         let result
@@ -242,6 +185,12 @@ class TransactionLoanFactory {
         
         if(result.status) return result
         return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log
+    }
+    async validate({loanPayment, requestBody}){
+        const validator = new TransactionLoanValidator({loanPayment, requestBody})
+
+        if(validator.status == false) return validator
+        return new StatusLogger({code:200}).log
     }
 }
 
