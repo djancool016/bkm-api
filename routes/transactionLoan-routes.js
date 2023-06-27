@@ -1,7 +1,11 @@
 const router = require('express').Router()
-const user = require('./controllers/user-controller')
-const transaction = require('./controllers/transaction-controller')
-const transactionLoan = require('./controllers/transactionLoan-controller')
+const user = require('../controllers/user-controller')
+const lkm = require('../controllers/lkm-controller')
+const loan = require('../controllers/loan-controller')
+const transaction = require('../controllers/transaction-controller')
+const typeTransaction = require('../controllers/typeTransaction-controller')
+const transactionLoan = require('../controllers/transactionLoan-controller')
+const loanPayment = require('../controllers/loanPayment-controller')
 const {input} = require('../routes-allowedKey')
 const {validator, authorize, endRequest} = require('../controllers/base-controller')
 
@@ -10,8 +14,8 @@ router.post('/',
     (req, res, next) => validator(req, res, next, input.transactionLoan.create), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     lkm.read, typeTransaction.read, loan.read, loanPayment.read, transactionLoan.read, 
-    transactionLoan.check, transaction.create, 
-    transactionLoan.create, loanPayment.update, endRequest
+    transactionLoan.validator, transaction.create, 
+    transactionLoan.create, endRequest
 )
 router.post('/bulk', 
     (req, res, next) => validator(req, res, next, input.transactionLoan.creates), user.auth, 
@@ -35,3 +39,5 @@ router.post('/lib/bulk',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     transactionLoan.createLIBs, endRequest
 )
+
+module.exports = router

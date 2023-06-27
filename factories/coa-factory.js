@@ -7,12 +7,12 @@ class CoaModel extends BaseModel {
         super()
         this.model = model.Coa
         this.query = {
-            attributes: ['id','code', 'description'],
+            attributes: ['id', 'description'],
             include: [
                 {
                     model: model.Account,
                     as: 'account',
-                    attributes: ['id', 'counter', 'description']
+                    attributes: ['id',  'name']
                 }
             ]
         }
@@ -20,10 +20,6 @@ class CoaModel extends BaseModel {
     }
     findByAccount(id_account){
         this.query.where = {id_account: id_account}
-        return this.findAll()
-    }
-    findByCode(code){
-        this.query.where = {code}
         return this.findAll()
     }
     findByIds(ids){
@@ -36,17 +32,13 @@ class CoaFactory {
     constructor(){
         this.model = new CoaModel()
     }
-    async create({id_register, id_account, description}){
+    async create({id, id_account, description}){
 
-        if(!id_register || !id_account || !description){
+        if(!!id || !id_account || !description){
             return new StatusLogger({code: 400, message:'coa have invalid input'}).log
         }
         
-        return await this.model.create({
-            id_register: id_register,
-            id_account: id_account,
-            description: description
-        })
+        return await this.model.create({id, id_account, description})
     }
     async read({id, id_coa, id_account, ids = []}){
 
@@ -54,9 +46,6 @@ class CoaFactory {
 
         if(id || id_coa){
             result = await this.model.findByPk(id || id_coa)
-        } 
-        else if (code) {
-            result = await this.model.findByCode(code)
         } 
         else if (id_account) {
             result = await this.model.findByAccount(id_account)
@@ -68,13 +57,9 @@ class CoaFactory {
         if(result.status) return result
         return new StatusLogger({code: 404, message:'COA not found'}).log
     }
-    async update({id, code, id_account, description}){
+    async update({id, id_account, description}){
 
-        return await this.model.update({
-            code,
-            id_account,
-            description
-        }, id)
+        return await this.model.update({ id_account, description }, id)
     }
     async delete({id}){
 

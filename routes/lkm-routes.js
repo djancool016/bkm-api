@@ -1,6 +1,6 @@
 const router = require('express').Router()
-const user = require('./controllers/user-controller')
-const lkm = require('./controllers/lkm-controller')
+const user = require('../controllers/user-controller')
+const lkm = require('../controllers/lkm-controller')
 const {input} = require('../routes-allowedKey')
 const {validator, authorize, endRequest} = require('../controllers/base-controller')
 
@@ -25,3 +25,5 @@ router.delete('/',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     lkm.destroy, endRequest
 )
+
+module.exports = router

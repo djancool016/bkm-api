@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const user = require('./controllers/user-controller')
-const transaction = require('./controllers/transaction-controller')
-const report = require('./controllers/report-controller')
+const user = require('../controllers/user-controller')
+const transaction = require('../controllers/transaction-controller')
+const report = require('../controllers/report-controller')
 const {input} = require('../routes-allowedKey')
 const {validator, authorize, endRequest} = require('../controllers/base-controller')
 
@@ -26,3 +26,5 @@ router.get('/report/download',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     report.paymentReport, report.reportXls, endRequest
 )
+
+module.exports = router

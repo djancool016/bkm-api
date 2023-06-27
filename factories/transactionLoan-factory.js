@@ -16,7 +16,7 @@ class TransactionLoan extends BaseModel {
                     {
                         model: model.Ksm,
                         as: 'ksm',
-                        attributes: ['id','name']
+                        attributes: ['id','id_lkm', 'name']
                     }
                 ]
             },
@@ -40,6 +40,11 @@ class TransactionLoan extends BaseModel {
     }
     findByIdKsm(id_ksm, option){
         this.query.where = {'$loan.ksm.id$': id_ksm}
+        this.queryOption(option)
+        return this.findAll()
+    }
+    findByIdLkm(id_lkm, option){
+        this.query.where = {'$loan.ksm.id_lkm$': id_lkm}
         this.queryOption(option)
         return this.findAll()
     }
@@ -162,7 +167,7 @@ class TransactionLoanFactory {
 
         return transactionLIB
     }
-    async read({id, id_transaction, id_loan, id_ksm, start_date, end_date}){
+    async read({id, id_transaction, id_loan, id_ksm, id_lkm, start_date, end_date}){
 
         let result
         let option = {start_date, end_date}
@@ -181,6 +186,9 @@ class TransactionLoanFactory {
         }
         else if(id_ksm){
             result = await this.model.findByIdKsm(id_ksm, option)
+        }
+        else if(id_lkm){
+            result = await this.model.findByIdLkm(id_lkm, option)
         }
         
         if(result.status) return result

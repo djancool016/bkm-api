@@ -1,6 +1,12 @@
 const router = require('express').Router()
-const user = require('./controllers/user-controller')
-const loan = require('./controllers/loan-controller')
+const user = require('../controllers/user-controller')
+const ksm = require('../controllers/ksm-controller')
+const lkm = require('../controllers/lkm-controller')
+const loan = require('../controllers/loan-controller')
+const loanPayment = require('../controllers/loanPayment-controller')
+const transaction = require('../controllers/transaction-controller')
+const transactionLoan = require('../controllers/transactionLoan-controller')
+const typeTransaction = require('../controllers/typeTransaction-controller')
 const {input} = require('../routes-allowedKey')
 const {validator, authorize, endRequest} = require('../controllers/base-controller')
 
@@ -26,7 +32,7 @@ router.post('/',
         }
         return endRequest(req, res) 
     }, 
-    loanPayment.create, lkm.read, typeTransaction.read, transaction.create, transactionLoan.create, endRequest
+    lkm.read, typeTransaction.read, transaction.create, transactionLoan.create, endRequest
 )
 router.post('/bulk', 
     (req, res, next) => validator(req, res, next, input.loan.creates), user.auth, 
@@ -38,23 +44,25 @@ router.get('/',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
     loan.read, endRequest
 )
-router.put('/', 
-    (req, res, next) => validator(req, res, next, input.loan.update), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
-    ksm.read, loan.read, loan.update, endRequest
-)
-router.put('/approval', 
-    (req, res, next) => validator(req, res, next, input.loan.approve), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    loan.read, loan.approve, 
-    (req, res, next) => {
-        if(req.isApproved.status) return next()
-        return endRequest(req, res) 
-    }, 
-    loanPayment.create, endRequest
-)
-router.delete('/', 
-    (req, res, next) => validator(req, res, next, input.loan.destroy), user.auth, 
-    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    loan.read, loan.destroy, endRequest
-)
+// router.put('/', 
+//     (req, res, next) => validator(req, res, next, input.loan.update), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]),  
+//     ksm.read, loan.read, loan.update, endRequest
+// )
+// router.put('/approval', 
+//     (req, res, next) => validator(req, res, next, input.loan.approve), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     loan.read, loan.approve, 
+//     (req, res, next) => {
+//         if(req.isApproved.status) return next()
+//         return endRequest(req, res) 
+//     }, 
+//     endRequest
+// )
+// router.delete('/', 
+//     (req, res, next) => validator(req, res, next, input.loan.destroy), user.auth, 
+//     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+//     loan.read, loan.destroy, endRequest
+// )
+
+module.exports = router

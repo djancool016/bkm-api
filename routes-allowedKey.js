@@ -68,7 +68,7 @@ module.exports = {
                 array:['loans']
             },
             read:{
-                integer:['id', 'id_loan', 'id_account','id_lkm'],
+                integer:['id', 'id_ksm', 'id_loan', 'id_account','id_lkm'],
                 boolean:['findLatest','is_finish'],
                 string:['ksm_name'],
                 array:['ksmIds','loanIds']
@@ -123,7 +123,7 @@ module.exports = {
                 nonull:['transactionLoans']
             },
             read:{
-                integer:['id', 'id_transaction', 'id_loan','id_ksm'],
+                integer:['id', 'id_transaction', 'id_loan','id_ksm', 'id_lkm'],
                 string:['trans_code'],
                 date:['start_date', 'end_date']
             }
