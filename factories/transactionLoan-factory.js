@@ -194,6 +194,7 @@ class TransactionLoanFactory {
         if(result.status) return result
         return new StatusLogger({code: 400, message:"Transaction Loan not found"}).log
     }
+    // validate method is on progress
     async validate({loanPayment, requestBody}){
         const validator = new TransactionLoanValidator({loanPayment, requestBody})
 
