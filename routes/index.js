@@ -7,5 +7,6 @@ router.use('/loan', require('./loan-routes'))
 router.use('/transaction', require('./transaction-routes'))
 router.use('/transactionLoan', require('./transactionLoan-routes'))
 router.use('/loanPayment', require('./loanPayment-routes'))
+router.use('/report', require('./report-routes'))
 
 module.exports = router

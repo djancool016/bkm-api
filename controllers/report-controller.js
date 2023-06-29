@@ -3,29 +3,17 @@ const {ReportFactory} = require('../factories/report-factory')
 const factory = new ReportFactory
 
 
-async function paymentReport(req, res, next){
+async function loanReports(req, res, next){
     
-    let model = factory.paymentReport(req.body)
-    let result = await middlewareRequest(req, res, model)
-    if (result.status == false) return res.status(result.code).json(result)
-
-    req.result = result
-    req.paymentReport = result
-    return next()
-    
-}
-
-async function cashReport(req, res, next){
-
-    let model = factory.cashReport({
-        ledger: req.ledger,
+    let model = factory.loanReports({
+        loans: req.loan,
         requestBody: req.body
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
 
     req.result = result
-    req.cashReport = result
+    req.loanReports = result
     return next()
     
 }
@@ -36,9 +24,9 @@ async function reportXls(req, res, next){
     res.setHeader('Content-Disposition', 'attachment; filename=download.xlsx')
     res.setHeader('Content-Transfer-Encoding', 'binary')
 
-    let model = factory.reportXls({
-        requestBody: req.body,
-        paymentReport: req.paymentReport
+    let model = factory.generateXls({
+        loanReports: req.loanReports,
+        requestBody: req.body
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
@@ -47,5 +35,5 @@ async function reportXls(req, res, next){
 }
 
 module.exports = {
-    paymentReport, reportXls, cashReport
+    loanReports, reportXls
 }

@@ -164,8 +164,8 @@ module.exports = {
             } 
         },
         report: {
-            payment:{
-                date:['id_lkm','start_date', 'end_date']
+            loan:{
+                date:['id_lkm','start_date','end_date']
             },
             prototype:{
                 integer:['year','month','id_lkm']

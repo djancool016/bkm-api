@@ -6,372 +6,63 @@ const {CoaFactory} = require('./coa-factory')
 const ExcelJs = require('exceljs')
 const { DataLogger, DateFormat, StatusLogger } = require('../utils')
 
-class ReportFactory {
-    constructor(){
-        this.loan = new LoanFactory
+class PaymentReport {
+    constructor({ loans, requestBody }){
+
+        this.loans = loans.data
+        this.requestBody = requestBody
         this.loanPayment = new LoanPaymentFactory
         this.transactionLoan = new TransactionLoanFactory
-        this.transaction = new TransactionFactory
-        this.coa = new CoaFactory
     }
+    async #loanPayments(){
 
-    // create payment report
-    async paymentReport({id_lkm = 1, year, month}){
+        const loanPayments = []
 
-        month = String(month).padStart(2, '0')
+        if(this.loans){
 
-        let start_date = new DateFormat(`${year}-${month}`)
-        if(start_date.toISOString() == 'Invalid date') return new StatusLogger({code:400, message:'Invalid date format'}).log
-
-        let end_date = new DateFormat(`${year}-${month}`)
-        end_date.addMonths = 1
-        end_date.addDays = -1
-        end_date = end_date.toISOString(false)
-
-        let lastMonth = new DateFormat(`${year}-${month}`)
-        lastMonth.addDays = -1
-        lastMonth = lastMonth.toISOString(false)
-
-        let paymentReport = []
-
-        // Find loan data
-        let loan = await this.loan.read({id_lkm, is_finish: false})
-        if(loan.status == false) return loan
-        
-        loan.data.forEach(obj => {
-            const {
-                id: id_loan, id_ksm, loan_duration, loan_start, loan_end, total_loan, 
-                loan_interest, total_interest, ksm:{name}
-            } = obj
-
-            let total_bop = total_loan * 0.05 / 100 * loan_duration
-
-            paymentReport.push({
-                id_loan, id_ksm, ksm_name: name, loan_duration, 
-                loan_interest, loan_start, loan_end, trans_date: null,
-                total_loan, total_interest, total_bop,
-                paid_loan: 0, paid_interest: 0, paid_bop: 0,
-                pay_loan: 0, pay_interest: 0, pay_bop: 0,
-                remaining_loan: total_loan, remaining_interest: total_interest, remaining_bop: total_bop
-            })
-        })
-        
-        let loanIds = paymentReport.map(loan => loan.id_loan)
-
-        // Find transaction loan data
-        let transactionLoan = await this.transactionLoan.read({id_loan: loanIds, end_date})
-        if(transactionLoan.status == false) return transactionLoan
-
-        transactionLoan.data.forEach(obj => {
-            
-            let {id_type, trans_date, total} = obj.transaction
-            let {id: id_loan} = obj.loan
-
-            const index = paymentReport.findIndex(item => {
-                return item.id_loan == id_loan
-            })
-            paymentReport[index].trans_date = trans_date
-
-            let isLastMonth = new DateFormat(trans_date).diffDays(lastMonth) >= 0
-
-            if(isLastMonth){
-                switch(id_type){
-                    case 4,39:
-                        paymentReport[index].paid_loan += total 
-                        break
-                    case 5,40:
-                        paymentReport[index].paid_interest += total
-                        break
-                    case 6,41:
-                        paymentReport[index].paid_bop += total
-                        break
-                    default:
-                        break
-                }
-            }else{
-                switch(id_type){
-                    case 4,39:
-                        paymentReport[index].pay_loan += total
-                        break
-                    case 5,40:
-                        paymentReport[index].pay_interest += total
-                        break
-                    case 6,41:
-                        paymentReport[index].pay_bop += total
-                        break
-                    default:
-                        break
-                }
-            }
-            let {
-                total_loan, total_interest, total_bop,
-                paid_loan, paid_interest, paid_bop,
-                pay_loan, pay_interest, pay_bop
-            } = paymentReport[index]
- 
-            paymentReport[index].remaining_loan = total_loan - paid_loan - pay_loan
-            paymentReport[index].remaining_interest = total_interest - paid_interest - pay_interest
-            paymentReport[index].remaining_bop = total_bop - paid_bop - pay_bop
-
-        })
-
-        let totalCurrent = 0
-        let totalDeliquent = 0
-        let totalDoubtful = 0
-        let totalNonPerforming = 0
-        let totalDefault = 0
-        let totalAllRemainingLoan = 0
-   
-        for(let i = 0; i < paymentReport.length; i++){
-
-            let loanPayment = await this.loanPayment.read({id_loan : paymentReport[i].id_loan})
-            if(loanPayment.status == false) return loanPayment
-            
-            let {trans_date, remaining_loan, total_loan} = paymentReport[i]
-
-            if(trans_date){
-                let dateParts = trans_date.split("-")
-                let newtransDate = `${dateParts[0]}-${dateParts[1].padStart(2,'0')}`
-                // use this if ignore date, set all date to 1
-                trans_date = new DateFormat(newtransDate)
-            }
-            totalAllRemainingLoan += remaining_loan
-
-            let this_month_payment
-
-            let collectibillity = {
-                current: 0,
-                deliquent: 0,
-                doubtful: 0,
-                nonperforming: 0,
-                default: 0
-            }
-
-            let trueLoanCredit = total_loan
-
-            loanPayment.data.forEach(obj => {
-                
-                let {
-                    payment_no, due_date, 
-                    loan_full: monthly_loan, loan_remaining, interest_full: monthly_interest, 
-                    interest_remaining, is_settled
-                } = obj
-                
-                let parts = due_date.split('-')
-                let newDueDate = `${parts[0]}-${parts[1].padStart(2,'0')}-01`
-
-                // chack if transaction is in due_date month
-                let isThisMonth = trans_date? trans_date.diffDays(newDueDate) : 1
-
-                // default
-                if(isThisMonth < -270 || collectibillity.default > 0){
-                    collectibillity.default += loan_remaining
-                    totalDefault += loan_remaining
-                }
-                // non-performing
-                else if(isThisMonth < -180 || collectibillity.nonperforming > 0){
-                    collectibillity.nonperforming += loan_remaining
-                    totalNonPerforming += loan_remaining
-                }
-                // doubtful
-                else if(isThisMonth < -90 || collectibillity.doubtful > 0){
-                    collectibillity.doubtful += loan_remaining
-                    totalDoubtful += loan_remaining
-                }
-                // deliquent
-                else if(isThisMonth <= 0 || collectibillity.deliquent > 0){
-                    collectibillity.deliquent += loan_remaining
-                    totalDeliquent += loan_remaining
-                }
-                // current
-                else {
-                    collectibillity.current += loan_remaining
-                    totalCurrent += loan_remaining
-                }
-
-                if(isThisMonth <= 0) trueLoanCredit -= monthly_loan
-
-                // chack if transaction is in 30 days from due_date
-                if((isThisMonth <= 0 && isThisMonth >= -30) || (!this_month_payment && isThisMonth == 1)) {
-
-                    this_month_payment = {
-                        payment_no, due_date, loan_remaining, interest_remaining, monthly_loan, monthly_interest,is_settled
-                    }
-                }
-            })
-
-            paymentReport[i] = {
-                ...paymentReport[i], 
-                ['true_loan_credit']: trueLoanCredit,
-                ['this_month_payment']: this_month_payment,
-                ['collectibillity']: collectibillity
+            for(let i = 0; i < this.loans.length; i++){
+                const loanLogger = new DataLogger({data: this.loans[i]}).log
+                const transactionLoan = await this.transactionLoan.read({id_loan: this.loans[i].id})
+                const loanPayment = await this.loanPayment.read({loan: loanLogger, transactionLoan, requestBody: this.requestBody})
+                if(loanPayment.status) loanPayments.push(loanPayment.data)
             }
         }
-
-        let risk = {
-            current: {
-                total: totalCurrent, 
-                loss_percent: 0.5, 
-                loss_total: Math.round(totalCurrent * 0.5 / 10000) * 100,
-                rating: Math.round(totalCurrent / totalAllRemainingLoan * 100000) / 1000 
-            },
-            deliquent: {
-                total: totalDeliquent, 
-                loss_percent: 0.5, 
-                loss_total: Math.round(totalDeliquent * 0.5 / 10000) * 100,
-                rating: Math.round(totalDeliquent / totalAllRemainingLoan * 100000) / 1000 
-            },
-            doubtful: {
-                total: totalDefault, 
-                loss_percent: 10, 
-                loss_total: Math.round(totalDefault * 10 / 10000) * 100,
-                rating: Math.round(totalDefault / totalAllRemainingLoan * 10000) / 1000 
-            },
-            nonperforming: {
-                total: totalNonPerforming, 
-                loss_percent: 50, 
-                loss_total: Math.round(totalNonPerforming * 50 / 10000) * 100,
-                rating: Math.round(totalNonPerforming / totalAllRemainingLoan * 100000) / 1000 
-            },
-            default: {
-                total: totalDefault, 
-                loss_percent: 100, 
-                loss_total: Math.floor(totalDefault * 100 / 10000) * 100,
-                rating: Math.round(totalDefault / totalAllRemainingLoan * 100000) / 1000 
-            }      
-        }
-        return new DataLogger({data: {paymentReport, risk}}).log
+        return loanPayments
     }
-
-    // create credit, debit, and cash report
-    async cashReport({ledger, requestBody}){
-
-        if(ledger.status == false) return ledger
-        let upk = []
-        let ups = []
-        let upl = []
-        let bkm = []
-
-        ledger.data.forEach(arr => {
-            
-            arr.account.forEach(account => {
-                const transactionAccount = (unitManagement) => {
-                    account?.transaction?.forEach(obj => {
-                        let index = unitManagement.findIndex(data => data.id_coa == obj.id_coa)
-                        if(index == -1) {
-                            let cashFlow = {
-                                id_coa: obj.id_coa, 
-                                coa: obj.coa,
-                                debit: 0,
-                                credit: 0
-                            }
-                            switch(obj.id_register){
-                                case 1:
-                                    cashFlow.debit += obj.total
-                                    break
-                                case 2:
-                                    cashFlow.credit += obj.total
-                            }
-                            return unitManagement.push(cashFlow)
-                        }
-                        if(obj.id_register == 1) return unitManagement[index].debit += obj.total
-                        unitManagement[index].credit += obj.total
-                    })  
-                }
-
-                transactionAccount(upk)
-            })
+    get generate(){
+        return this.#loanPayments()
+    }
+}
+class ReportXls {
+    constructor(){
+        this.workbook = new ExcelJs.Workbook()
+        this.insertedRow = 0
+    }
+    addWorksheet({name, paperSize = 5, orientation = 'landscape'}){
+        this.insertedRow = 1
+        this.worksheet = this.workbook.addWorksheet(name, {
+            pageSetup: {paperSize, orientation, fitToPage: true}
         })
-        let output = {
-            upk
-        }
-
-        return new DataLogger({data:output}).log
     }
-
-    // create a xls workbook
-    async reportXls({requestBody, paymentReport}){
-
-        const workbook = new ExcelJs.Workbook()
-
-        if(paymentReport.status){
-            this.paymentReportXls(paymentReport.data, requestBody, workbook)
-            this.collectibillityReportXls(paymentReport.data, requestBody, workbook)
-        }
-
-        let buffer = await workbook.xlsx.writeBuffer()
-        return new DataLogger({data: buffer}).log
-    }
-
-    // create payment report worksheet
-    async paymentReportXls({paymentReport}, requestBody, workbook){
-
-        const worksheet = workbook.addWorksheet('Angsuran', {
-            pageSetup: {paperSize: 5, orientation:'landscape', fitToPage: true}
-        })
-
-        let content = []
-        let contentType = [
-            'number','string','date','currency','date','number',
-            'currency','currency','currency','currency',
-            'currency','currency','currency','currency',
-            'string'
-        ]
-        let insertedRow = 1
-
-        // START HEADER
+    addHeader({date = new Date, title = '', columnStart = 'A', columnEnd = 'O'}){
         let headerText = [
-            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
+            `${title.toUpperCase()}`,
             "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
             "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
             "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
         ]
-        insertedRow = fillHeader(worksheet, headerText, 'A', 'O', insertedRow)
+        this.insertedRow = fillHeader(this.worksheet, headerText, columnStart, columnEnd, this.insertedRow)
 
-        // Date report
-        let{year, month}= requestBody
-        let date = new DateFormat(`${year}-${month+1}`)
-        date.addDays = -1
-        date = `Angsuran : ${date.toLocaleString(false)}`
-        mergeColumn(worksheet, date, 'M', 'O', 0, insertedRow, 'right', {bold: true})
+        date = new DateFormat(date)
+        date = `${date.toLocaleString(false)}`
+        mergeColumn(this.worksheet, date, columnStart, columnEnd, 0, this.insertedRow, 'right', {bold: true})
 
-        insertedRow ++
-
-        paymentReport.forEach((item, index) => {
-    
-            let {current, deliquent, doubtful, nonperforming, default: failed} = item.collectibillity
-            let remark
-
-            if(failed) remark = 'Macet'
-            else if(nonperforming) remark = 'Diragukan'
-            else if(doubtful) remark = 'Kurang Lancar'
-            else if(deliquent) remark = 'Perlu Perhatian'
-            else if(current) remark = 'Lancar'
-            else remark = 'Invalid Payment'
-
-            content.push([
-                index + 1,
-                item.ksm_name,
-                new Date(item.loan_start),
-                item.total_loan,
-                new Date(item.trans_date),
-                item.this_month_payment.payment_no,
-                item.pay_loan,
-                item.pay_interest,
-                item.pay_bop,
-                item.pay_loan + item.pay_interest + item.pay_bop,
-                item.remaining_loan,
-                item.remaining_interest,
-                item.remaining_bop,
-                item.remaining_loan + item.remaining_interest + item.remaining_bop,
-                remark
-            ])
-        })
-
-        // CREATE TABLE
-        worksheet.addTable({
-            name: 'PaymentReport',
-            ref: `A${insertedRow}`,
+        this.insertedRow ++
+    }
+    addTable({name, head = [], content = []}){
+        this.worksheet.addTable({
+            name,
+            ref: `A${this.insertedRow}`,
             headerRow: true,
             headerRowCount: 2,
             totalsRow: true,
@@ -379,330 +70,293 @@ class ReportFactory {
               theme: 'TableStyleMedium2',
               showRowStripes: true,
             },
-            columns: [
-              {name: 'No'},
-              {name: 'KSM'},
-              {name: 'Tanggal Pencairan', filterButton: true},
-              {name: 'Jumlah Pinjaman', totalsRowFunction: 'sum'},
-              {name: 'Tanggal Angsuran', filterButton: true},
-              {name: 'Angs ke'},
-              {name: 'Angsuran Pokok', totalsRowFunction: 'sum'},
-              {name: 'Angsuran Bunga 1.45%', totalsRowFunction: 'sum'},
-              {name: 'Angsuran BOP 0.05%', totalsRowFunction: 'sum'},
-              {name: 'Jumlah Angsuran', totalsRowFunction: 'sum'},
-              {name: 'Sisa Pokok', totalsRowFunction: 'sum'},
-              {name: 'Sisa Bunga', totalsRowFunction: 'sum'},
-              {name: 'Sisa BOP', totalsRowFunction: 'sum'},
-              {name: 'Jumlah Sisa', totalsRowFunction: 'sum'},
-              {name: 'Keterangan'}
-            ],
+            columns: head,
             rows: content
         })
-
-        columnWidth(worksheet, contentType)
-        formatContent(worksheet, contentType, content.length + 1, insertedRow)
-        worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
-
-        return worksheet
     }
+    formatCells({contentType = [], content = []}){
 
-    // create collectibility worksheet
-    async collectibillityReportXls({paymentReport, risk}, requestBody, workbook){
-
-        const worksheet = workbook.addWorksheet('Kolektibilitas', {
-            pageSetup: {paperSize: 5, orientation:'landscape', fitToPage: true}
-        })
-
-        let content = []
-        let contentType = [
-            'number','string','date','date',
-            'currency','currency','currency','currency','currency',
-            'currency','currency','currency','currency',
-        ]
-        let insertedRow = 1
-
-        // START HEADER
-        let headerText = [
-            "DAFTAR RINCIAN ANGSURAN PINJAMAN KSM ANGGOTA",
-            "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
-            "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
-            "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
-        ]
-        insertedRow = fillHeader(worksheet, headerText, 'A', 'M', insertedRow)
-
-        // Date report
-        let{year, month}= requestBody
-        let date = new DateFormat(`${year}-${month+1}`)
-        date.addDays = -1
-        date = `Angsuran : ${date.toLocaleString(false)}`
-        mergeColumn(worksheet, date, 'K', 'M', 0, insertedRow, 'right', {bold: true})
-
-        insertedRow ++
-
-        paymentReport.forEach((item, index) => {
-
-            content.push([
-                index + 1,
-                item.ksm_name,
-                new Date(item.loan_start),
-                new Date(item.loan_end),
-                item.total_loan,
-                item.pay_loan,
-                item.true_loan_credit,
-                item.remaining_loan,
-                item.collectibillity.current,
-                item.collectibillity.deliquent,
-                item.collectibillity.doubtful,
-                item.collectibillity.nonperforming,
-                item.collectibillity.default
-            ])
-        })
-
-        // CREATE TABLE
-        worksheet.addTable({
-            name: 'CollectibilityReport',
-            ref: `A${insertedRow}`,
-            headerRow: true,
-            totalsRow: true,
-            style: {
-              theme: 'TableStyleMedium2',
-              showRowStripes: true,
-            },
-            columns: [
-              {name: 'No'},
-              {name: 'KSM'},
-              {name: 'Tanggal Realisasi', filterButton: true},
-              {name: 'Tanggal Jatuh Tempo', filterButton: true},
-              {name: 'Jumlah Pinjaman', totalsRowFunction: 'sum'},
-              {name: 'Angsuran Pinjaman', totalsRowFunction: 'sum'},
-              {name: 'Saldo Kredit Seharusnya', totalsRowFunction: 'sum'},
-              {name: 'Saldo Kredit Sebenarnya', totalsRowFunction: 'sum'},
-              {name: 'Lancar', totalsRowFunction: 'sum'},
-              {name: 'Perhatian', totalsRowFunction: 'sum'},
-              {name: 'Kurang Lancar', totalsRowFunction: 'sum'},
-              {name: 'Diragukan', totalsRowFunction: 'sum'},
-              {name: 'Macet', totalsRowFunction: 'sum'}
-            ],
-            rows: content
-        })
-
-        columnWidth(worksheet, contentType)
-        formatContent(worksheet, contentType, content.length + 1, insertedRow)
-        worksheet.getRow(insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
-
-
-        // PERCENTASE RESIKO
-        mergeColumn(worksheet, 'Persentase Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
-        let loss_percent = [
-            {data: risk.current.loss_percent, type: 'percent'},
-            {data: risk.deliquent.loss_percent, type: 'percent'},
-            {data: risk.doubtful.loss_percent, type: 'percent'},
-            {data: risk.nonperforming.loss_percent, type: 'percent'},
-            {data: risk.default.loss_percent, type: 'percent'}
-        ]
-        fillContents(worksheet, content.length + 2, 9, loss_percent , insertedRow)
-        insertedRow ++
-        
-        // RR and NPL
-        mergeColumn(worksheet, 'RR / NPL', 'A', 'B', content.length + 2, insertedRow, 'left')
-        let rating = [
-            {data: risk.current.rating, type: 'percent'},
-            {data: risk.deliquent.rating, type: 'percent'},
-            {data: risk.doubtful.rating, type: 'percent'},
-            {data: risk.nonperforming.rating, type: 'percent'},
-            {data: risk.default.rating, type: 'percent'}
-        ]
-        fillContents(worksheet, content.length + 2, 9, rating , insertedRow)
-        insertedRow ++
-        
-        // NILAI RESIKO
-        mergeColumn(worksheet, 'Nilai Resiko', 'A', 'B', content.length + 2, insertedRow, 'left')
-        let loss_total = [
-            {data: risk.current.loss_total, type: 'currency'},
-            {data: risk.deliquent.loss_total, type: 'currency'},
-            {data: risk.doubtful.loss_total, type: 'currency'},
-            {data: risk.nonperforming.loss_total, type: 'currency'},
-            {data: risk.default.loss_total, type: 'currency'}
-        ]
-        fillContents(worksheet, content.length + 2, 9, loss_total , insertedRow, null, {bold: true})
-
-        return worksheet
+        columnWidth(this.worksheet, contentType)
+        formatContent(this.worksheet, contentType, content.length + 1, this.insertedRow)
+        this.worksheet.getRow(this.insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
     }
+    mergeColumn({name, contentLength = 0, align = 'left', columnStart = 'A', columnEnd = 'B'}){
+        mergeColumn(this.worksheet, name, columnStart, columnEnd, contentLength, this.insertedRow, align)
+    }
+    addAfterTable({contentLength = 0, columnNum, data}){
+        fillContents(this.worksheet, contentLength, columnNum, data, this.insertedRow)
+    }
+    get generate(){
+        return this.workbook
+    }
+}
 
-    // create cost/income worksheet
-    async costIncomeReportXls({risk} ,cashReport, requestBody, workbook){
 
-        const worksheet = workbook.addWorksheet('Laba-Rugi', {
-            pageSetup: {paperSize: 5, orientation:'potrait', fitToPage: true}
-        })
+class ReportFactory {
+    constructor(){
+        this.workbook = new ReportXls
+    }
+    async loanReports({loans, requestBody}){
 
-        let insertedRow = 1
+        const report = new PaymentReport({loans, requestBody})
+        const data = await report.generate
+        return new DataLogger({data}).log
+    }
+    async #paymentWorksheet({loanReports, requestBody}){
 
-        // START HEADER
-        let headerText = [
-            "DAFTAR RINCIAN LABA/RUGI",
-            "BADAN KESWADAYAAN MASYARAKAT (BKM) SEJAHTERA",
-            "KELURAHAN UNGARAN KECAMATAN UNGARAN BARAT",
-            "Alamat: Jalan. MT. Haryono No.26  Tlp (024) 76911081 Ungaran 50511"
-        ]
-        insertedRow = fillHeader(worksheet, headerText, 'A', 'C', insertedRow) + 1
-
-        // Date report
-        let{year, month}= requestBody
-        let date = new DateFormat(`${year}-${month+1}`)
-        date.addDays = -1
-        date = `Angsuran : ${date.toLocaleString(false)}`
-        mergeColumn(worksheet, date, 'A', 'C', 0, insertedRow, 'right', {bold: true})
-
-        insertedRow ++
-        let i = 1
-
-        let totalIncome = 0
-        let totalCost = 0
-        let totalRisk = 0
-
-        let getContent = (data) => {
-            return Object.entries(data)
-            .reduce((acc, [key, value]) => {
-                acc[key] = value.map(item => [i++, item.description, item.total]);
-                return acc;
-            }, {})
+        if(!loanReports || loanReports.status == false) {
+            return loanReports || new StatusLogger({code: 404, message: 'Loan Reports not found'}).log
         }
 
-        let incomeContent = Object.entries(getContent(cashReport.income))
-            .flatMap(([key, value]) => value.map(([id, description, value]) => {
-                description = `${String(key).toUpperCase()} - ${description}`
-                totalIncome += value
-                return [id, description, value]
-            }))
+        const {head, content, contentType} = paymentWorksheetContent(loanReports, requestBody)
 
-        i = 1
-        let costContent = Object.entries(getContent(cashReport.cost))
-            .flatMap(([key, value]) => value.map(([id, description, value]) => {
-                description = `${String(key).toUpperCase()} - ${description}`
-                totalCost += value
-                return [id, description, value]
-            }))
+        this.workbook.addWorksheet({name: 'Angsuran'})
+        this.workbook.addHeader({
+            date: requestBody.end_date,
+            title: 'DAFTAR RINCIAN ANGSURAN PINJAMAN KSM'
+        })
+        this.workbook.addTable({name: 'Angsuran', head, content})
+        this.workbook.formatCells({contentType, content})
+    }
+    async #collectibilityWorksheet({loanReports, requestBody}){
 
-        i = 1
-        let riskContent = Object.entries(risk)
-        .map(([key, {loss_total}]) => {
-            let description
-            totalRisk += loss_total
-            switch(key){
-                case 'current':
-                    description = `Lancar`
+        if(!loanReports || loanReports.status == false) {
+            return loanReports || new StatusLogger({code: 404, message: 'Loan Reports not found'}).log
+        }
+        const {head, content, contentType} = collectibilityWorksheetContent(loanReports, requestBody)
+        const header = {
+            date: requestBody.end_date,
+            title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM'
+        }
+        const ratio_percent_title = {
+            name: 'RR / NPL',
+            contentLength: content.length + 2
+        }
+        const ratio_percent_value = {
+            contentLength: content.length + 2,
+            columnNum: 11,
+            data: [
+                {data: 0.5, type: 'percent'},
+                {data: 0.5, type: 'percent'},
+                {data: 10, type: 'percent'},
+                {data: 50, type: 'percent'},
+                {data: 100, type: 'percent'}
+            ]
+        }
+        const ratio_currency_title = {
+            name: 'Resiko Kredit',
+            contentLength: content.length + 3
+        }
+        const calculateRisk = (percent, content, colNum) => {
+            const sum = content.reduce((sum, arr) => {
+                return sum + arr[colNum]
+            }, 0)
+            return sum * percent / 100
+        }
+
+        const ratio_currency_value = {
+            contentLength: content.length + 3,
+            columnNum: 11,
+            data: [
+                {data: calculateRisk(0.5, content, 10), type: 'currency'},
+                {data: calculateRisk(0.5, content, 11), type: 'currency'},
+                {data: calculateRisk(10, content, 12), type: 'currency'},
+                {data: calculateRisk(50, content, 13), type: 'currency'},
+                {data: calculateRisk(100, content, 14), type: 'currency'}
+            ]
+        }
+
+        this.workbook.addWorksheet({name: 'Kolektibilitas'})
+        this.workbook.addHeader(header)
+        this.workbook.addTable({name: 'Kolektibilitas', head, content})
+        this.workbook.formatCells({contentType, content})
+
+        this.workbook.mergeColumn(ratio_percent_title)
+        this.workbook.addAfterTable(ratio_percent_value)
+        this.workbook.mergeColumn(ratio_currency_title)
+        this.workbook.addAfterTable(ratio_currency_value)
+    }
+    async generateXls({loanReports, requestBody}){
+
+        this.#paymentWorksheet({loanReports, requestBody})
+        this.#collectibilityWorksheet({loanReports, requestBody})
+
+        const workbook = this.workbook.generate
+        const buffer = await workbook.xlsx.writeBuffer()
+        this.workbook = new ReportXls
+        return new DataLogger({data: buffer}).log
+    }
+}
+
+// table content for paymentReport
+function paymentWorksheetContent(loanReports, requestBody){
+    const head = [
+        {name: 'No', type: 'number'},
+        {name: 'KSM', type: 'string'},
+        {name: 'Tanggal Pencairan', filterButton: true, type: 'date'},
+        {name: 'Jumlah Pinjaman', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Tanggal Angsuran', filterButton: true, type: 'date'},
+        {name: 'Angs ke', type: 'number'},
+        {name: 'Angsuran Pokok', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Angsuran Bunga 1.45%', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Angsuran BOP 0.05%', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Jumlah Angsuran', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Sisa Pokok', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Sisa Bunga', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Sisa BOP', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Jumlah Sisa', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Keterangan', type: 'string'}
+    ]
+    const contentType = head.map(obj => obj.type)
+    const content = []
+
+    let payment_no = 0
+
+    loanReports.data.forEach((loanReport, index) => {
+        payment_no = 1
+        const {
+            loan, transactions, loanPayment, 
+            paymentRemaining, paymentPaid, collectibility
+        } = loanReport
+
+        loanPayment.forEach(payment => {
+            if(payment.monthly_loan_remaining < payment.monthly_loan){
+                payment_no = payment.payment_no
+            }
+        })
+
+        let pay_loan = 0
+        let pay_interest = 0
+        let pay_bop = 0
+        let trans_date = null
+        let collect = ''
+
+        if(collectibility.current > 0) collect = 'Lancar'
+        else if(collectibility.deliquent > 0) collect = 'Perlu Perhatian'
+        else if(collectibility.doubtful > 0) collect = 'Kurang Lancar'
+        else if(collectibility.nonperforming > 0) collect = 'Diragukan'
+        else collect = 'Macet'
+
+        const isThisMonth = (date_a, date_b) => {
+            const month_a = new Date(date_a).getMonth()
+            const month_b = new Date(date_b).getMonth()
+            return month_a - month_b === 0
+        }
+
+        transactions.forEach(transaction => {
+
+            switch(transaction.id_type){
+                case 4,39: // Loan Payment
+                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+                        pay_loan += transaction.total
+                        trans_date = transaction.trans_date
+                    }
                     break
-                case 'deliquent':
-                    description = `Perhatian`
+                case 5,40: // Interest Payment
+                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+                        pay_interest += transaction.total
+                        trans_date = transaction.trans_date
+                    }
                     break
-                case 'doubtful':
-                    description = `Kurang Lancar`
-                    break
-                case 'nonperforming':
-                    description = `Diragukan`
+                case 6,41: // BOP Payment
+                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+                        pay_bop += transaction.total
+                        trans_date = transaction.trans_date
+                    }
                     break
                 default:
-                    description = `Macet`
                     break
             }
-            return [i++, description, loss_total]
         })
 
-        // CREATE TABLE
-        worksheet.addTable({
-            name: 'IncomeReport',
-            ref: `A${insertedRow}`,
-            headerRow: true,
-            totalsRow: true,
-            style: {
-              theme: 'TableStyleMedium2',
-              showRowStripes: true,
-            },
-            columns: [
-              {name: 'No'},
-              {name: 'PENDAPATAN'},
-              {name: '(RP)', totalsRowFunction: 'sum'}
-            ],
-            rows: incomeContent
+        const {remaining_loan, remaining_interest, remaining_bop} = paymentRemaining
+
+        content.push([
+            index + 1,
+            loan.ksm.name,
+            loan.loan_start,
+            loan.total_loan,
+            trans_date,
+            payment_no,
+            pay_loan,
+            pay_interest,
+            pay_bop,
+            pay_loan + pay_interest + pay_bop,
+            remaining_loan,
+            remaining_interest,
+            remaining_bop,
+            remaining_loan + remaining_interest + remaining_bop,
+            collect
+        ])
+    })
+
+    return {head, content, contentType}
+}
+// table content for paymentReport
+function collectibilityWorksheetContent(loanReports, requestBody){
+    const head = [
+        {name: 'No', type: 'number'},
+        {name: 'KSM', type: 'string'},
+        {name: 'Realisasi', filterButton: true, type: 'date'},
+        {name: 'Jatuh Tempo', filterButton: true, type: 'date'},
+        {name: 'Besar Pinjaman', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Angs per Bulan', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Kredit Seharusnya', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Kredit Sebenarnya', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Tunggakan < 3 bulan', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Tunggakan > 3 bulan', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Lancar', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Perhatian', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Kurang Lancar', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Diragukan', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Macet', totalsRowFunction: 'sum', type: 'currency'}
+    ]
+    const contentType = head.map(obj => obj.type)
+    const content = []
+
+    loanReports.data.forEach((loanReport, index) => {
+
+        const {loan, loanPayment, collectibility } = loanReport
+
+        let expect_remaining = 0
+        let real_remaining = 0
+        let arrears_1 = 0
+        let arrears_2 = 0
+
+        loanPayment.forEach(payment => {
+
+            const {monthly_loan_remaining, due_date} = payment
+            const dateGap = new DateFormat(requestBody.end_date).diffDays(due_date)
+
+            real_remaining += monthly_loan_remaining
+            if(dateGap > 0) expect_remaining += monthly_loan_remaining
+
+            if(dateGap < -90) return arrears_2 += monthly_loan_remaining
+            else if(dateGap <= 0) return arrears_1 += monthly_loan_remaining
         })
 
-        insertedRow += incomeContent.length + 2
+        const {current, deliquent, doubtful, nonperforming, default: fail} = collectibility
 
-        worksheet.addTable({
-            name: 'CostReport',
-            ref: `A${insertedRow}`,
-            headerRow: true,
-            totalsRow: true,
-            style: {
-              theme: 'TableStyleMedium2',
-              showRowStripes: true,
-            },
-            columns: [
-              {name: 'No'},
-              {name: 'BELANJA/BIAYA'},
-              {name: '(RP)', totalsRowFunction: 'sum'}    
-            ],
-            rows: costContent
-        })
+        content.push([
+            index + 1,
+            loan.ksm.name,
+            loan.loan_start,
+            loan.loan_end,
+            loan.total_loan,
+            loanPayment[0].monthly_loan,
+            expect_remaining,
+            real_remaining,
+            arrears_1,
+            arrears_2,
+            current,
+            deliquent,
+            doubtful,
+            nonperforming,
+            fail
+        ])
+    })
 
-        insertedRow += costContent.length + 2
-
-        worksheet.addTable({
-            name: 'RiskReport',
-            ref: `A${insertedRow}`,
-            headerRow: true,
-            totalsRow: true,
-            style: {
-              theme: 'TableStyleMedium2',
-              showRowStripes: true,
-            },
-            columns: [
-              {name: 'No'},
-              {name: 'RESIKO KREDIT'},
-              {name: '(RP)', totalsRowFunction: 'sum'}    
-            ],
-            rows: riskContent
-        })
-
-        insertedRow += 7
-
-        worksheet.addTable({
-            name: 'CostIncome',
-            ref: `A${insertedRow}`,
-            headerRow: true,
-            totalsRow: true,
-            style: {
-              theme: 'TableStyleMedium2',
-              showRowStripes: true,
-            },
-            columns: [
-              {name: 'No'},
-              {name: 'LABA/RUGI'},
-              {name: '(RP)', totalsRowFunction: 'sum'}    
-            ],
-            rows: [
-                [1, 'Total Pendapatan', totalIncome],
-                [2, 'Total Pengeluaran', totalCost * -1],
-                [3, 'Total Resiko Kredit', totalRisk * -1]
-            ]
-        })
-
-
-        let col = worksheet.getColumn(2)
-        col.width = 60
-
-        col = worksheet.getColumn(3)
-        col.width = 20
-        col.numFmt = '#,##0'
-
-        return worksheet
-    }
-
-    // create cash flow wroksheet
-    async cashFlowReportXls(){
-        
-    }
+    return {head, content, contentType}
 }
 
 // format content
@@ -757,18 +411,36 @@ function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
     })
     return insertedRow
 }
-// full head table
-function fillHeadTable(row, obj){
-
-    let cellNum = 1
-
-    obj.forEach(data => {
-        let cell = row.getCell(cellNum)
-        cell.value = data
-        cell.alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
-        cellNum ++
-        return cell
+// column witdh by array
+function columnWidth(worksheet, type){
+    let i = 0
+    worksheet.columns.forEach(column => {
+        switch(type[i]){
+            case 'number':
+                column.width = 5
+                break
+            case 'date':
+                column.width = 12
+                break
+            case 'currency':
+                column.width = 13
+                break
+            case 'string':
+                column.width = 20
+                break
+            default:
+                break
+        }       
+        i++
     })
+}
+// merge columns
+function mergeColumn(worksheet, value, columnStart, columnEnd, row, insertedRow, align = 'center', font = {}){
+    let cell = worksheet.getCell(`${columnStart}${row + insertedRow}`)
+    cell.value = value
+    cell.alignment = {horizontal: align, vertical: 'middle', wrapText: true} 
+    cell.font = font
+    return worksheet.mergeCells(`${columnStart}${row + insertedRow}:${columnEnd}${row + insertedRow}`)
 }
 // fill content cell
 function fillContents(worksheet, row, columnNum, arr, insertedRow, alignment, font = {}){
@@ -803,48 +475,6 @@ function fillContents(worksheet, row, columnNum, arr, insertedRow, alignment, fo
         } 
         columnNum ++
     })
-}
-// column witdh by array
-function columnWidth(worksheet, type){
-    let i = 0
-    worksheet.columns.forEach(column => {
-        switch(type[i]){
-            case 'number':
-                column.width = 5
-                break
-            case 'date':
-                column.width = 12
-                break
-            case 'currency':
-                column.width = 13
-                break
-            case 'string':
-                column.width = 20
-                break
-            default:
-                break
-        }       
-        i++
-    })
-}
-// merge rows on every columns sequentialy, ex A1:A2, B1,B2, ... ect
-function mergeRows(worksheet, columns, rowStart, rowEnd, insertedRow){
-    columns.forEach(char => {
-        let cell = worksheet.getCell(`${char}${rowStart + insertedRow}`)
-        if(!cell.value) {
-            cell.value = worksheet.getCell(`${char}${rowEnd + insertedRow}`).value
-            cell.alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}  
-        }
-        return worksheet.mergeCells(`${char}${rowStart + insertedRow}:${char}${rowEnd + insertedRow}`)
-    })
-}
-// merge columns
-function mergeColumn(worksheet, value, columnStart, columnEnd, row, insertedRow, align = 'center', font = {}){
-    let cell = worksheet.getCell(`${columnStart}${row + insertedRow}`)
-    cell.value = value
-    cell.alignment = {horizontal: align, vertical: 'middle', wrapText: true} 
-    cell.font = font
-    return worksheet.mergeCells(`${columnStart}${row + insertedRow}:${columnEnd}${row + insertedRow}`)
 }
 
 module.exports = {ReportFactory}

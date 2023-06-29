@@ -35,7 +35,7 @@ async function read(req, res, next){
 
     let model = factory.read(req.body)
     let result = await middlewareRequest(req, res, model)
-    
+
     req.result = result
     req.loan = result
     return next()

@@ -16,10 +16,6 @@ class LoanModel extends BaseModel {
             }
         ]
     }
-    findLatestOne(){
-        this.query.order = [['created_at','DESC']]
-        return this.findOne()
-    }
     findByKsmName(ksm_name, opt){
         this.query.where = {'$ksm.name$': {[Op.like]: `%${ksm_name}%`}}
         this.queryOption(opt)
@@ -107,27 +103,25 @@ class LoanFactory {
         return result
     }
 
-    async read({id, id_loan, id_ksm, ksmIds, ksm_name, findLatest = false, id_lkm, loanIds = [], is_finish, is_valid = true}){
+    async read({id, id_loan, id_ksm, ksmIds, ksm_name, id_lkm, loanIds = [], is_finish = false, is_valid = true}){
 
         let result
+        const option = {is_finish, is_valid}
 
         if(id_loan || id){
             result = await this.model.findByPk(id = id || id_loan)
         }
         else if(ksm_name){
-            result = await this.model.findByKsmName(ksm_name, {is_finish, is_valid})
+            result = await this.model.findByKsmName(ksm_name, option)
         }
         else if(id_ksm || ksmIds){
-            result = await this.model.findByKsmId(id_ksm = id_ksm || ksmIds, {is_finish, is_valid})
+            result = await this.model.findByKsmId(id_ksm = id_ksm || ksmIds, option)
         }
         else if(id_lkm){
-            result = await this.model.findByLkmId(id_lkm, {is_finish, is_valid})
-        }
-        else if(findLatest){
-            result = await this.model.findLatestOne()
+            result = await this.model.findByLkmId(id_lkm, option)
         }
         else if(loanIds.length > 0){
-            result = await this.model.findByIds(loanIds, {is_finish, is_valid})
+            result = await this.model.findByIds(loanIds, option)
         }
 
         if(result.status) return result

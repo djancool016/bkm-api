@@ -123,8 +123,11 @@ class LoanPayment {
             endDate: this.requestBody.end_date
         })
 
+        const dataTransaction = this.transactions.filter(transaction => transaction.total > 0)
+
         return {
             loan: this.loan,
+            transactions: dataTransaction,
             loanPayment,
             paymentRemaining: paymentRemaining(loanPayment),
             paymentPaid: paymentPaid(loanPayment),
@@ -265,4 +268,4 @@ function paymentPaid(loanPayment){
     }) 
 }
 
-module.exports = { LoanPaymentFactory }
+module.exports = { LoanPaymentFactory, LoanPayment }
