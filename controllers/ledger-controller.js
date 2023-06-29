@@ -14,6 +14,18 @@ async function read(req, res, next){
     return next()
 }
 
+async function readBbns(req, res, next){
+
+    let model = factory.readBbns({
+        ledgers: req.ledger
+    })
+    let result = await middlewareRequest(req, res, model)
+    
+    req.result = result
+    req.bbns = result
+    return next()
+}
+
 module.exports = {
-    read
+    read, readBbns
 }

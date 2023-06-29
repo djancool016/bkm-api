@@ -1,8 +1,5 @@
 const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionLoanFactory} = require('./transactionLoan-factory')
-const {LoanFactory} = require('./loan-factory')
-const {TransactionFactory} = require('./transaction-factory')
-const {CoaFactory} = require('./coa-factory')
 const ExcelJs = require('exceljs')
 const { DataLogger, DateFormat, StatusLogger } = require('../utils')
 
@@ -176,6 +173,13 @@ class ReportFactory {
         this.workbook.mergeColumn(ratio_currency_title)
         this.workbook.addAfterTable(ratio_currency_value)
     }
+    async #ledgerWorksheet({ledgers}){
+
+        if(!ledgers || ledgers.status == false) {
+            return ledgers || new StatusLogger({code: 404, message: 'Ledger not found'}).log
+        }
+        
+    }
     async generateXls({loanReports, requestBody}){
 
         this.#paymentWorksheet({loanReports, requestBody})
@@ -187,6 +191,7 @@ class ReportFactory {
         return new DataLogger({data: buffer}).log
     }
 }
+
 
 // table content for paymentReport
 function paymentWorksheetContent(loanReports, requestBody){
@@ -358,7 +363,6 @@ function collectibilityWorksheetContent(loanReports, requestBody){
 
     return {head, content, contentType}
 }
-
 // format content
 function formatContent(worksheet, contentType, contentLength, insertedRow){
 

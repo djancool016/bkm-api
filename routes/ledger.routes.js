@@ -11,5 +11,10 @@ router.get('/',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     transaction.read, ledger.read, endRequest
 )
+router.get('/bbns', 
+    (req, res, next) => validator(req, res, next, input.ledger.read), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    transaction.read, ledger.read, ledger.readBbns, endRequest
+)
 
 module.exports = router
