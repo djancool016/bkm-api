@@ -16,38 +16,12 @@ async function create (req, res, next){
     return next()
 }
 
-async function createBop (req, res, next){
-
-    let model = factory.createBop({
-        loan: req.loan,
-        transaction: req.transaction
-    })
-    let result = await middlewareRequest(req, res, model)
-    if (result.status == false) return res.status(result.code).json(result)
-
-    req.result = result
-    req.transactionLoan = result
-    return next()
-}
-
 async function creates (req, res, next){
     
-    let url = 'http://localhost:5100/transactionLoan'
+    let url = 'http://localhost:5100/api/transactionLoan'
     let {transactionLoans} = req.body
 
     let result = await bulkRequest(transactionLoans, url)
-    if (result.status == false) return res.status(result.code).json(result)
-
-    req.result = result
-    return next()
-}
-
-async function createBops (req, res, next){
-
-    let url = 'http://localhost:5100/transactionBop'
-    let {transactionBops} = req.body
-
-    let result = await bulkRequest(transactionBops, url)
     if (result.status == false) return res.status(result.code).json(result)
 
     req.result = result
@@ -66,7 +40,7 @@ async function createLIB (req, res, next){
 
 async function createLIBs (req, res, next){
 
-    let url = 'http://localhost:5100/transactionLIB'
+    let url = 'http://localhost:5100/api/transactionLoan/lib'
     let {transactionLIBs} = req.body
 
     let result = await bulkRequest(transactionLIBs, url)
@@ -104,8 +78,8 @@ async function read(req, res, next){
 async function validator(req, res, next){
 
     let model = factory.validate({
-        loanPayment,
-        requestBody
+        loanPayment: req.loanPayment,
+        requestBody: req.body
     })
     let result = await middlewareRequest(req, res, model)
     if (result.status == false) return res.status(result.code).json(result)
@@ -137,4 +111,4 @@ function nestedResponse ({okResponse}){
     return {okResponses, badResponses}
 }
 
-module.exports = {create, creates, read, validator, createBop, createBops, createLIB, createLIBs}
+module.exports = {create, creates, read, validator, createLIB, createLIBs}

@@ -26,7 +26,7 @@ router.post('/',
                 id_lkm: 1,
                 id_type: req.body.id_type,
                 total: req.body.total_loan,
-                trans_data: req.body.loan_start
+                trans_date: req.body.loan_start
             }
             return next()
         }

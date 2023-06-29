@@ -66,7 +66,6 @@ class TransactionFactory {
             total: total,
             remark,
         }
-        console.log(transaction)
 
         return this.model.create(transaction)
     }

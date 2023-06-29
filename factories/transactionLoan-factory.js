@@ -141,7 +141,7 @@ class TransactionLoanFactory {
                 id_type: id_type(39, 4),
                 trans_date, 
                 total : pay_loan,
-                url: 'http://localhost:5100/transactionLoan'
+                url: 'http://localhost:5100/api/transactionLoan'
             })
         }
         if(pay_interest){
@@ -151,7 +151,7 @@ class TransactionLoanFactory {
                 id_type: id_type(40, 5),
                 trans_date, 
                 total : pay_interest,
-                url: 'http://localhost:5100/transactionLoan'
+                url: 'http://localhost:5100/api/transactionLoan'
             })
         }
         if(pay_bop){
@@ -161,7 +161,7 @@ class TransactionLoanFactory {
                 id_type: id_type(41, 6),
                 trans_date, 
                 total : pay_bop,
-                url: 'http://localhost:5100/transactionLoan'
+                url: 'http://localhost:5100/api/transactionLoan'
             })
         }
 

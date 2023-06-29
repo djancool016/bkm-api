@@ -62,7 +62,6 @@ class LedgerFactory {
         for(let i = 0; i < transaction.data.length ; i++){
 
             let {id:id_transaction, id_type, total, remark} = transaction.data[i]
-
             let ledger = await this.model.findByIdType(id_type)
             if(ledger.status == false) return ledger
 

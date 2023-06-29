@@ -163,12 +163,15 @@ module.exports = {
                 date:['end_date']
             } 
         },
+        ledger: {
+            read:{
+                integer:['id_lkm'],
+                date:['end_date']
+            } 
+        },
         report: {
             loan:{
                 date:['id_lkm','start_date','end_date']
-            },
-            prototype:{
-                integer:['year','month','id_lkm']
             }
         }
     }

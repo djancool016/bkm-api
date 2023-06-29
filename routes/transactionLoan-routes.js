@@ -13,7 +13,7 @@ const {validator, authorize, endRequest} = require('../controllers/base-controll
 router.post('/', 
     (req, res, next) => validator(req, res, next, input.transactionLoan.create), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    lkm.read, typeTransaction.read, loan.read, loanPayment.read, transactionLoan.read, 
+    lkm.read, typeTransaction.read, loan.read, transactionLoan.read, loanPayment.read,
     transactionLoan.validator, transaction.create, 
     transactionLoan.create, endRequest
 )

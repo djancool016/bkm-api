@@ -20,7 +20,7 @@ async function create(req, res, next){
 
 async function creates(req, res, next){
 
-    let url = 'http://localhost:5100/loan'
+    let url = 'http://localhost:5100/api/loan'
     let {loans} = req.body
 
     let result = await bulkRequest(loans, url)
