@@ -83,6 +83,9 @@ class ReportXls {
     addAfterTable({contentLength = 0, columnNum, data}){
         fillContents(this.worksheet, contentLength, columnNum, data, this.insertedRow)
     }
+    addInsertedRow(totalInserted){
+        this.insertedRow += totalInserted
+    }
     get generate(){
         return this.workbook
     }
@@ -92,6 +95,7 @@ class ReportXls {
 class ReportFactory {
     constructor(){
         this.workbook = new ReportXls
+        this.totalCollectibility = 0
     }
     async loanReports({loans, requestBody}){
 
@@ -106,12 +110,13 @@ class ReportFactory {
         }
 
         const {head, content, contentType} = paymentWorksheetContent(loanReports, requestBody)
-
+        
         this.workbook.addWorksheet({name: 'Angsuran'})
         this.workbook.addHeader({
             date: requestBody.end_date,
             title: 'DAFTAR RINCIAN ANGSURAN PINJAMAN KSM'
         })
+
         this.workbook.addTable({name: 'Angsuran', head, content})
         this.workbook.formatCells({contentType, content})
     }
@@ -121,6 +126,7 @@ class ReportFactory {
             return loanReports || new StatusLogger({code: 404, message: 'Loan Reports not found'}).log
         }
         const {head, content, contentType} = collectibilityWorksheetContent(loanReports, requestBody)
+        
         const header = {
             date: requestBody.end_date,
             title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM'
@@ -163,6 +169,8 @@ class ReportFactory {
             ]
         }
 
+        this.totalCollectibility = ratio_currency_value.data.reduce((acc, value) => acc + value.data, 0)
+
         this.workbook.addWorksheet({name: 'Kolektibilitas'})
         this.workbook.addHeader(header)
         this.workbook.addTable({name: 'Kolektibilitas', head, content})
@@ -172,18 +180,40 @@ class ReportFactory {
         this.workbook.addAfterTable(ratio_percent_value)
         this.workbook.mergeColumn(ratio_currency_title)
         this.workbook.addAfterTable(ratio_currency_value)
-    }
-    async #ledgerWorksheet({ledgers}){
 
-        if(!ledgers || ledgers.status == false) {
-            return ledgers || new StatusLogger({code: 404, message: 'Ledger not found'}).log
+    }
+    async #bbnsWorksheet({bbns, requestBody}){
+
+        if(!bbns || bbns.status == false) {
+            return bbns || new StatusLogger({code: 404, message: 'BBNS not found'}).log
         }
+        const {head, content, contentType} = bbnsWorksheetContent(bbns.data)
+        const {
+            head: pasiva_head, 
+            content: pasiva_content, 
+            contentType: pasiva_contentType
+        } = bbnsWorksheetContent(bbns.data, 'Pasiva')
+
+        const header = {
+            date: requestBody.end_date,
+            title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM',
+            columnEnd: 'G'
+        }
+
+        this.workbook.addWorksheet({name: 'BBNS', orientation: 'potrait'})
+        this.workbook.addHeader(header)
+        this.workbook.addTable({name: 'Aktiva', head, content})
+        this.workbook.formatCells({contentType, content})
+        this.workbook.addInsertedRow(content.length + 2)
+        this.workbook.addTable({name: 'Pasiva', head: pasiva_head, content: pasiva_content})
+        this.workbook.formatCells({contentType:pasiva_contentType, content:pasiva_content})
         
     }
-    async generateXls({loanReports, requestBody}){
+    async generateXls({loanReports, bbns, requestBody}){
 
         this.#paymentWorksheet({loanReports, requestBody})
         this.#collectibilityWorksheet({loanReports, requestBody})
+        this.#bbnsWorksheet({bbns, requestBody})
 
         const workbook = this.workbook.generate
         const buffer = await workbook.xlsx.writeBuffer()
@@ -363,6 +393,55 @@ function collectibilityWorksheetContent(loanReports, requestBody){
 
     return {head, content, contentType}
 }
+// table content for bbnsReport
+function bbnsWorksheetContent({thisMonth, lastMonth}, type = 'Aktiva'){
+    const head = [
+        {name: 'No', type: 'number'},
+        {name: 'Kode', type: 'number'},
+        {name: `${type}`, type: 'string'},
+        {name: 'Akun', type: 'string'},
+        {name: 'Saldo Awal', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Debit', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Kredit', totalsRowFunction: 'sum', type: 'currency'}
+    ]
+    const contentType = head.map(obj => obj.type)
+    const content = []
+
+    const fillContent = (lastMonth, thisMonth) => {
+        lastMonth.forEach((item, index) => {
+            const {id_coa, coa, account, debit, credit} = item
+            content.push([
+                index + 1,
+                id_coa,
+                coa,
+                account,
+                debit - credit,
+                0,
+                0
+            ])
+        })
+    
+        thisMonth.forEach(item => {
+            const index = content.findIndex(data => data.id_coa === item.id_coa)
+            if(index !== -1){
+                content[index][5] += item.debit
+                content[index][6] += item.credit
+            }
+        })
+    }
+    switch(type){
+        case 'Aktiva':
+            fillContent(lastMonth.aktiva, thisMonth.aktiva)
+            break
+        case 'Pasiva':
+            fillContent(lastMonth.pasiva, thisMonth.pasiva)
+            break
+        default:
+            break
+    }
+
+    return {head, content, contentType}
+}
 // format content
 function formatContent(worksheet, contentType, contentLength, insertedRow){
 
@@ -421,7 +500,7 @@ function columnWidth(worksheet, type){
     worksheet.columns.forEach(column => {
         switch(type[i]){
             case 'number':
-                column.width = 5
+                column.width = 6
                 break
             case 'date':
                 column.width = 12

@@ -160,18 +160,19 @@ module.exports = {
         loanPayment: {
             read:{
                 integer:['id_loan'],
-                date:['end_date']
+                date:['start_date','end_date']
             } 
         },
         ledger: {
             read:{
                 integer:['id_lkm'],
-                date:['end_date']
+                date:['start_date','end_date']
             } 
         },
         report: {
             loan:{
-                date:['id_lkm','start_date','end_date']
+                integer:['id_lkm'],
+                date:['start_date','end_date']
             }
         }
     }

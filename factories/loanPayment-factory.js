@@ -1,4 +1,3 @@
-const { col } = require('sequelize')
 const {DateFormat} = require('../utils/dateFormat')
 const {StatusLogger, DataLogger} = require('../utils/logger')
 
@@ -170,19 +169,19 @@ class Collectibility {
                 diffDays = this.endDate? this.endDate.diffDays(newDueDate) : 1
             }
 
-            // default (> 9 month)
-            if(diffDays < -270 || this.collectibility.default > 0){
+            // default (more than 360 days)
+            if(diffDays < -360 || this.collectibility.default > 0){
                 this.collectibility.default += monthly_loan_remaining
             }
-            // non-performing (> 6 month)
+            // non-performing (day 180 - 360)
             else if(diffDays < -180 || this.collectibility.nonperforming > 0){
                 this.collectibility.nonperforming += monthly_loan_remaining
             }
-            // doubtful (> 3 month)
+            // doubtful (day 90 - 180)
             else if(diffDays < -90 || this.collectibility.doubtful > 0){
                 this.collectibility.doubtful += monthly_loan_remaining
             }
-            // deliquent (> 1 month)
+            // deliquent (day 0 - 90)
             else if(diffDays <= 0 || this.collectibility.deliquent > 0){
                 this.collectibility.deliquent += monthly_loan_remaining
             }

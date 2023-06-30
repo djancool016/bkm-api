@@ -4,7 +4,7 @@ const factory = new ReportFactory
 
 
 async function loanReports(req, res, next){
-    
+
     let model = factory.loanReports({
         loans: req.loan,
         requestBody: req.body
@@ -26,6 +26,7 @@ async function reportXls(req, res, next){
 
     let model = factory.generateXls({
         loanReports: req.loanReports,
+        bbns: req.bbns,
         requestBody: req.body
     })
     let result = await middlewareRequest(req, res, model)

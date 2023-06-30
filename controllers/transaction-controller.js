@@ -1,5 +1,6 @@
 const {middlewareRequest, bulkRequest} = require('./base-controller')
 const {TransactionFactory} = require('../factories/transaction-factory')
+const { DateFormat } = require('../utils')
 const factory = new TransactionFactory
 
 async function create(req, res, next){
@@ -36,6 +37,22 @@ async function read(req, res, next){
 
     req.result = result
     req.transaction = result
+
+    if(req.body.start_date){
+        let lastMonth = new DateFormat(req.body.start_date)
+        lastMonth.addDays = -1
+        lastMonth = lastMonth.toISOString(false)
+
+        let newReqBody = {...req.body}
+        delete newReqBody.start_date
+        newReqBody.end_date = lastMonth
+
+        model = factory.read(newReqBody)
+        result = await middlewareRequest(req, res, model)
+
+        req.lastMonthTransaction = result
+    }
+
     return next()
 }
 async function update(req, res, next){

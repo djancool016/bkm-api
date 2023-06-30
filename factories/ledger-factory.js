@@ -49,66 +49,70 @@ class LedgerFactory {
         this.model = new LedgerModel
     }
 
-    async read({transaction}){
+    async read({transaction, lastMonthTransaction}){
 
-        if(!transaction || transaction.status == false) return transaction
+        let currentMonth = []
+        let lastMonth = []
 
-        if(Array.isArray(transaction.data) == false){
-            transaction.data = [transaction.data]
+        const fillOutput = async (trans, arr) => {
+            for(let i = 0; i < trans.data.length ; i++){
+
+                let {id:id_transaction, id_type, total, remark} = trans.data[i]
+                let ledger = await this.model.findByIdType(id_type)
+                if(ledger.status == false) return ledger
+    
+                //object ledger menentukan jenis Account, COA dan Register suatu transaksi
+                ledger.data.forEach(data => {
+                    let{
+                        id:id_coa, 
+                        account: {id:id_account, name, category},
+                        description
+                    } = data.coa
+    
+                    let{register:{id:id_register, name: registerName}} = data
+    
+                    let transaction = {
+                        id_coa,
+                        coa: description,
+                        id_register,
+                        register: registerName,
+                        id_transaction,
+                        total,
+                        remark
+                    }
+                    let account = {
+                        id: id_account,
+                        name,
+                        transaction: [transaction]
+                    }
+                    let body = {
+                        category,
+                        account:[account]
+                    }
+    
+                    // Mencari index Category transaksi dari objek array
+                    let indexCategory = arr.findIndex(item => item.category.id == category.id)
+                    if(indexCategory === -1) return arr.push(body)  
+    
+                    // Apabila index Category ditemukan kemudian mencari index Account
+                    let indexAccount = arr[indexCategory].account.findIndex(item => item.id == id_account)
+                    if(indexAccount === -1) return arr[indexCategory].account.push(account)
+    
+                    // Apabila index Account ditemukan maka akan diisi dengan object transaksi
+                    arr[indexCategory].account[indexAccount].transaction.push(transaction)
+                    // Mengurutkan object transaksi berdasarkan Account ID
+                    arr[indexCategory].account.sort((a,b) => a.id - b.id)
+                })
+            }
         }
-        let result = []
-
-        for(let i = 0; i < transaction.data.length ; i++){
-
-            let {id:id_transaction, id_type, total, remark} = transaction.data[i]
-            let ledger = await this.model.findByIdType(id_type)
-            if(ledger.status == false) return ledger
-
-            //object ledger menentukan jenis Account, COA dan Register suatu transaksi
-            ledger.data.forEach(data => {
-                let{
-                    id:id_coa, 
-                    account: {id:id_account, name, category},
-                    description
-                } = data.coa
-
-                let{register:{id:id_register, name: registerName}} = data
-
-                let transaction = {
-                    id_coa,
-                    coa: description,
-                    id_register,
-                    register: registerName,
-                    id_transaction,
-                    total,
-                    remark
-                }
-                let account = {
-                    id: id_account,
-                    name,
-                    transaction: [transaction]
-                }
-                let body = {
-                    category,
-                    account:[account]
-                }
-
-                // Mencari index Category transaksi dari objek 'result'
-                let indexCategory = result.findIndex(item => item.category.id == category.id)
-                if(indexCategory === -1) return result.push(body)  
-
-                // Apabila index Category ditemukan kemudian mencari index Account
-                let indexAccount = result[indexCategory].account.findIndex(item => item.id == id_account)
-                if(indexAccount === -1) return result[indexCategory].account.push(account)
-
-                // Apabila index Account ditemukan maka akan diisi dengan object transaksi
-                result[indexCategory].account[indexAccount].transaction.push(transaction)
-                // Mengurutkan object transaksi berdasarkan Account ID
-                result[indexCategory].account.sort((a,b) => a.id - b.id)
-            })
+        if(transaction.status){
+            await fillOutput(transaction, currentMonth)
         }
-
-        return new DataLogger({data: result}).log
+        if(lastMonthTransaction?.status) {
+            await fillOutput(lastMonthTransaction, lastMonth)
+        }
+        if(currentMonth.length + lastMonth.length === 0) return transaction
+        return new DataLogger({data: {currentMonth, lastMonth}}).log
     }
     // BBNS = Buku Besar Neraca dan Saldo
     async readBbns({ledgers}){
@@ -116,32 +120,40 @@ class LedgerFactory {
         if(!ledgers || ledgers.status == false) {
             return ledgers || new StatusLogger({code: 404, message: 'Ledger not found'}).log
         }
+        const {currentMonth, lastMonth} = ledgers.data
 
-        const aktiva = []
-        const pasiva = []
+        const bbns = {
+            thisMonth: {aktiva: [], pasiva: []},
+            lastMonth: {aktiva: [], pasiva: []},
+        }
 
-        ledgers.data.forEach(ledger => {
-            const {category:{id: id_category}, account} = ledger
-            switch(id_category){
-                case 1:
-                    account.forEach(({id:id_account, name: name_account, transaction}) => {
-                        fillLedger(aktiva, id_account, name_account, transaction)
-                    })
-                    break
-                case 2:
-                    account.forEach(({id:id_account, name: name_account, transaction}) => {
-                        fillLedger(pasiva, id_account, name_account, transaction)
-                    })
-                    break
-                default:
-                    break
-            }         
-        })
-        return new DataLogger({data: {assets, liabilities}}).log
+        const fillOutput = (obj, {aktiva, pasiva}) => {
+            obj.forEach(ledger => {
+                const {category:{id: id_category}, account} = ledger
+                switch(id_category){
+                    case 1:
+                        account.forEach(({id:id_account, name: name_account, transaction}) => {
+                            fillBbns(aktiva, id_account, name_account, transaction)
+                        })
+                        break
+                    case 2:
+                        account.forEach(({id:id_account, name: name_account, transaction}) => {
+                            fillBbns(pasiva, id_account, name_account, transaction)
+                        })
+                        break
+                    default:
+                        break
+                }         
+            })
+        }
+        if(currentMonth.length > 0) fillOutput(currentMonth, bbns.thisMonth)
+        if(lastMonth.length > 0) fillOutput(lastMonth, bbns.lastMonth)
+
+        return new DataLogger({data: bbns}).log
     }
 }
 
-function fillLedger (arr, id_account, name_account, transaction) {
+function fillBbns (arr, id_account, name_account, transaction) {
     transaction.forEach(({id_coa, coa, id_register, total}) => {
 
         const dc = () => {

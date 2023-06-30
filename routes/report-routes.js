@@ -3,6 +3,7 @@ const user = require('../controllers/user-controller')
 const lkm = require('../controllers/lkm-controller')
 const loan = require('../controllers/loan-controller')
 const transaction = require('../controllers/transaction-controller')
+const ledger = require('../controllers/ledger-controller')
 const report = require('../controllers/report-controller')
 const {input} = require('../routes-allowedKey')
 const {validator, authorize, endRequest} = require('../controllers/base-controller')
@@ -26,7 +27,8 @@ router.get('/loan',
 router.get('/download', 
     (req, res, next) => validator(req, res, next, input.report.loan), user.auth, 
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
-    lkm.read, loan.read, report.loanReports, report.reportXls, endRequest
+    lkm.read, loan.read, transaction.read, ledger.read, ledger.readBbns, 
+    report.loanReports, report.reportXls, endRequest
 )
 
 module.exports = router
