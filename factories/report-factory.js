@@ -227,7 +227,7 @@ class ReportFactory {
 }
 
 
-// table content for paymentReport
+// content for paymentWorksheet
 function paymentWorksheetContent(loanReports, requestBody){
     const head = [
         {name: 'No', type: 'number'},
@@ -331,7 +331,7 @@ function paymentWorksheetContent(loanReports, requestBody){
 
     return {head, content, contentType}
 }
-// table content for paymentReport
+// content for collectibilityWorksheet
 function collectibilityWorksheetContent(loanReports, requestBody){
     const head = [
         {name: 'No', type: 'number'},
@@ -397,7 +397,7 @@ function collectibilityWorksheetContent(loanReports, requestBody){
 
     return {head, content, contentType}
 }
-// table content for bbnsReport
+// content for bbnsWorksheet
 function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva'){
     const head = [
         {name: 'No', type: 'number'},
@@ -446,6 +446,8 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
 
     return {head, content, contentType}
 }
+
+
 // format content
 function formatContent(worksheet, contentType, contentLength, insertedRow){
 
