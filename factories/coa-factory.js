@@ -12,7 +12,7 @@ class CoaModel extends BaseModel {
                 {
                     model: model.Account,
                     as: 'account',
-                    attributes: ['id',  'name']
+                    attributes: ['id', 'id_category','name']
                 }
             ]
         }
@@ -52,6 +52,9 @@ class CoaFactory {
         } 
         else if (ids.length > 0){
             result = await this.model.findByIds(ids)
+        }
+        else {
+            result = await this.model.findAll()
         }
 
         if(result.status) return result

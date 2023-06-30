@@ -46,6 +46,9 @@ class TypeTransactionFactory {
         else if(id_group){
             result = await this.model.findByGroup(id_group)
         }
+        else {
+            result = await this.model.findAll()
+        }
 
         if(result.status) return result
         return new StatusLogger({code: 404, message: 'Type Transaction not found'}).log

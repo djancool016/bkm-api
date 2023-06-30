@@ -1,5 +1,6 @@
 const {LoanPaymentFactory} = require('./loanPayment-factory')
 const {TransactionLoanFactory} = require('./transactionLoan-factory')
+const {CoaFactory} = require('./coa-factory')
 const ExcelJs = require('exceljs')
 const { DataLogger, DateFormat, StatusLogger } = require('../utils')
 
@@ -91,10 +92,10 @@ class ReportXls {
     }
 }
 
-
 class ReportFactory {
     constructor(){
         this.workbook = new ReportXls
+        this.coa = new CoaFactory
         this.totalCollectibility = 0
     }
     async loanReports({loans, requestBody}){
@@ -187,12 +188,15 @@ class ReportFactory {
         if(!bbns || bbns.status == false) {
             return bbns || new StatusLogger({code: 404, message: 'BBNS not found'}).log
         }
-        const {head, content, contentType} = bbnsWorksheetContent(bbns.data)
+        const coa = await this.coa.read({})
+        if(coa.status == false) return coa
+
+        const {head, content, contentType} = bbnsWorksheetContent(bbns.data, coa.data)
         const {
             head: pasiva_head, 
             content: pasiva_content, 
             contentType: pasiva_contentType
-        } = bbnsWorksheetContent(bbns.data, 'Pasiva')
+        } = bbnsWorksheetContent(bbns.data, coa.data, 'Pasiva')
 
         const header = {
             date: requestBody.end_date,
@@ -211,9 +215,9 @@ class ReportFactory {
     }
     async generateXls({loanReports, bbns, requestBody}){
 
-        this.#paymentWorksheet({loanReports, requestBody})
-        this.#collectibilityWorksheet({loanReports, requestBody})
-        this.#bbnsWorksheet({bbns, requestBody})
+        await this.#paymentWorksheet({loanReports, requestBody})
+        await this.#collectibilityWorksheet({loanReports, requestBody})
+        await this.#bbnsWorksheet({bbns, requestBody})
 
         const workbook = this.workbook.generate
         const buffer = await workbook.xlsx.writeBuffer()
@@ -394,11 +398,11 @@ function collectibilityWorksheetContent(loanReports, requestBody){
     return {head, content, contentType}
 }
 // table content for bbnsReport
-function bbnsWorksheetContent({thisMonth, lastMonth}, type = 'Aktiva'){
+function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva'){
     const head = [
         {name: 'No', type: 'number'},
         {name: 'Kode', type: 'number'},
-        {name: `${type}`, type: 'string'},
+        {name: `${type}`, type: 'long_string'},
         {name: 'Akun', type: 'string'},
         {name: 'Saldo Awal', totalsRowFunction: 'sum', type: 'currency'},
         {name: 'Debit', totalsRowFunction: 'sum', type: 'currency'},
@@ -407,22 +411,20 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, type = 'Aktiva'){
     const contentType = head.map(obj => obj.type)
     const content = []
 
-    const fillContent = (lastMonth, thisMonth) => {
-        lastMonth.forEach((item, index) => {
-            const {id_coa, coa, account, debit, credit} = item
-            content.push([
-                index + 1,
-                id_coa,
-                coa,
-                account,
-                debit - credit,
-                0,
-                0
-            ])
+    const fillContent = (lastMonth, thisMonth, coa) => {
+        coa.forEach((item, index) => {
+             const {id: id_coa, description} = item
+             const {name: name_account} = item.account
+             content.push([ index + 1, id_coa, description, name_account, 0, 0, 0])
         })
-    
+        lastMonth.forEach(item => {
+            const index = content.findIndex(data => data[1] === item.id_coa)
+            if(index !== -1){
+                content[index][4] += item.debit - item.credit
+            }
+        })
         thisMonth.forEach(item => {
-            const index = content.findIndex(data => data.id_coa === item.id_coa)
+            const index = content.findIndex(data => data[1] === item.id_coa)
             if(index !== -1){
                 content[index][5] += item.debit
                 content[index][6] += item.credit
@@ -431,10 +433,12 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, type = 'Aktiva'){
     }
     switch(type){
         case 'Aktiva':
-            fillContent(lastMonth.aktiva, thisMonth.aktiva)
+            coa = coa.filter(item => item.account.id_category === 1)
+            fillContent(lastMonth.aktiva, thisMonth.aktiva, coa)
             break
         case 'Pasiva':
-            fillContent(lastMonth.pasiva, thisMonth.pasiva)
+            coa = coa.filter(item => item.account.id_category === 2)
+            fillContent(lastMonth.pasiva, thisMonth.pasiva, coa)
             break
         default:
             break
@@ -509,7 +513,10 @@ function columnWidth(worksheet, type){
                 column.width = 13
                 break
             case 'string':
-                column.width = 20
+                column.width = 25
+                break
+            case 'long_string':
+                column.width = 40
                 break
             default:
                 break
