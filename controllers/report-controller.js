@@ -18,6 +18,20 @@ async function loanReports(req, res, next){
     
 }
 
+async function cashReports(req, res, next){
+
+    let model = factory.cashReports({
+        ledger: req.ledger
+    })
+    let result = await middlewareRequest(req, res, model)
+    if (result.status == false) return res.status(result.code).json(result)
+
+    req.result = result
+    req.cashReports = result
+    return next()
+    
+}
+
 async function reportXls(req, res, next){
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -36,5 +50,5 @@ async function reportXls(req, res, next){
 }
 
 module.exports = {
-    loanReports, reportXls
+    loanReports, reportXls, cashReports
 }

@@ -104,6 +104,35 @@ class ReportFactory {
         const data = await report.generate
         return new DataLogger({data}).log
     }
+    async cashReports({ledger}){
+
+        if(!ledger || ledger.status == false) return ledger || new StatusLogger({code: 404, message:"Ledger not found"}).log
+        const {currentMonth, lastMonth} = ledger.data
+
+        const thisMonthCash = {upk: [], bkm: [], upl: [], ups: []}
+        const lastMonthCash = {upk: [], bkm: [], upl: [], ups: []}
+
+        const findTransaction = (arr, cashObj) => {
+
+            const filterTransaction = (id_unit) => {
+                return arr
+                    .map(({account}) => account).flat()
+                    .map(({transaction}) => transaction).flat()
+                    .filter(trans => trans.id_unit === id_unit)
+                    .map(({id_unit:a, unit:b, ...obj}) => obj)
+            }
+            // id_unit {upk: 1, bkm: 2, upl: 3, ups: 4} check on ledger-factory
+            cashObj.upk.push(...filterTransaction(1))
+            cashObj.bkm.push(...filterTransaction(2))
+            cashObj.upl.push(...filterTransaction(3))
+            cashObj.ups.push(...filterTransaction(4))
+        }
+
+        findTransaction(currentMonth, thisMonthCash)
+        findTransaction(lastMonth, lastMonthCash)
+
+        return new DataLogger({data: {thisMonth: thisMonthCash, lastMonth: lastMonthCash}}).log
+    }
     async #paymentWorksheet({loanReports, requestBody}){
 
         if(!loanReports || loanReports.status == false) {

@@ -17,6 +17,10 @@ module.exports = {
                     key: 'id'
                 }
             },
+            id_unit: {
+                allowNull: false,
+                type: Sequelize.INTEGER
+            },
             description: {
                 allowNull: false,
                 type: Sequelize.STRING

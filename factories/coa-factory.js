@@ -7,7 +7,7 @@ class CoaModel extends BaseModel {
         super()
         this.model = model.Coa
         this.query = {
-            attributes: ['id', 'description'],
+            attributes: ['id', 'id_unit', 'description'],
             include: [
                 {
                     model: model.Account,

@@ -8,7 +8,14 @@ class TransactionModel extends BaseModel {
         super()
         this.model = model.Transaction
         this.query = {
-            attributes: ['id','id_lkm','id_type','trans_date','total','remark']
+            attributes: ['id','id_lkm','id_type','trans_date','total','remark'],
+            include: [
+                {
+                    model: model.typeTransaction,
+                    as: 'type',
+                    attributes: ['id','id_group', 'description']
+                }
+            ]
         }
     }
     findByTransCode(trans_code){

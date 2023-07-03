@@ -1,131 +1,157 @@
 [{
         "id": 1010,
         "id_account": 1,
+        "id_unit": 1,
         "description": "Kas UPK"
     },
     {
         "id": 1020,
         "id_account": 1,
+        "id_unit": 1,
         "description": "Rekening Bank UPK"
     },
     {
         "id": 1030,
         "id_account": 1,
+        "id_unit": 1,
         "description": "Piutang KSM"
     },
     {
         "id": 1031,
         "id_account": 1,
+        "id_unit": 1,
         "description": "Resiko Kredit KSM"
     },
     {
         "id": 2010,
         "id_account": 2,
+        "id_unit": 2,
         "description": "Inventaris"
     },
     {
         "id": 2011,
         "id_account": 2,
+        "id_unit": 2,
         "description": "Akumulasi Penyusutan Inventaris"
     },
     {
         "id": 2020,
         "id_account": 2,
+        "id_unit": 2,
         "description": "Bangunan"
     },
     {
         "id": 2021,
         "id_account": 2,
+        "id_unit": 2,
         "description": "Akumulasi Penyusutan Bangunan"
     },
     {
         "id": 3010,
         "id_account": 3,
+        "id_unit": 1,
         "description": "Titipan BOP KSM"
     },
     {
         "id": 3020,
         "id_account": 3,
+        "id_unit": 2,
         "description": "Anggaran BOP BKM"
     },
     {
         "id": 3030,
         "id_account": 3,
+        "id_unit": 3,
         "description": "Anggaran UPL"
     },
     {
         "id": 3040,
         "id_account": 3,
+        "id_unit": 4,
         "description": "Anggaran UPS"
     },
     {
         "id": 4010,
         "id_account": 4,
+        "id_unit": 1,
         "description": "Modal dari BKM"
     },
     {
         "id": 4020,
         "id_account": 4,
+        "id_unit": 1,
         "description": "Modal dari Laba Tahunan"
     },
     {
         "id": 5010,
         "id_account": 5,
+        "id_unit": 1,
         "description": "Bunga Piutang KSM"
     },
     {
         "id": 5020,
         "id_account": 5,
+        "id_unit": 1,
         "description": "Bunga Bank UPK"
     },
     {
         "id": 5030,
         "id_account": 5,
+        "id_unit": 1,
         "description": "Sewa Kios"
     },
     {
         "id": 5000,
         "id_account": 5,
+        "id_unit": 1,
         "description": "Pendapatan Pembukuan Lama"
     },
     {
         "id": 6010,
         "id_account": 6,
+        "id_unit": 1,
         "description": "Honor Sekretaris, UPK dan Kebersihan Kantor"
     },
     {
         "id": 6020,
         "id_account": 6,
+        "id_unit": 1,
         "description": "Lembur Petugas Pembukuan UPK"
     },
     {
         "id": 6030,
         "id_account": 6,
+        "id_unit": 1,
         "description": "Biaya Administrasi dan Pajak Bank UPK"
     },
     {
         "id": 6040,
         "id_account": 6,
+        "id_unit": 1,
         "description": "Resiko Kredit KSM"
     },
     {
         "id": 7010,
         "id_account": 7,
+        "id_unit": 1,
         "description": "Pemupukan Modal UPK"
     },
     {
         "id": 7020,
         "id_account": 7,
+        "id_unit": 1,
         "description": "Realisasi Anggaran BOP BKM"
     },
     {
         "id": 7030,
         "id_account": 7,
+        "id_unit": 1,
         "description": "Realisasi Anggaran UPL"
     },
     {
         "id": 7040,
         "id_account": 7,
+        "id_unit": 1,
         "description": "Realisasi Anggaran UPS"
     }
 ]

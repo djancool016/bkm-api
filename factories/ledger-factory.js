@@ -16,7 +16,7 @@ class LedgerModel extends BaseModel {
                 },{
                     model: model.Coa,
                     as: 'coa',
-                    attributes: ['id', 'description'],
+                    attributes: ['id', 'id_unit', 'description'],
                     include: [
                         {
                             model: model.Account,
@@ -57,7 +57,11 @@ class LedgerFactory {
         const fillOutput = async (trans, arr) => {
             for(let i = 0; i < trans.data.length ; i++){
 
-                let {id:id_transaction, id_type, total, remark} = trans.data[i]
+                let {
+                    id:id_transaction, id_type, total, remark, trans_date, 
+                    type:{description: type_description}
+                } = trans.data[i]
+
                 let ledger = await this.model.findByIdType(id_type)
                 if(ledger.status == false) return ledger
     
@@ -65,18 +69,38 @@ class LedgerFactory {
                 ledger.data.forEach(data => {
                     let{
                         id:id_coa, 
+                        id_unit,
                         account: {id:id_account, name, category},
                         description
                     } = data.coa
     
                     let{register:{id:id_register, name: registerName}} = data
-    
+                    
+                    const unit = () => {
+                        switch(id_unit){
+                            case 1:
+                                return 'UPK'
+                            case 2:
+                                return 'BKM'
+                            case 3:
+                                return 'UPL'
+                            case 4:
+                                return 'UPS'
+                            default:
+                                return null
+                        }
+                    }
                     let transaction = {
                         id_coa,
                         coa: description,
                         id_register,
                         register: registerName,
+                        id_unit,
+                        unit: unit(),
+                        id_type,
+                        type: type_description,
                         id_transaction,
+                        trans_date,
                         total,
                         remark
                     }

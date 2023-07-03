@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     Coa.init({
         id_account: DataTypes.INTEGER,
+        id_unit: DataTypes.INTEGER,
         description: DataTypes.STRING
     }, {
         sequelize,
