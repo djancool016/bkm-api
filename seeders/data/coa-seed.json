@@ -14,14 +14,29 @@
         "description": "Piutang KSM"
     },
     {
+        "id": 1031,
+        "id_account": 1,
+        "description": "Resiko Kredit KSM"
+    },
+    {
         "id": 2010,
         "id_account": 2,
         "description": "Inventaris"
     },
     {
+        "id": 2011,
+        "id_account": 2,
+        "description": "Akumulasi Penyusutan Inventaris"
+    },
+    {
         "id": 2020,
         "id_account": 2,
         "description": "Bangunan"
+    },
+    {
+        "id": 2021,
+        "id_account": 2,
+        "description": "Akumulasi Penyusutan Bangunan"
     },
     {
         "id": 3010,
@@ -87,6 +102,11 @@
         "id": 6030,
         "id_account": 6,
         "description": "Biaya Administrasi dan Pajak Bank UPK"
+    },
+    {
+        "id": 6040,
+        "id_account": 6,
+        "description": "Resiko Kredit KSM"
     },
     {
         "id": 7010,

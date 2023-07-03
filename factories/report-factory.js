@@ -170,7 +170,7 @@ class ReportFactory {
             ]
         }
 
-        this.totalCollectibility = ratio_currency_value.data.reduce((acc, value) => acc + value.data, 0)
+        this.riskCredit = ratio_currency_value.data.reduce((acc, value) => acc + value.data, 0)
 
         this.workbook.addWorksheet({name: 'Kolektibilitas'})
         this.workbook.addHeader(header)
@@ -190,8 +190,33 @@ class ReportFactory {
         }
         const coa = await this.coa.read({})
         if(coa.status == false) return coa
+        
+        // add more bbns transaction
+        const addNewBbns = ({id_coa, debit, credit}) => {
+            const riskCoa = coa.data.find(item => item.id == id_coa)
+            if(!riskCoa) return new StatusLogger({code: 404, message: 'Coa not found'}).log
+            let obj = {
+                id_coa,
+                coa: riskCoa.description,
+                id_account: riskCoa.account.id,
+                account: riskCoa.account.name,
+                debit: 0,
+                credit: 0
+            }
+            if(debit) {
+                obj.debit = debit
+                return obj
+            }
+            obj.credit = credit
+            return obj
+        }
+
+        // add "Resiko Kredit" from Collectibility Worksheet
+        bbns.data.thisMonth.aktiva.push(addNewBbns({id_coa: 1031, credit: this.riskCredit}))
+        bbns.data.thisMonth.pasiva.push(addNewBbns({id_coa: 6040, credit: this.riskCredit}))
 
         const {head, content, contentType} = bbnsWorksheetContent(bbns.data, coa.data)
+
         const {
             head: pasiva_head, 
             content: pasiva_content, 

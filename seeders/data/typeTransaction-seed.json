@@ -262,5 +262,10 @@
         "id": 53,
         "id_group": 10,
         "description": "PB - Akumulasi Penyusutan Bangunan"
+    },
+    {
+        "id": 54,
+        "id_group": 5,
+        "description": "Resiko Kredit KSM"
     }
 ]

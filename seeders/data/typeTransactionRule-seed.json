@@ -70,7 +70,7 @@
     },
     {
         "id_type": 8,
-        "id_coa": 2010,
+        "id_coa": 2011,
         "id_register": 2
     },
     {
@@ -175,7 +175,7 @@
     },
     {
         "id_type": 18,
-        "id_coa": 3020,
+        "id_coa": 6010,
         "id_register": 2
     },
     {
@@ -185,7 +185,7 @@
     },
     {
         "id_type": 19,
-        "id_coa": 3020,
+        "id_coa": 6020,
         "id_register": 2
     },
     {
@@ -195,7 +195,7 @@
     },
     {
         "id_type": 20,
-        "id_coa": 3020,
+        "id_coa": 6030,
         "id_register": 2
     },
     {
@@ -345,7 +345,7 @@
     },
     {
         "id_type": 35,
-        "id_coa": 2020,
+        "id_coa": 2021,
         "id_register": 2
     },
     {
@@ -435,7 +435,7 @@
     },
     {
         "id_type": 51,
-        "id_coa": 2010,
+        "id_coa": 2011,
         "id_register": 2
     },
     {
@@ -445,7 +445,17 @@
     },
     {
         "id_type": 53,
-        "id_coa": 2020,
+        "id_coa": 2021,
+        "id_register": 2
+    },
+    {
+        "id_type": 54,
+        "id_coa": 1031,
+        "id_register": 2
+    },
+    {
+        "id_type": 54,
+        "id_coa": 6040,
         "id_register": 2
     }
 ]
