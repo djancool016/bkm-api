@@ -79,13 +79,16 @@ class LoanPayment {
             let{id_type, total} = transaction
 
             switch(id_type){
-                case 4,39: // Loan Payment
+                case 4: // Loan Payment
+                case 39:
                     paid_loan += total
                     break
-                case 5,40: // Interest Payment
+                case 5: // Interest Payment
+                case 40:
                     paid_interest += total
                     break
-                case 6,41: // BOP Payment
+                case 6: // BOP Payment
+                case 41:
                     paid_bop += total
                     break
                 default:

@@ -75,11 +75,17 @@ class ReportXls {
     formatCells({contentType = [], content = []}){
 
         columnWidth(this.worksheet, contentType)
-        formatContent(this.worksheet, contentType, content.length + 1, this.insertedRow)
+        formatContents(this.worksheet, contentType, content.length + 1, this.insertedRow)
         this.worksheet.getRow(this.insertedRow).alignment = {horizontal: 'center', vertical: 'middle', wrapText: true}
     }
-    mergeColumn({name, contentLength = 0, align = 'left', columnStart = 'A', columnEnd = 'B'}){
-        mergeColumn(this.worksheet, name, columnStart, columnEnd, contentLength, this.insertedRow, align)
+    formatCell({contentType = '', content, cellNum, font = {}}){
+        const contentLength = content.length + 2 || 0
+        const cell = this.worksheet.getRow(contentLength + this.insertedRow).getCell(cellNum)
+        cell.font = font
+        formatContent(contentType, cell)
+    }
+    mergeColumn({name, contentLength = 0, align = 'left', columnStart = 'A', columnEnd = 'B', font = {}}){
+        mergeColumn(this.worksheet, name, columnStart, columnEnd, contentLength, this.insertedRow, align, font)
     }
     addAfterTable({contentLength = 0, columnNum, data}){
         fillContents(this.worksheet, contentLength, columnNum, data, this.insertedRow)
@@ -252,19 +258,35 @@ class ReportFactory {
             contentType: pasiva_contentType
         } = bbnsWorksheetContent(bbns.data, coa.data, 'Pasiva')
 
+        // This is content for total aktiva and pasiva below the table
+        const {aktiva, pasiva} = bbnsAfterTableContent(content, pasiva_content)
+
         const header = {
             date: requestBody.end_date,
             title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM',
             columnEnd: 'G'
         }
-
+        
         this.workbook.addWorksheet({name: 'BBNS', orientation: 'potrait'})
         this.workbook.addHeader(header)
+
+        // Aktiva Table
         this.workbook.addTable({name: 'Aktiva', head, content})
         this.workbook.formatCells({contentType, content})
-        this.workbook.addInsertedRow(content.length + 2)
+        this.workbook.mergeColumn(aktiva.title)
+        this.workbook.addAfterTable(aktiva.content)
+        this.workbook.formatCell({contentType, content, cellNum: 7, font: {bold: true}})
+
+
+        // Row space between aktiva and pasiva table
+        this.workbook.addInsertedRow(content.length + 4)
+
+        // Pasiva Table
         this.workbook.addTable({name: 'Pasiva', head: pasiva_head, content: pasiva_content})
         this.workbook.formatCells({contentType:pasiva_contentType, content:pasiva_content})
+        this.workbook.mergeColumn(pasiva.title)
+        this.workbook.addAfterTable(pasiva.content)
+        this.workbook.formatCell({contentType, content: pasiva_content, cellNum: 7, font: {bold: true}})
         
     }
     async generateXls({loanReports, bbns, requestBody}){
@@ -279,7 +301,6 @@ class ReportFactory {
         return new DataLogger({data: buffer}).log
     }
 }
-
 
 // content for paymentWorksheet
 function paymentWorksheetContent(loanReports, requestBody){
@@ -338,27 +359,28 @@ function paymentWorksheetContent(loanReports, requestBody){
 
         transactions.forEach(transaction => {
 
-            switch(transaction.id_type){
-                case 4,39: // Loan Payment
-                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+            const thisMonthTransaction = isThisMonth(transaction.trans_date, requestBody.end_date)
+
+            if(thisMonthTransaction === true){
+                switch(transaction.id_type){
+                    case 4: // Loan Payment
+                    case 39:
                         pay_loan += transaction.total
                         trans_date = transaction.trans_date
-                    }
-                    break
-                case 5,40: // Interest Payment
-                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+                        break
+                    case 5: // Interest Payment
+                    case 40:
                         pay_interest += transaction.total
                         trans_date = transaction.trans_date
-                    }
-                    break
-                case 6,41: // BOP Payment
-                    if(isThisMonth(transaction.trans_date, requestBody.end_date)){
+                        break
+                    case 6: // BOP Payment
+                    case 41:
                         pay_bop += transaction.total
                         trans_date = transaction.trans_date
-                    }
-                    break
-                default:
-                    break
+                        break
+                    default:
+                        break
+                }
             }
         })
 
@@ -458,7 +480,7 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
         {name: 'Kode', type: 'number'},
         {name: `${type}`, type: 'long_string'},
         {name: 'Akun', type: 'string'},
-        {name: 'Saldo Awal', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Saldo Bulan Lalu', totalsRowFunction: 'sum', type: 'currency'},
         {name: 'Debit', totalsRowFunction: 'sum', type: 'currency'},
         {name: 'Kredit', totalsRowFunction: 'sum', type: 'currency'}
     ]
@@ -500,33 +522,88 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
 
     return {head, content, contentType}
 }
+// content for total aktiva below the table
+function bbnsAfterTableContent(contentAktiva, contentPasiva){
+    // After Table Aktiva
+    const aktiva_total_last_month = sumNestedArrayIndex(contentAktiva, 4)
+    const aktiva_total_debit = sumNestedArrayIndex(contentAktiva, 5)
+    const aktiva_total_credit = sumNestedArrayIndex(contentAktiva, 6)
+    
+    const aktiva_total_title = {
+        name: 'Total Aktiva',
+        contentLength: contentAktiva.length + 2,
+        font: {bold: true}
+    }
+    const aktiva_total_content = {
+        contentLength: contentAktiva.length + 2,
+        columnNum: 7,
+        data: [
+            {data: aktiva_total_last_month + aktiva_total_debit - aktiva_total_credit, type: 'currency'}
+        ]
+    }
 
+    // After Table Pasiva
+    const pasiva_total_last_month = sumNestedArrayIndex(contentPasiva, 4)
+    const pasiva_total_debit = sumNestedArrayIndex(contentPasiva, 5)
+    const pasiva_total_credit = sumNestedArrayIndex(contentPasiva, 6)
+    
+    const pasiva_total_title = {
+        name: 'Total Pasiva',
+        contentLength: contentPasiva.length + 2,
+        font: {bold: true}
+    }
+    const pasiva_total_content = {
+        contentLength: contentPasiva.length + 2,
+        columnNum: 7,
+        data: [
+            {data: pasiva_total_last_month + pasiva_total_debit - pasiva_total_credit, type: 'currency'}
+        ]
+    }
+    return {
+        aktiva: {
+            title: aktiva_total_title, 
+            content: aktiva_total_content
+        },
+        pasiva: {
+            title: pasiva_total_title, 
+            content: pasiva_total_content
+        }
+    }
+}
 
+// sum 1 level nested array by child index
+function sumNestedArrayIndex(nestedArray, index){
+    return nestedArray.reduce((sum, arr) => {
+        return sum + arr[index]
+    }, 0)
+}
 // format content
-function formatContent(worksheet, contentType, contentLength, insertedRow){
+function formatContents(worksheet, contentType, contentLength, insertedRow){
 
     for(let i = 1; i <= contentLength; i++){
 
         contentType.forEach((type, index) => {
 
             let cell = worksheet.getRow(insertedRow + i).getCell(index + 1)
-
-            switch(type){
-                case 'number':
-                    cell.alignment = {horizontal: 'center'}
-                    break
-                case 'date':
-                    cell.alignment = {horizontal: 'center'}
-                    cell.numFmt = 'yyyy/mm/dd'
-                    break
-                case 'currency':
-                    cell.numFmt = '#,##0'
-                    break
-                default:
-                    break
-            } 
+            formatContent(type, cell) 
         })
     }
+}
+function formatContent (type = '', cell){
+    switch(type){
+        case 'number':
+            cell.alignment = {horizontal: 'center'}
+            break
+        case 'date':
+            cell.alignment = {horizontal: 'center'}
+            cell.numFmt = 'yyyy/mm/dd'
+            break
+        case 'currency':
+            cell.numFmt = '#,##0'
+            break
+        default:
+            break
+    } 
 }
 // Header Text
 function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
