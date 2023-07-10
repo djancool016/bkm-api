@@ -1,11 +1,5 @@
 [{
         "id_lkm": 1,
-        "id_type": 17,
-        "total": 63123,
-        "trans_date": "2023-01-02",
-        "remark": "Bunga Bank "
-    }, {
-        "id_lkm": 1,
         "id_type": 2,
         "total": 9000000,
         "trans_date": "2023-01-02",
@@ -37,21 +31,21 @@
         "id_type": 24,
         "total": 300000,
         "trans_date": "2023-01-02",
-        "remark": "Perjalanan Dinas "
+        "remark": "Perjalanan Dinas Ke Bank"
     },
     {
         "id_lkm": 1,
         "id_type": 24,
         "total": 150000,
         "trans_date": "2023-01-02",
-        "remark": "Perjalanan Dinas "
+        "remark": "Perjalanan Dinas Verifikasi dan Pencarian KSM"
     },
     {
         "id_lkm": 1,
         "id_type": 22,
         "total": 100000,
         "trans_date": "2023-01-02",
-        "remark": "Belanja Kantor "
+        "remark": "Belanja Kantor Rek Listrik"
     },
     {
         "id_lkm": 1,
@@ -65,35 +59,35 @@
         "id_type": 22,
         "total": 15000,
         "trans_date": "2023-01-02",
-        "remark": "Belanja Kantor "
+        "remark": "Belanja Kantor ATK"
     },
     {
         "id_lkm": 1,
         "id_type": 22,
         "total": 550000,
         "trans_date": "2023-01-10",
-        "remark": "Belanja Kantor "
+        "remark": "Belanja Kantor Alat Detektor Uang"
     },
     {
         "id_lkm": 1,
         "id_type": 22,
         "total": 24000,
         "trans_date": "2023-01-10",
-        "remark": "Belanja Kantor "
+        "remark": "Belanja Kantor ATK"
     },
     {
         "id_lkm": 1,
         "id_type": 26,
         "total": 539500,
         "trans_date": "2023-01-10",
-        "remark": "Biaya Rapat "
+        "remark": "Biaya Rapat Pengurus"
     },
     {
         "id_lkm": 1,
         "id_type": 23,
         "total": 45500,
         "trans_date": "2023-01-18",
-        "remark": "Belanja Rumah Tangga "
+        "remark": "Belanja Rumah Tangga Gula Teh"
     },
     {
         "id_lkm": 1,
@@ -107,6 +101,83 @@
         "id_type": 22,
         "total": 116000,
         "trans_date": "2023-01-25",
-        "remark": "Belanja Kantor "
+        "remark": "Belanja Kantor Rek Telpon"
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 17,
+        "total": 63123,
+        "trans_date": "2023-01-02",
+        "remark": "Bunga Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 1,
+        "total": 27140200,
+        "trans_date": "2023-01-12",
+        "remark": "Setoran Kas ke Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 1,
+        "total": 6195100,
+        "trans_date": "2023-01-20",
+        "remark": "Setoran Kas ke Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 1,
+        "total": 25378500,
+        "trans_date": "2023-01-25",
+        "remark": "Setoran Kas ke Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 1,
+        "total": 26838400,
+        "trans_date": "2023-01-27",
+        "remark": "Setoran Kas ke Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 1,
+        "total": 47218400,
+        "trans_date": "2023-01-31",
+        "remark": "Setoran Kas ke Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 20,
+        "total": 7500,
+        "trans_date": "2023-01-27",
+        "remark": "Biaya Administrasi Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 55,
+        "total": 12625,
+        "trans_date": "2023-01-31",
+        "remark": "Biaya Pajak Bank "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 13,
+        "total": 9402185,
+        "trans_date": "2023-01-01",
+        "remark": "Realisasi Anggaran UPL "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 14,
+        "total": 28206554,
+        "trans_date": "2023-01-01",
+        "remark": "Realisasi Anggaran UPS "
+    },
+    {
+        "id_lkm": 1,
+        "id_type": 16,
+        "total": 56413109,
+        "trans_date": "2023-01-01",
+        "remark": "Pemupukan Modal UPK dari Laba "
     }
 ]

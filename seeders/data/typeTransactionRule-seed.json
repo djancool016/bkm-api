@@ -1,22 +1,22 @@
 [{
         "id_type": 1,
         "id_coa": 1010,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 1,
         "id_coa": 1020,
-        "id_register": 2
+        "id_register": 1
     },
     {
         "id_type": 2,
         "id_coa": 1010,
-        "id_register": 2
+        "id_register": 1
     },
     {
         "id_type": 2,
         "id_coa": 1020,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 3,
@@ -116,7 +116,7 @@
     {
         "id_type": 12,
         "id_coa": 7020,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 13,
@@ -126,7 +126,7 @@
     {
         "id_type": 13,
         "id_coa": 7030,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 14,
@@ -136,7 +136,7 @@
     {
         "id_type": 14,
         "id_coa": 7040,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 15,
@@ -156,7 +156,7 @@
     {
         "id_type": 16,
         "id_coa": 7010,
-        "id_register": 1
+        "id_register": 2
     },
     {
         "id_type": 17,
@@ -456,6 +456,16 @@
     {
         "id_type": 54,
         "id_coa": 6040,
+        "id_register": 2
+    },
+    {
+        "id_type": 55,
+        "id_coa": 1020,
+        "id_register": 2
+    },
+    {
+        "id_type": 55,
+        "id_coa": 6030,
         "id_register": 2
     }
 ]

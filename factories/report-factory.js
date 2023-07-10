@@ -150,7 +150,7 @@ class ReportFactory {
         this.workbook.addWorksheet({name: 'Angsuran'})
         this.workbook.addHeader({
             date: requestBody.end_date,
-            title: 'DAFTAR RINCIAN ANGSURAN PINJAMAN KSM'
+            title: 'Laporan Angsuran Pinjaman KSM'
         })
 
         this.workbook.addTable({name: 'Angsuran', head, content})
@@ -165,10 +165,10 @@ class ReportFactory {
         
         const header = {
             date: requestBody.end_date,
-            title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM'
+            title: 'Laporan Kolektibilitas KSM'
         }
         const ratio_percent_title = {
-            name: 'RR / NPL',
+            name: 'Persentase Resiko',
             contentLength: content.length + 2
         }
         const ratio_percent_value = {
@@ -236,7 +236,8 @@ class ReportFactory {
                 id_account: riskCoa.account.id,
                 account: riskCoa.account.name,
                 debit: 0,
-                credit: 0
+                credit: 0,
+                total: 0
             }
             if(debit) {
                 obj.debit = debit
@@ -258,13 +259,10 @@ class ReportFactory {
             contentType: pasiva_contentType
         } = bbnsWorksheetContent(bbns.data, coa.data, 'Pasiva')
 
-        // This is content for total aktiva and pasiva below the table
-        const {aktiva, pasiva} = bbnsAfterTableContent(content, pasiva_content)
-
         const header = {
             date: requestBody.end_date,
-            title: 'DAFTAR KOLEKTIBILITAS PINJAMAN KSM',
-            columnEnd: 'G'
+            title: 'Laporan Buku Besar Neraca dan Saldo (BBNS)',
+            columnEnd: 'H'
         }
         
         this.workbook.addWorksheet({name: 'BBNS', orientation: 'potrait'})
@@ -273,27 +271,137 @@ class ReportFactory {
         // Aktiva Table
         this.workbook.addTable({name: 'Aktiva', head, content})
         this.workbook.formatCells({contentType, content})
-        this.workbook.mergeColumn(aktiva.title)
-        this.workbook.addAfterTable(aktiva.content)
-        this.workbook.formatCell({contentType, content, cellNum: 7, font: {bold: true}})
-
 
         // Row space between aktiva and pasiva table
-        this.workbook.addInsertedRow(content.length + 4)
+        this.workbook.addInsertedRow(content.length + 2)
 
         // Pasiva Table
         this.workbook.addTable({name: 'Pasiva', head: pasiva_head, content: pasiva_content})
         this.workbook.formatCells({contentType:pasiva_contentType, content:pasiva_content})
-        this.workbook.mergeColumn(pasiva.title)
-        this.workbook.addAfterTable(pasiva.content)
-        this.workbook.formatCell({contentType, content: pasiva_content, cellNum: 7, font: {bold: true}})
         
     }
-    async generateXls({loanReports, bbns, requestBody}){
+    async #cashUpkWorksheet({ledger, requestBody}){
+        // validate ledger object 
+        if(!ledger || ledger.status == false) return ledger || new StatusLogger({code: 404, message: "Ledger not found"}).log
+        
+        // generate cashReport
+        const cashReport = await this.cashReports({ledger})
+
+        // validate cashReport
+        if(cashReport.status == false) return cashReport
+
+        // generate table content from cashReport
+        const{thisMonth, lastMonth} = cashReport.data
+        const {head, content, contentType} = cashFlowWorksheetContent(thisMonth.upk, lastMonth.upk, 1010, requestBody)
+
+        // generate heade title
+        const header = {
+            date: requestBody.end_date,
+            title: 'Laporan Rincian Kas UPK',
+            columnEnd: 'H'
+        }
+
+        // start creating table
+        this.workbook.addWorksheet({name: 'Kas UPK', orientation: 'potrait'})
+        this.workbook.addHeader(header)
+        this.workbook.addTable({name: 'KasUpk', head, content})
+        this.workbook.formatCells({contentType, content})
+
+    }
+    async #cashBankWorksheet({ledger, requestBody}){
+        // validate ledger object 
+        if(!ledger || ledger.status == false) return ledger || new StatusLogger({code: 404, message: "Ledger not found"}).log
+        
+        // generate cashReport
+        const cashReport = await this.cashReports({ledger})
+
+        // validate cashReport
+        if(cashReport.status == false) return cashReport
+
+        // generate table content from cashReport
+        const{thisMonth, lastMonth} = cashReport.data
+        const {head, content, contentType} = cashFlowWorksheetContent(thisMonth.upk, lastMonth.upk, 1020, requestBody)
+
+        // generate heade title
+        const header = {
+            date: requestBody.end_date,
+            title: 'Laporan Rincian Rekening Bank UPK',
+            columnEnd: 'H'
+        }
+
+        // start creating table
+        this.workbook.addWorksheet({name: 'Bank', orientation: 'potrait'})
+        this.workbook.addHeader(header)
+        this.workbook.addTable({name: 'Bank', head, content})
+        this.workbook.formatCells({contentType, content})
+
+    }
+    async #cashBkmWorksheet({ledger, requestBody}){
+        // validate ledger object 
+        if(!ledger || ledger.status == false) return ledger || new StatusLogger({code: 404, message: "Ledger not found"}).log
+        
+        // generate cashReport
+        const cashReport = await this.cashReports({ledger})
+
+        // validate cashReport
+        if(cashReport.status == false) return cashReport
+
+        // generate heade title
+        const header = {
+            date: requestBody.end_date,
+            title: 'Laporan Rincian Anggaran BKM',
+            columnEnd: 'H'
+        }
+
+        // Start creating header
+        this.workbook.addWorksheet({name: 'Anggaran', orientation: 'potrait'})
+        this.workbook.addHeader(header)
+
+        // generate table content from table "Kas BKM"
+        const{thisMonth, lastMonth} = cashReport.data
+        const {
+            head, 
+            content, 
+            contentType
+        } = cashFlowWorksheetContent(thisMonth.bkm, lastMonth.bkm, 3020, requestBody, 'Kas BKM')
+
+        // start creating table "Kas BKM"
+        this.workbook.addTable({name: 'KasBkm', head, content})
+        this.workbook.formatCells({contentType, content})
+        this.workbook.addInsertedRow(content.length + 3)
+
+        // generate table content from table "Kas UPL"
+        const {
+            head:head_upl, 
+            content: content_upl, 
+            contentType: contentType_upl
+        } = cashFlowWorksheetContent(thisMonth.upl, lastMonth.upl, 3030, requestBody, 'Kas UPL')
+
+        // start creating table "Kas UPL"
+        this.workbook.addTable({name: 'KasUpl', head: head_upl, content: content_upl})
+        this.workbook.formatCells({contentType: contentType_upl, content: content_upl})
+        this.workbook.addInsertedRow(content_upl.length + 3)
+        
+        // generate table content from table "Kas UPS"
+        const {
+            head:head_ups, 
+            content: content_ups, 
+            contentType:contentType_ups
+        } = cashFlowWorksheetContent(thisMonth.ups, lastMonth.ups, 3040, requestBody, 'Kas UPS')
+
+        // start creating table "Kas UPS"
+        this.workbook.addTable({name: 'KasUps', head: head_ups, content: content_ups})
+        this.workbook.formatCells({contentType: contentType_ups, content: content_ups})
+
+    }
+    async generateXls({loanReports, bbns, ledger, requestBody}){
 
         await this.#paymentWorksheet({loanReports, requestBody})
         await this.#collectibilityWorksheet({loanReports, requestBody})
         await this.#bbnsWorksheet({bbns, requestBody})
+        await this.#cashUpkWorksheet({ledger, requestBody})
+        await this.#cashBankWorksheet({ledger, requestBody})
+        await this.#cashBkmWorksheet({ledger, requestBody})
 
         const workbook = this.workbook.generate
         const buffer = await workbook.xlsx.writeBuffer()
@@ -482,7 +590,8 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
         {name: 'Akun', type: 'string'},
         {name: 'Saldo Bulan Lalu', totalsRowFunction: 'sum', type: 'currency'},
         {name: 'Debit', totalsRowFunction: 'sum', type: 'currency'},
-        {name: 'Kredit', totalsRowFunction: 'sum', type: 'currency'}
+        {name: 'Kredit', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Total', totalsRowFunction: 'sum', type: 'currency'}
     ]
     const contentType = head.map(obj => obj.type)
     const content = []
@@ -491,7 +600,7 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
         coa.forEach((item, index) => {
              const {id: id_coa, description} = item
              const {name: name_account} = item.account
-             content.push([ index + 1, id_coa, description, name_account, 0, 0, 0])
+             content.push([ index + 1, id_coa, description, name_account, 0, 0, 0, 0])
         })
         lastMonth.forEach(item => {
             const index = content.findIndex(data => data[1] === item.id_coa)
@@ -505,6 +614,9 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
                 content[index][5] += item.debit
                 content[index][6] += item.credit
             }
+        })
+        content.forEach(item => {
+            item[7] += item[4] + item[5] - item[6]
         })
     }
     switch(type){
@@ -522,61 +634,105 @@ function bbnsWorksheetContent({thisMonth, lastMonth}, coa = [], type = 'Aktiva')
 
     return {head, content, contentType}
 }
-// content for total aktiva below the table
-function bbnsAfterTableContent(contentAktiva, contentPasiva){
-    // After Table Aktiva
-    const aktiva_total_last_month = sumNestedArrayIndex(contentAktiva, 4)
-    const aktiva_total_debit = sumNestedArrayIndex(contentAktiva, 5)
-    const aktiva_total_credit = sumNestedArrayIndex(contentAktiva, 6)
-    
-    const aktiva_total_title = {
-        name: 'Total Aktiva',
-        contentLength: contentAktiva.length + 2,
-        font: {bold: true}
-    }
-    const aktiva_total_content = {
-        contentLength: contentAktiva.length + 2,
-        columnNum: 7,
-        data: [
-            {data: aktiva_total_last_month + aktiva_total_debit - aktiva_total_credit, type: 'currency'}
-        ]
-    }
+// content for cashUpkWorksheet
+function cashFlowWorksheetContent(thisMonth, lastMonth, id_coa, requestBody, remark = 'Keterangan'){
+    const head = [
+        {name: 'No', type: 'number'},
+        {name: 'Kode', type: 'number'},
+        {name: 'ID', type: 'number'},
+        {name: `Tanggal`, filterButton: true, type: 'date'},
+        {name: `${remark}`, type: 'long_string'},
+        {name: 'Debit', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Kredit', totalsRowFunction: 'sum', type: 'currency'},
+        {name: 'Total', totalsRowFunction: 'sum', type: 'currency'}
+    ]
+    const contentType = head.map(obj => obj.type)
+    const content = []
 
-    // After Table Pasiva
-    const pasiva_total_last_month = sumNestedArrayIndex(contentPasiva, 4)
-    const pasiva_total_debit = sumNestedArrayIndex(contentPasiva, 5)
-    const pasiva_total_credit = sumNestedArrayIndex(contentPasiva, 6)
-    
-    const pasiva_total_title = {
-        name: 'Total Pasiva',
-        contentLength: contentPasiva.length + 2,
-        font: {bold: true}
-    }
-    const pasiva_total_content = {
-        contentLength: contentPasiva.length + 2,
-        columnNum: 7,
-        data: [
-            {data: pasiva_total_last_month + pasiva_total_debit - pasiva_total_credit, type: 'currency'}
-        ]
-    }
-    return {
-        aktiva: {
-            title: aktiva_total_title, 
-            content: aktiva_total_content
-        },
-        pasiva: {
-            title: pasiva_total_title, 
-            content: pasiva_total_content
+    let totalLastMonth = 0
+
+    lastMonth.forEach(transaction => {
+        if(transaction.id_register === 1 && transaction.id_coa === id_coa){
+            return totalLastMonth += transaction.total
+        }else if(transaction.id_coa === id_coa){
+            return totalLastMonth -= transaction.total
         }
-    }
+    })
+
+    const thisMonthTransaction = thisMonth.map(transaction => {
+        const {id_coa, id_transaction, trans_date, remark, total, id_register} = transaction
+        const register = {debit: 0, credit: 0}
+        switch(id_register){
+            case 1:
+                register.debit += total
+                break
+            case 2:
+                register.credit += total
+                break
+            default:
+                return new StatusLogger({code: 400, message: "Invalid register code"}).log
+        }
+        return {id_coa, id_transaction, trans_date, remark, debit: register.debit, credit: register.credit}
+    })
+    const lastMontDate = new DateFormat(requestBody.start_date)
+    lastMontDate.addDays = -1
+
+    // lastMonth Transactions
+    content.push([
+        null,null,null,lastMontDate.toISOString(false),
+        "Saldo Bulan Lalu",null, null, totalLastMonth
+    ])
+
+    // thisMonth Transactions
+    thisMonthTransaction.forEach((transaction) => {
+        const fillContent = () => {
+            const {id_coa, id_transaction, trans_date, remark, debit, credit} = transaction
+            const total = debit - credit
+            content.push([
+                0,
+                id_coa,
+                id_transaction,
+                trans_date,
+                remark,
+                debit,
+                credit, 
+                total
+            ])
+        }
+        if(transaction.id_coa === id_coa) fillContent()
+    })
+
+    // sort content by date (and credit for bank deposit)
+    content.sort((a, b) => {
+        const dateA = new Date(a[3])
+        const dateB = new Date(b[3])
+        
+        if(dateA < dateB){
+            return -1
+        } else if(dateA > dateB){
+            return 1
+        } else {
+            // If the dates are the same, compare the strings
+            if (a[4].toLowerCase().includes('bank')) {
+              return 1 // Place 'bank' at the end of the array
+            } 
+            else if (b[4].toLowerCase().includes('bank')) {
+              return -1 // Place 'bank' at the end of the array
+            } 
+            else {
+              return 0 // Keep the same order for non-'bank' values
+            }
+          }
+    })
+    let no = 1
+    content.forEach((item, index) => {
+        if(index == 0) return
+        return item[0] = no++
+    })
+
+    return {head, content, contentType}
 }
 
-// sum 1 level nested array by child index
-function sumNestedArrayIndex(nestedArray, index){
-    return nestedArray.reduce((sum, arr) => {
-        return sum + arr[index]
-    }, 0)
-}
 // format content
 function formatContents(worksheet, contentType, contentLength, insertedRow){
 
@@ -617,7 +773,7 @@ function fillHeader(worksheet, strings, columnStart, columnEnd, insertedRow){
                 cell.font = { bold: true, size: 14 }
                 break
             case 1:
-                cell.font = { bold: true, size: 18 }
+                cell.font = { bold: true, size: 14 }
                 break
             case 2:
                 cell.font = { bold: true, size: 14 }

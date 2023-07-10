@@ -41,6 +41,7 @@ async function reportXls(req, res, next){
     let model = factory.generateXls({
         loanReports: req.loanReports,
         bbns: req.bbns,
+        ledger: req.ledger,
         requestBody: req.body
     })
     let result = await middlewareRequest(req, res, model)

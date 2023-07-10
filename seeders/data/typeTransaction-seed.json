@@ -96,7 +96,7 @@
     {
         "id": 20,
         "id_group": 2,
-        "description": "Biaya Administrasi dan Pajak Bank UPK"
+        "description": "Biaya Administrasi Bank"
     },
     {
         "id": 21,
@@ -267,5 +267,10 @@
         "id": 54,
         "id_group": 5,
         "description": "Resiko Kredit KSM"
+    },
+    {
+        "id": 55,
+        "id_group": 2,
+        "description": "Biaya Administrasi Bank"
     }
 ]
