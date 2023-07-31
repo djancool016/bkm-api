@@ -26,7 +26,7 @@ async function creates(req, res, next){
 
 async function read(req, res, next){
 
-    let model = factory.read(req.body)
+    let model = factory.read(req.query)
     let result = await middlewareRequest(req, res, model)
 
     req.result = result

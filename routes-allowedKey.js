@@ -58,6 +58,11 @@ module.exports = {
                 integer:['id']
             },
         },
+        account: {
+            read:{
+                integer:['id', 'id_account']
+            }
+        },
         loan: {
             create:{
                 integer:['id','id_ksm','total_loan','loan_duration','loan_interest'],

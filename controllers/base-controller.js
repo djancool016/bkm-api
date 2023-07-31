@@ -272,7 +272,13 @@ async function bulkRequest(array, url = ''){
 }
 
 async function validator(req, res, next, allowedKey = {}){
+
     // Validate request input body
+    const bodyLength = Object.keys(req.body).length
+    const queryLength = Object.keys(req.query).length
+
+    if(bodyLength == 0 && queryLength > 0) req.body = req.query
+    
     let validator = new RequestValidator(req.body, res, allowedKey, true).sendResponse
     if(validator.status == false) return res.status(validator.code).json(validator)
 

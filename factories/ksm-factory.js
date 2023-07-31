@@ -66,7 +66,8 @@ class KsmFactory {
             result = await this.model.findByIds(ksmIds)
         }
 
-        if(result.status) return result
+        if(result.data && Array.isArray(result?.data) == false) result.data = [result.data]
+        if(result?.status) return result
         return new StatusLogger({code: 404, message:'KSM not found'}).log
     }
     async update({id, id_lkm, name, rw}){

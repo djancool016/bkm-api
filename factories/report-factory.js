@@ -139,6 +139,45 @@ class ReportFactory {
 
         return new DataLogger({data: {thisMonth: thisMonthCash, lastMonth: lastMonthCash}}).log
     }
+    async bbnsReports({bbns, loanReports, requestBody}){
+
+        await this.#collectibilityWorksheet({loanReports, requestBody, createWorksheet: false})
+
+        if(isNaN(this.riskCredit)) return new StatusLogger({code: 400, message: 'Collectibility is not calculated yet'}).log
+
+        if(!bbns || bbns.status == false) {
+            return bbns || new StatusLogger({code: 404, message: 'BBNS not found'}).log
+        }
+        const coa = await this.coa.read({})
+        if(coa.status == false) return coa
+        
+        // add more bbns transaction
+        const addNewBbns = ({id_coa, debit, credit}) => {
+            const riskCoa = coa.data.find(item => item.id == id_coa)
+            if(!riskCoa) return new StatusLogger({code: 404, message: 'Coa not found'}).log
+            let obj = {
+                id_coa,
+                coa: riskCoa.description,
+                id_account: riskCoa.account.id,
+                account: riskCoa.account.name,
+                debit: 0,
+                credit: 0
+            }
+            if(debit) {
+                obj.debit = debit
+                return obj
+            }
+            obj.credit = credit
+            return obj
+        }
+
+        // add "Resiko Kredit" from Collectibility Worksheet
+        bbns.data.thisMonth.aktiva.push(addNewBbns({id_coa: 1031, credit: this.riskCredit}))
+        bbns.data.thisMonth.pasiva.push(addNewBbns({id_coa: 6040, credit: this.riskCredit}))
+
+        this.bbns = bbns
+        return new DataLogger({data: bbns.data}).log
+    }
     async #paymentWorksheet({loanReports, requestBody}){
 
         if(!loanReports || loanReports.status == false) {
@@ -156,7 +195,7 @@ class ReportFactory {
         this.workbook.addTable({name: 'Angsuran', head, content})
         this.workbook.formatCells({contentType, content})
     }
-    async #collectibilityWorksheet({loanReports, requestBody}){
+    async #collectibilityWorksheet({loanReports, requestBody, createWorksheet = true}){
 
         if(!loanReports || loanReports.status == false) {
             return loanReports || new StatusLogger({code: 404, message: 'Loan Reports not found'}).log
@@ -205,17 +244,20 @@ class ReportFactory {
             ]
         }
 
+        // set createWorksheet to false if only need riskCredit value
         this.riskCredit = ratio_currency_value.data.reduce((acc, value) => acc + value.data, 0)
 
-        this.workbook.addWorksheet({name: 'Kolektibilitas'})
-        this.workbook.addHeader(header)
-        this.workbook.addTable({name: 'Kolektibilitas', head, content})
-        this.workbook.formatCells({contentType, content})
+        if(createWorksheet){
+            this.workbook.addWorksheet({name: 'Kolektibilitas'})
+            this.workbook.addHeader(header)
+            this.workbook.addTable({name: 'Kolektibilitas', head, content})
+            this.workbook.formatCells({contentType, content})
 
-        this.workbook.mergeColumn(ratio_percent_title)
-        this.workbook.addAfterTable(ratio_percent_value)
-        this.workbook.mergeColumn(ratio_currency_title)
-        this.workbook.addAfterTable(ratio_currency_value)
+            this.workbook.mergeColumn(ratio_percent_title)
+            this.workbook.addAfterTable(ratio_percent_value)
+            this.workbook.mergeColumn(ratio_currency_title)
+            this.workbook.addAfterTable(ratio_currency_value)
+        }
 
     }
     async #bbnsWorksheet({bbns, requestBody}){

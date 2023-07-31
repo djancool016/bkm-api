@@ -20,6 +20,13 @@ router.get('/cash',
     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
     transaction.read, ledger.read, report.cashReports, endRequest
 )
+// Report route
+router.get('/bbns', 
+    (req, res, next) => validator(req, res, next, input.report.loan), user.auth, 
+    (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
+    lkm.read, loan.read, transaction.read, ledger.read, ledger.readBbns, 
+    report.loanReports, report.bbnsReports, endRequest
+)
 // router.get('/report/ledger', 
 //     (req, res, next) => validator(req, res, next, input.transaction.read), user.auth, 
 //     (req, res, next) => authorize(req, res, next, allowedRole = [1]), 
